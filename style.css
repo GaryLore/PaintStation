@@ -1,0 +1,35 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#canvas {
+    aspect-ratio: 16 / 9;
+    width: 60vw;
+    border: 2px solid black;
+}
+
+body {
+    border: 2px solid black;
+    width: 90vw;
+    height: 100vh;
+    margin: auto;
+}
+
+#options {
+    border: 20px solid red;
+    width: 60vw;
+    height: 20vh;
+}
+
+#colors {
+    width: 50%;
+    height: 100%;
+    
+}
+
+#colors div{   
+    aspect-ratio: 1 / 1;
+    width: 20px;
+}
