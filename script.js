@@ -11,7 +11,8 @@ canvas.width = 1280;
 canvas.height = 720;
 
 //canvas paintbrush properties
-ctx.strokeStyle = "orange";
+ctx.strokeStyle = "black";
+ctx.fillStyle = "black";
 ctx.lineWidth = 15;
 ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
 
@@ -21,6 +22,16 @@ let isDraw = false;
 
 //populate paintbrush options in html
 populateColors();
+let colorOptions = document.getElementById("all_colors");
+colorOptions.addEventListener("click", function (e){
+
+  console.log("entered boss");
+  if(e.target.tagName === "DIV"){
+    console.log("entered boss");
+    ctx.strokeStyle = e.target.id;
+    ctx.fillStyle = e.target.id;
+  }
+});
 
 canvas.addEventListener("mousemove", function (e) {
 
@@ -46,7 +57,7 @@ canvas.addEventListener("mouseup", function (e) {
   isDraw = false;
 });
 
-canvas.addEventListener("mouseclick", dot);
+canvas.addEventListener("click", dot);
 
 canvas.addEventListener('mouseleave', function (e) {
   isDraw = false;
@@ -71,15 +82,24 @@ function draw(x2,y2){
   ctx.stroke();
 }
 
-function dot(){
+function dot(e){
+
+  console.log("ENTERED DOT");
+  let x = scaleX(e.offsetX);
+  let y = scaleY(e.offsetY);
+  ctx.beginPath();
+  ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
+  ctx.fill();
 
 }
 
 function createColor(string){
   let square = document.createElement("div");
-  let colors = document.getElementById("colors");
+  let colors = document.getElementById("all_colors");
+  let inner = document.createElement("div");
   square.setAttribute("id", string);
-  square.style.backgroundColor = string;
+  inner.style.backgroundColor = string;
+  square.appendChild(inner);
   colors.appendChild(square);
 }
 

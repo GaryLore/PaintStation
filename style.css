@@ -17,19 +17,34 @@ body {
     margin: auto;
 }
 
-#options {
-    border: 20px solid red;
+.options {
+    border: 2px solid red;
     width: 60vw;
-    height: 20vh;
+    height: auto;
 }
 
-#colors {
+.colors {
     width: 50%;
     height: 100%;
+    border: 2px solid blue;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
     
 }
 
-#colors div{   
+.colors > div{   
     aspect-ratio: 1 / 1;
-    width: 20px;
+    padding: 2px;
+    border: 2px solid gray;
+}
+
+.colors > div > div{
+    aspect-ratio: 1 / 1;
+    pointer-events: none;
+}
+
+.colors > div:hover{
+    border-color: #0d8bf3; 
+    box-shadow: 0 0 6px #0d8bf3;
 }
