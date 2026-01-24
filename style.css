@@ -21,6 +21,9 @@ body {
     border: 2px solid red;
     width: 60vw;
     height: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .colors {
@@ -31,6 +34,16 @@ body {
     grid-template-columns: repeat(10, 1fr);
     gap: 4px;
     
+}
+
+.thickness{
+    border: 2px solid green;
+    width: 30%;
+    height: 100%;
+}
+
+input[type="range"]{
+    width: 100%;
 }
 
 .colors > div{   

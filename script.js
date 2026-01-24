@@ -33,6 +33,13 @@ colorOptions.addEventListener("click", function (e){
   }
 });
 
+//other paint features
+const slider = document.getElementById("all_thickness");
+slider.addEventListener("change", function (){
+  console.log("hello");
+  ctx.lineWidth = slider.value;
+});
+
 canvas.addEventListener("mousemove", function (e) {
 
   let x2, y2;
