@@ -11,8 +11,9 @@ canvas.width = 1280;
 canvas.height = 720;
 
 //canvas paintbrush properties
-ctx.strokeStyle = "black";
-ctx.fillStyle = "black";
+let colorBrush = "black";
+ctx.strokeStyle = colorBrush;
+ctx.fillStyle = colorBrush;
 ctx.lineWidth = 15;
 ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
 
@@ -28,8 +29,9 @@ colorOptions.addEventListener("click", function (e){
   console.log("entered boss");
   if(e.target.tagName === "DIV"){
     console.log("entered boss");
-    ctx.strokeStyle = e.target.id;
-    ctx.fillStyle = e.target.id;
+    colorBrush = e.target.id;
+    ctx.strokeStyle = colorBrush;
+    ctx.fillStyle = colorBrush;
   }
 });
 
@@ -40,12 +42,17 @@ slider.addEventListener("change", function (){
   ctx.lineWidth = slider.value;
 });
 
+//History
+let paintHistory = []
+let tempStroke = null;
+
 canvas.addEventListener("mousemove", function (e) {
 
   let x2, y2;
   if(isDraw){
     x2 = scaleX(e.offsetX);
     y2 = scaleY(e.offsetY);
+    tempStroke.addPoint(x2,y2);//keeping track of stroke history
     draw(x2,y2);
     console.log(`X1 : ${x1} Y1 : ${y1}`)
     console.log(`X2 : ${x2} Y2 : ${y2}`)
@@ -58,16 +65,25 @@ canvas.addEventListener("mousedown", function (e) {
   isDraw = true;
   x1 = scaleX(e.offsetX);
   y1 = scaleY(e.offsetY);
+
+  tempStroke = new Stroke(colorBrush, ctx.lineWidth);
+  tempStroke.addPoint(x1,y1);
 });
 
 canvas.addEventListener("mouseup", function (e) {
   isDraw = false;
+  paintHistory.push(tempStroke);
+  tempStroke = null;
 });
 
 canvas.addEventListener("click", dot);
 
 canvas.addEventListener('mouseleave', function (e) {
   isDraw = false;
+
+  console.log("BEGIN PAINT HISTORY")
+  paintHistory.forEach((e) => console.log(e));
+  console.log("END")
 });
 
 
@@ -97,6 +113,9 @@ function dot(e){
   ctx.beginPath();
   ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
   ctx.fill();
+
+  let record = new Dot(colorBrush, ctx.lineWidth, x, y);
+  paintHistory.push(record);
 
 }
 

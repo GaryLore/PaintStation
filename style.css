@@ -24,16 +24,15 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 }
 
 .colors {
-    width: 50%;
-    height: 100%;
+    width: 40%;
     border: 2px solid blue;
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     gap: 4px;
-    
 }
 
 .thickness{
@@ -60,4 +59,25 @@ input[type="range"]{
 .colors > div:hover{
     border-color: #0d8bf3; 
     box-shadow: 0 0 6px #0d8bf3;
+}
+
+.zoom{
+    height:auto;
+    width: 5%;
+}
+.bucket{
+    height:auto;
+    width: 5%;
+}
+.brush{
+    height:auto;
+    width: 5%;
+}
+img{
+    aspect-ratio: 1 / 1;
+    width:100%;
+}
+
+.brush{
+    margin-right: 2%;
 }
