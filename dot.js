@@ -13,7 +13,13 @@ class Dot{
     }
 
     draw(){
-        
+        ctx.strokeStyle = this.color;
+        ctx.fillStyle = this.color;
+        ctx.lineWidth = this.width;
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, ctx.lineWidth/2, 0, 2 * Math.PI);
+        ctx.fill();
     }
 
 }

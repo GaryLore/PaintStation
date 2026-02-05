@@ -42,6 +42,16 @@ colorOptions.addEventListener("click", function (e){
   }
 });
 
+const trashCan = document.getElementsByClassName("trash")[0];
+trashCan.addEventListener("click", function(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+const title = document.getElementsByClassName("title")[0];
+title.addEventListener("click", function(){
+  render();
+});
+
 //other paint features
 const slider = document.getElementById("all_thickness");
 slider.addEventListener("change", function (){
@@ -164,7 +174,10 @@ function populateColors(){
 }
 
 function render(){
+  //save and restore is to put each paint settings back to normal after redrwaing everything which can change the paint settings
+  ctx.save();
   paintHistory.forEach((e) => e.draw());
+  ctx.restore();
 }
 
 //takes all the paint history and redraws everything with transform and scale

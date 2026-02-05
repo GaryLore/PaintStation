@@ -8,6 +8,11 @@
     aspect-ratio: 16 / 9;
     width: 60vw;
     border: 2px solid black;
+    margin: 0 2vw;
+}
+
+html{
+    background-color: antiquewhite;
 }
 
 body {
@@ -15,9 +20,22 @@ body {
     width: 90vw;
     height: 100vh;
     margin: auto;
+    background-color: white;
+}
+
+.title{
+    margin: 1vw;
+    text-align: center;
+}
+
+.container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .options {
+    margin: 0 2vw;
     border: 2px solid red;
     width: 60vw;
     height: auto;
@@ -72,6 +90,10 @@ input[type="range"]{
 .brush{
     height:auto;
     width: 5%;
+}
+.trash{
+    height:auto;
+    width: 4%;
 }
 img{
     aspect-ratio: 1 / 1;
