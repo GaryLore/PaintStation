@@ -6,9 +6,14 @@ if (!canvas.getContext) {
   console.log("CANVAS IS NOT SUPPORTED PLEASE USE ANOTHER BROWSER");
 } 
 const ctx = canvas.getContext("2d");
-const rect = canvas.getBoundingClientRect();
+let rect = canvas.getBoundingClientRect();
 canvas.width = 1280;
 canvas.height = 720;
+
+//fixes problem where if you resize browser the paint stroke isnt in the correct location
+window.addEventListener('resize', function() {
+    rect = canvas.getBoundingClientRect();
+});
 
 //canvas paintbrush properties
 let colorBrush = "black";
@@ -28,7 +33,8 @@ const viewportTransform = {
 
 //variables to allow drawing
 let x1, y1;
-let isDraw = false;
+let isDraw = false;//checks if drawing is allowed
+let mouseDrawing = false;//checks if there has been actual movement to draw
 
 //populate paintbrush options in html
 populateColors();
@@ -71,6 +77,7 @@ canvas.addEventListener("mousemove", function (e) {
 
   let x2, y2;
   if(isDraw){
+    mouseDrawing = true;
     x2 = scaleX(e.offsetX);
     y2 = scaleY(e.offsetY);
     tempStroke.addPoint(x2,y2);//keeping track of stroke history
@@ -128,16 +135,20 @@ function draw(x2,y2){
 }
 
 function dot(e){
+  console.log("ENTERED DOT ", mouseDrawing);
 
-  console.log("ENTERED DOT");
-  let x = scaleX(e.offsetX);
-  let y = scaleY(e.offsetY);
-  ctx.beginPath();
-  ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
-  ctx.fill();
-
-  let record = new Dot(colorBrush, ctx.lineWidth, x, y);
-  paintHistory.push(record);
+  //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
+  //if a stroke has been drawn
+  if(!mouseDrawing){
+    let x = scaleX(e.offsetX);
+    let y = scaleY(e.offsetY);
+    ctx.beginPath();
+    ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
+    ctx.fill();
+    let record = new Dot(colorBrush, ctx.lineWidth, x, y);
+    paintHistory.push(record);
+  }
+  mouseDrawing = false;
 
 }
 
