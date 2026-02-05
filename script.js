@@ -15,7 +15,9 @@ let colorBrush = "black";
 ctx.strokeStyle = colorBrush;
 ctx.fillStyle = colorBrush;
 ctx.lineWidth = 15;
+//we set linecap and line join both to the same so the redraws with render are the same
 ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
+ctx.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
 let pan_zoom = false;
 let zoomEfficient = true;
 const viewportTransform = {

@@ -20,7 +20,7 @@ class Stroke{
         ctx.fillStyle = this.color;
         ctx.lineWidth = this.width;
 
-
+        
         ctx.beginPath();
         this.points.forEach((coordinate, index) => {
             if(index == 0){
@@ -31,5 +31,9 @@ class Stroke{
             }
         })
         ctx.stroke();
+        
+
+
+
     }
 }
