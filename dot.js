@@ -12,4 +12,8 @@ class Dot{
         this.y = y;
     }
 
+    draw(){
+        
+    }
+
 }

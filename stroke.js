@@ -13,4 +13,8 @@ class Stroke{
         let point = [x,y];
         this.points.push(point);
     }
+
+    draw(){
+        
+    }
 }

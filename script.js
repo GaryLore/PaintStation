@@ -16,6 +16,13 @@ ctx.strokeStyle = colorBrush;
 ctx.fillStyle = colorBrush;
 ctx.lineWidth = 15;
 ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
+let pan_zoom = false;
+let zoomEfficient = true;
+const viewportTransform = {
+        x: 0,
+        y: 0,
+        scale: 1
+      }
 
 //variables to allow drawing
 let x1, y1;
@@ -46,6 +53,8 @@ slider.addEventListener("change", function (){
 let paintHistory = []
 let tempStroke = null;
 
+
+//event listeners
 canvas.addEventListener("mousemove", function (e) {
 
   let x2, y2;
@@ -82,7 +91,8 @@ canvas.addEventListener('mouseleave', function (e) {
   isDraw = false;
 
   console.log("BEGIN PAINT HISTORY")
-  paintHistory.forEach((e) => console.log(e));
+  paintHistory.forEach((e) => console.log("    ",e.constructor.name, e));
+  
   console.log("END")
 });
 
@@ -129,6 +139,7 @@ function createColor(string){
   colors.appendChild(square);
 }
 
+//populates colors in html
 function populateColors(){
   createColor("black");
   createColor("gray");
@@ -150,4 +161,18 @@ function populateColors(){
   createColor("paleturquoise");
   createColor("cadetblue");
   createColor("lavender");
+}
+
+function render(){
+  paintHistory.forEach((e) => e.draw());
+}
+
+//takes all the paint history and redraws everything with transform and scale
+function zoomWithQuality(){
+
+}
+
+//takes the current bitmap and zooms it
+function zoomEfficiently(){
+
 }
