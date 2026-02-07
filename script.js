@@ -23,13 +23,34 @@ ctx.lineWidth = 15;
 //we set linecap and line join both to the same so the redraws with render are the same
 ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
 ctx.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
+
+//pan and zoom features
 let pan_zoom = false;
 let zoomEfficient = true;
+let mouseDown = false;
 const viewportTransform = {
         x: 0,
         y: 0,
         scale: 1
       }
+let previousX = 0, previousY = 0;
+
+function updatePanning(e){
+  const localX = e.offsetX;
+  const localY = e.offsetY;
+
+  let diffX = localX - previousX;
+  let diffY = localY - previousY;
+
+  //we scale it since pixels shown on screen and actual canvas dimensions are different
+  //canvas is 1280x 720
+  //so if we drag our mouse half way accross the canvas, we want to ensure 640 pixels are moved even if half of the canvas is more or less than 640 pixels
+  viewportTransform.x += scaleX(diffX);
+  viewportTransform.y += scaleY(diffY);
+
+  previousX = localX;
+  previousY = localY;
+}
 
 //variables to allow drawing
 let x1, y1;
@@ -55,6 +76,16 @@ trashCan.addEventListener("click", function(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
 
+const magnify = document.getElementsByClassName("zoom")[0];
+magnify.addEventListener("click", function(){
+  pan_zoom = true;
+});
+
+const brush = document.getElementsByClassName("brush")[0];
+brush.addEventListener("click", function(){
+  pan_zoom = false;
+});
+
 const title = document.getElementsByClassName("title")[0];
 title.addEventListener("click", function(){
   render();
@@ -68,46 +99,88 @@ slider.addEventListener("change", function (){
 });
 
 //History
-let paintHistory = []
+let paintHistory = [];
 let tempStroke = null;
-
 
 //event listeners
 canvas.addEventListener("mousemove", function (e) {
+  
+  if(pan_zoom & mouseDown){
+    updatePanning(e);
+    render();
+  }
+  else if(isDraw){
+    let x2, y2;
+    mouseDrawing = true;
+    x2 = scaleX(e.offsetX);
+    y2 = scaleY(e.offsetY);
 
-  let x2, y2;
-  if(isDraw){
+    //actual x and y may be different due to transformations
+    let historyX = x2 - viewportTransform.x;
+    let historyY = y2 - viewportTransform.y;
+    tempStroke.addPoint(historyX,historyY);//keeping track of stroke history
+    draw(x2,y2);
+    //console.log(`X1 : ${x1} Y1 : ${y1}`)
+    //console.log(`X2 : ${x2} Y2 : ${y2}`)
+    x1 = x2;
+    y1 = y2;
+  }
+
+});
+
+canvas.addEventListener("mousedown", function (e) {
+  if(pan_zoom){
+    mouseDown = true;
+    previousX = e.offsetX
+    previousY = e.offsetY
+  }
+  else{
+    isDraw = true;
+    x1 = scaleX(e.offsetX);
+    y1 = scaleY(e.offsetY);
+
+    tempStroke = new Stroke(colorBrush, ctx.lineWidth);
+
+    //actual x and y may be different due to transformations
+    let historyX = x1 - viewportTransform.x;
+    let historyY = y1 - viewportTransform.y;
+
+    tempStroke.addPoint(historyX,historyY);
+  }
+});
+
+canvas.addEventListener("mouseup", function (e) {
+  if(pan_zoom){
+    mouseDown = false;
+  }
+  else if(isDraw){
+
+    //may put this in
+    /* 
+    let x2, y2;
     mouseDrawing = true;
     x2 = scaleX(e.offsetX);
     y2 = scaleY(e.offsetY);
     tempStroke.addPoint(x2,y2);//keeping track of stroke history
     draw(x2,y2);
-    console.log(`X1 : ${x1} Y1 : ${y1}`)
-    console.log(`X2 : ${x2} Y2 : ${y2}`)
+    //console.log(`X1 : ${x1} Y1 : ${y1}`)
+    //console.log(`X2 : ${x2} Y2 : ${y2}`)
+    x1 = x2;
+    y1 = y2;
+    */
+    
+
+
+    recordStroke();
   }
-  x1 = x2;
-  y1 = y2;
-});
-
-canvas.addEventListener("mousedown", function (e) {
-  isDraw = true;
-  x1 = scaleX(e.offsetX);
-  y1 = scaleY(e.offsetY);
-
-  tempStroke = new Stroke(colorBrush, ctx.lineWidth);
-  tempStroke.addPoint(x1,y1);
-});
-
-canvas.addEventListener("mouseup", function (e) {
-  isDraw = false;
-  paintHistory.push(tempStroke);
-  tempStroke = null;
 });
 
 canvas.addEventListener("click", dot);
 
 canvas.addEventListener('mouseleave', function (e) {
-  isDraw = false;
+
+  //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
+  recordStroke();
 
   console.log("BEGIN PAINT HISTORY")
   paintHistory.forEach((e) => console.log("    ",e.constructor.name, e));
@@ -115,6 +188,17 @@ canvas.addEventListener('mouseleave', function (e) {
   console.log("END")
 });
 
+
+function recordStroke() {
+  isDraw = mouseDown = false;
+
+  if(tempStroke != null)
+    paintHistory.push(tempStroke);
+  else
+    console.log("SOMETHING NULL WAS FOR SOME REASON ")
+
+  tempStroke = null;
+}
 
 //we use scale functions instead of reassigning the width and height of the canvas according to the css 
 //because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
@@ -135,20 +219,26 @@ function draw(x2,y2){
 }
 
 function dot(e){
-  console.log("ENTERED DOT ", mouseDrawing);
+  if(!pan_zoom){
+    console.log("ENTERED DOT ", mouseDrawing);
 
-  //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
-  //if a stroke has been drawn
-  if(!mouseDrawing){
-    let x = scaleX(e.offsetX);
-    let y = scaleY(e.offsetY);
-    ctx.beginPath();
-    ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
-    ctx.fill();
-    let record = new Dot(colorBrush, ctx.lineWidth, x, y);
-    paintHistory.push(record);
+    //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
+    //if a stroke has been drawn
+    if(!mouseDrawing){
+      let x = scaleX(e.offsetX);
+      let y = scaleY(e.offsetY);
+      ctx.beginPath();
+      ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
+      ctx.fill();
+
+      //actual x and y may be different due to transformations
+      let historyX = x - viewportTransform.x;
+      let historyY = y - viewportTransform.y;
+      let record = new Dot(colorBrush, ctx.lineWidth, historyX, historyY);
+      paintHistory.push(record);
+    }
+    mouseDrawing = false;
   }
-  mouseDrawing = false;
 
 }
 
@@ -189,9 +279,20 @@ function populateColors(){
 function render(){
   //save and restore is to put each paint settings back to normal after redrwaing everything which can change the paint settings
   ctx.save();
+  ctx.resetTransform();
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.setTransform(
+    viewportTransform.scale,
+    0,
+    0,
+    viewportTransform.scale,
+    viewportTransform.x,
+    viewportTransform.y
+  );
   paintHistory.forEach((e) => e.draw());
   ctx.restore();
 }
+
 
 //takes all the paint history and redraws everything with transform and scale
 function zoomWithQuality(){
