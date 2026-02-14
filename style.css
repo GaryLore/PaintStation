@@ -5,8 +5,12 @@
 }
 
 #canvas {
-    aspect-ratio: 16 / 9;
-    width: 60vw;
+    /*aspect-ratio: 16 / 9;
+
+    width: 60vw;*/
+
+    width: 1280px;
+    height: 720px;
     border: 2px solid black;
     margin: 0 2vw;
 }
@@ -37,6 +41,7 @@ body {
 .options {
     margin: 0 2vw;
     border: 2px solid red;
+    /*background-color: rgb(24, 25, 28); */
     width: 60vw;
     height: auto;
     display: flex;
@@ -67,6 +72,7 @@ input[type="range"]{
     aspect-ratio: 1 / 1;
     padding: 2px;
     border: 2px solid gray;
+    /*background-color: white;*/
 }
 
 .colors > div > div{

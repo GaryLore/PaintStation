@@ -52,6 +52,19 @@ function updatePanning(e){
   previousY = localY;
 }
 
+function updateZooming(e){
+
+  const change = e.deltaY * -0.001;
+  const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.1);
+  viewportTransform.scale = newScale;
+
+  const offsetX = (canvas.width * newScale - canvas.width)/2
+  const offsetY = (canvas.height * newScale - canvas.height)/2
+
+  viewportTransform.x = -offsetX;
+  viewportTransform.y = -offsetY;
+}
+
 //variables to allow drawing
 let x1, y1;
 let isDraw = false;//checks if drawing is allowed
@@ -126,6 +139,14 @@ canvas.addEventListener("mousemove", function (e) {
     y1 = y2;
   }
 
+});
+
+canvas.addEventListener("wheel", function(e){
+  console.log("SCROLL");
+  if(pan_zoom){
+    updateZooming(e);
+    render();
+  }
 });
 
 canvas.addEventListener("mousedown", function (e) {
