@@ -106,7 +106,16 @@ colorOptions.addEventListener("click", function (e){
 
 const trashCan = document.getElementsByClassName("trash")[0];
 trashCan.addEventListener("click", function(){
+
+  const debug = false;
+
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if(!debug){
+    paintHistory = [];
+  }
+
 });
 
 const magnify = document.getElementsByClassName("zoom")[0];
