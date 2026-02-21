@@ -10,6 +10,27 @@ let rect = canvas.getBoundingClientRect();
 canvas.width = 1280;
 canvas.height = 720;
 
+
+//hidden canvas used to achieve paint bucket implementation
+
+const offscreen = new OffscreenCanvas(canvas.width*2, canvas.height*2); //2560 x 1440
+const ctxHidden = offscreen.getContext("2d");
+//makes sure small canvas is in the center
+const viewportTransformHidden = {
+        x: 640,
+        y: 360,
+        scale: 1
+      }
+
+ctxHidden.setTransform(
+    viewportTransformHidden.scale,
+    0,
+    0,
+    viewportTransformHidden.scale,
+    viewportTransformHidden.x,
+    viewportTransformHidden.y
+  );
+
 //fixes problem where if you resize browser the paint stroke isnt in the correct location
 window.addEventListener('resize', function() {
     rect = canvas.getBoundingClientRect();
@@ -63,7 +84,7 @@ function updatePanning(e){
 function updateZooming(e){
 
   const change = e.deltaY * -0.001;
-  const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.1);
+  const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.5);
 
   let oldScale = viewportTransform.scale;
   const centerX = canvas.width / 2;
@@ -106,9 +127,7 @@ colorOptions.addEventListener("click", function (e){
 
 const trashCan = document.getElementsByClassName("trash")[0];
 trashCan.addEventListener("click", function(){
-
   const debug = false;
-
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -133,10 +152,14 @@ title.addEventListener("click", function(){
   render();
 });
 
+const bucket = document.getElementsByClassName("bucket")[0];
+bucket.addEventListener("click", function(){
+  render();
+});
+
 //other paint features
 const slider = document.getElementById("all_thickness");
 slider.addEventListener("change", function (){
-  console.log("hello");
   paintWidth = slider.value;
   ctx.lineWidth = paintWidth * viewportTransform.scale;
 });
@@ -174,7 +197,6 @@ canvas.addEventListener("mousemove", function (e) {
 });
 
 canvas.addEventListener("wheel", function(e){
-  console.log("SCROLL");
   if(pan_zoom){
     updateZooming(e);
     render();
@@ -207,22 +229,6 @@ canvas.addEventListener("mouseup", function (e) {
     mouseDown = false;
   }
   else if(isDraw){
-
-    //may put this in
-    /* 
-    let x2, y2;
-    mouseDrawing = true;
-    x2 = scaleX(e.offsetX);
-    y2 = scaleY(e.offsetY);
-    tempStroke.addPoint(x2,y2);//keeping track of stroke history
-    draw(x2,y2);
-    //console.log(`X1 : ${x1} Y1 : ${y1}`)
-    //console.log(`X2 : ${x2} Y2 : ${y2}`)
-    x1 = x2;
-    y1 = y2;
-    */
-    
-
 
     recordStroke();
   }
@@ -349,6 +355,15 @@ function render(){
   );
   paintHistory.forEach((e) => e.draw());
   ctx.restore();
+}
+
+function drawHidden(){
+
+  ctx.save();
+  ctx.clearRect(0, 0, offscreen.width, offscreen.height)
+  paintHistory.forEach((e) => e.drawHidden());
+  ctx.restore();
+  
 }
 
 

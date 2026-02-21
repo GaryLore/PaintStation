@@ -22,4 +22,14 @@ class Dot{
         ctx.fill();
     }
 
+    drawHidden(){
+        ctxHidden.strokeStyle = this.color;
+        ctxHidden.fillStyle = this.color;
+        ctxHidden.lineWidth = this.width;//already accounts for scale so no need to multiply this.width x scale
+
+        ctxHidden.beginPath();
+        ctxHidden.arc(this.x, this.y, ctx.lineWidth/2, 0, 2 * Math.PI);
+        ctxHidden.fill();
+    }
+
 }
