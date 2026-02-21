@@ -5,12 +5,13 @@
 }
 
 #canvas {
-    /*aspect-ratio: 16 / 9;
+    aspect-ratio: 16 / 9;
 
-    width: 60vw;*/
+    width: 60vw;
 
+    /*
     width: 1280px;
-    height: 720px;
+    height: 720px;*/
     border: 2px solid black;
     margin: 0 2vw;
 }

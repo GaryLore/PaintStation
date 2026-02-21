@@ -19,7 +19,8 @@ window.addEventListener('resize', function() {
 let colorBrush = "black";
 ctx.strokeStyle = colorBrush;
 ctx.fillStyle = colorBrush;
-ctx.lineWidth = 15;
+let paintWidth = 15;
+ctx.lineWidth = paintWidth;
 //we set linecap and line join both to the same so the redraws with render are the same
 ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
 ctx.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
@@ -28,6 +29,7 @@ ctx.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwain
 let pan_zoom = false;
 let zoomEfficient = true;
 let mouseDown = false;
+let GlobalOffsetX = 0, GlobalOffsetY = 0;
 const viewportTransform = {
         x: 0,
         y: 0,
@@ -46,7 +48,13 @@ function updatePanning(e){
   //canvas is 1280x 720
   //so if we drag our mouse half way accross the canvas, we want to ensure 640 pixels are moved even if half of the canvas is more or less than 640 pixels
   viewportTransform.x += scaleX(diffX);
+  GlobalOffsetX += scaleX(diffX) / viewportTransform.scale; //CHANGED
+
   viewportTransform.y += scaleY(diffY);
+  GlobalOffsetY += scaleX(diffY) / viewportTransform.scale;  //CHANGED
+
+  //you have to divide it because when you zoom in and are very close and move by a certain amount of pixels, but realistically if it wasnt zoomed in that amount of pixels
+  //you moved is actually be signficiantly less since irs proportional so we divide
 
   previousX = localX;
   previousY = localY;
@@ -56,13 +64,25 @@ function updateZooming(e){
 
   const change = e.deltaY * -0.001;
   const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.1);
+
+  let oldScale = viewportTransform.scale;
+  const centerX = canvas.width / 2;
+  const centerY = canvas.width / 2;
+
   viewportTransform.scale = newScale;
+  ctx.lineWidth = paintWidth * viewportTransform.scale;
 
-  const offsetX = (canvas.width * newScale - canvas.width)/2
-  const offsetY = (canvas.height * newScale - canvas.height)/2
+  
+  //makes sure it zooms on the center, and stays there where you offset it
+  
+  const offsetX = canvas.width/2 - (canvas.width/2 - GlobalOffsetX )*viewportTransform.scale;  //CHANGED
+  const offsetY = canvas.height/2 - (canvas.height/2 - GlobalOffsetY)*viewportTransform.scale;  //CHANGED
 
-  viewportTransform.x = -offsetX;
-  viewportTransform.y = -offsetY;
+  viewportTransform.x = offsetX;
+  viewportTransform.y = offsetY;
+
+  //viewportTransform.x = centerX - ((centerX - viewportTransform.x) / oldScale) * newScale;
+  //viewportTransform.y = centerY - ((centerY - viewportTransform.y) / oldScale) * newScale;
 }
 
 //variables to allow drawing
@@ -108,7 +128,8 @@ title.addEventListener("click", function(){
 const slider = document.getElementById("all_thickness");
 slider.addEventListener("change", function (){
   console.log("hello");
-  ctx.lineWidth = slider.value;
+  paintWidth = slider.value;
+  ctx.lineWidth = paintWidth * viewportTransform.scale;
 });
 
 //History
@@ -129,12 +150,14 @@ canvas.addEventListener("mousemove", function (e) {
     y2 = scaleY(e.offsetY);
 
     //actual x and y may be different due to transformations
-    let historyX = x2 - viewportTransform.x;
-    let historyY = y2 - viewportTransform.y;
+    let historyX = (x2 - viewportTransform.x) / viewportTransform.scale;
+    let historyY = (y2 - viewportTransform.y) / viewportTransform.scale;
     tempStroke.addPoint(historyX,historyY);//keeping track of stroke history
     draw(x2,y2);
-    //console.log(`X1 : ${x1} Y1 : ${y1}`)
-    //console.log(`X2 : ${x2} Y2 : ${y2}`)
+
+
+    console.log(`X1 : ${x1} Y1 : ${y1}`)
+    console.log(`X1 HISTORY : ${historyX} Y1 HISTORY : ${historyY}`)
     x1 = x2;
     y1 = y2;
   }
@@ -160,13 +183,13 @@ canvas.addEventListener("mousedown", function (e) {
     x1 = scaleX(e.offsetX);
     y1 = scaleY(e.offsetY);
 
-    tempStroke = new Stroke(colorBrush, ctx.lineWidth);
+    tempStroke = new Stroke(colorBrush, paintWidth);
 
     //actual x and y may be different due to transformations
-    let historyX = x1 - viewportTransform.x;
-    let historyY = y1 - viewportTransform.y;
+    let historyX = (x1 - viewportTransform.x) / viewportTransform.scale;
+    let historyY = (y1 - viewportTransform.y) / viewportTransform.scale;
 
-    tempStroke.addPoint(historyX,historyY);
+    tempStroke.addPoint(historyX,historyY);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
 });
 
@@ -213,10 +236,12 @@ canvas.addEventListener('mouseleave', function (e) {
 function recordStroke() {
   isDraw = mouseDown = false;
 
-  if(tempStroke != null)
+  if(tempStroke != null && tempStroke.points.length != 1){//length of one is always recorded just in case mouse starts to move
     paintHistory.push(tempStroke);
-  else
-    console.log("SOMETHING NULL WAS FOR SOME REASON ")
+  }
+  else{
+    //console.log("SOMETHING NULL WAS FOR SOME REASON ");
+  }
 
   tempStroke = null;
 }
@@ -241,21 +266,24 @@ function draw(x2,y2){
 
 function dot(e){
   if(!pan_zoom){
-    console.log("ENTERED DOT ", mouseDrawing);
+    //console.log("ENTERED DOT ", mouseDrawing);
 
     //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
     //if a stroke has been drawn
     if(!mouseDrawing){
       let x = scaleX(e.offsetX);
       let y = scaleY(e.offsetY);
+      console.log("DOT ", x, " ", y);
       ctx.beginPath();
       ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
       ctx.fill();
 
       //actual x and y may be different due to transformations
-      let historyX = x - viewportTransform.x;
-      let historyY = y - viewportTransform.y;
-      let record = new Dot(colorBrush, ctx.lineWidth, historyX, historyY);
+
+      let historyX = (x - viewportTransform.x) / viewportTransform.scale; // changing this
+      let historyY = (y - viewportTransform.y) / viewportTransform.scale;
+
+      let record = new Dot(colorBrush, paintWidth, historyX, historyY);
       paintHistory.push(record);
     }
     mouseDrawing = false;
