@@ -43,8 +43,8 @@ ctx.fillStyle = colorBrush;
 let paintWidth = 15;
 ctx.lineWidth = paintWidth;
 //we set linecap and line join both to the same so the redraws with render are the same
-ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
-ctx.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
+ctx.lineCap = ctxHidden.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
+ctx.lineJoin = ctxHidden.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
 
 //pan and zoom features
 let pan_zoom = false;
@@ -154,7 +154,13 @@ title.addEventListener("click", function(){
 
 const bucket = document.getElementsByClassName("bucket")[0];
 bucket.addEventListener("click", function(){
-  render();
+  drawHidden();
+  
+  //ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
+
+  floodFillBFS(50, 50, Color.LIME);
+  ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
+
 });
 
 //other paint features
