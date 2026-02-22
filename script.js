@@ -156,9 +156,10 @@ const bucket = document.getElementsByClassName("bucket")[0];
 bucket.addEventListener("click", function(){
   drawHidden();
   
+
   //ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
 
-  floodFillBFS(50, 50, Color.LIME);
+  floodFillBFS(offscreen.width/2, offscreen.height/2, Color.LIME);
   ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
 
 });

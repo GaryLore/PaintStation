@@ -47,7 +47,8 @@ const ColorRGB = [
 class Pixel {
 
     //contain indexes of the colors not the actual color values
-    constructor(red, green, blue, alpha){
+    constructor(indexR, red, green, blue, alpha){
+        this.indexR = indexR;
         this.red = red;
         this.green = green;
         this.blue = blue;
@@ -55,27 +56,29 @@ class Pixel {
     }
 
     isEqual(DATA, object){
+
+        /*
         console.log("RED:", 
-        "this =", DATA[this.red], 
-        "object =", DATA[object.red]
+        "this =", this.red, 
+        "object =", object.red
         );
 
         console.log("GREEN:", 
-        "this =", DATA[this.green], 
-        "object =", DATA[object.green]
+        "this =", this.green, 
+        "object =", object.green
         );
 
         console.log("BLUE:", 
-        "this =", DATA[this.blue], 
-        "object =", DATA[object.blue]
+        "this =", this.blue, 
+        "object =", object.blue
         );
 
         console.log("ALPHA:", 
-        "this =", DATA[this.alpha], 
-        "object =", DATA[object.alpha]
-        );
+        "this =", this.alpha, 
+        "object =", object.alpha
+        );*/
         
-        return object instanceof Pixel && DATA[this.red] == DATA[object.red] && DATA[this.green] == DATA[object.green] && DATA[this.blue] == DATA[object.blue] && DATA[this.alpha] == DATA[object.alpha];
+        return object instanceof Pixel && this.red == object.red && this.green == object.green  && this.blue == object.blue && this.alpha == object.alpha;
     }
 }
 
@@ -91,31 +94,30 @@ function floodFillBFS(x, y, color){
     const size = myImageData.width * myImageData.height * 4;
     const cols = offscreen.width * 4;
 
-    queue = [];
+    var denque = new Denque();
     let colorIndices = getColorIndicesForCoord(x, y, offscreen.width);
     let [r, g, b, a] = colorIndices;
-    let point = new Pixel(r, g, b, a);
-    queue.push(point);
+    let point = new Pixel(r, pixels[r], pixels[g], pixels[b], pixels[a]);
+    pixels[r] = ColorRGB[color].r;
+    pixels[g] = ColorRGB[color].g;
+    pixels[b] = ColorRGB[color].b;
+    pixels[a] = ColorRGB[color].a;
+    denque.push(point);//point will still contain old colors in it even after update, which is ok because we want to compare old colors not new
 
-    while(queue.length != 0){
+    let colored = 0;
+    while(!denque.isEmpty()){
 
         //pops node and assigns the new color
-        let currPoint = queue.shift();
-        console.log(currPoint);
-        [r, g, b, a] = [currPoint.red, currPoint.blue, currPoint.green, currPoint.alpha];
-        pixels[r] = ColorRGB[color].r;
-        pixels[g] = ColorRGB[color].g;
-        pixels[b] = ColorRGB[color].b;
-        pixels[a] = ColorRGB[color].a;
+        let currPoint = denque.shift();
+        //console.log(currPoint);
 
-        const currIndex = r;
+        const currIndex = currPoint.indexR;
         let neighborIndex;
         let neighbor;
 
         //push up if equal color to original and not out of bounds
         neighborIndex = currIndex - cols;
         if(neighborIndex >= 0){
-            console.log("IF ENTERED");
             PushIFSameColor(neighbor, neighborIndex, currPoint);
         }
         //push right
@@ -134,16 +136,25 @@ function floodFillBFS(x, y, color){
             PushIFSameColor(neighbor, neighborIndex, currPoint);
         }
 
+        
+        ++colored
+        if(colored % 100 == 0)
+            console.log(colored);
     }
 
     //updates offScreen canvas with new painted pixels
-    ctxHidden.putImageData(myImageData, myImageData.width, myImageData.height);
+    ctxHidden.putImageData(myImageData, 0, 0);
 
     function PushIFSameColor(neighbor, neighborIndex, currPoint) {
-        neighbor = new Pixel(neighborIndex, neighborIndex + 1, neighborIndex + 2, neighborIndex + 3);
-        if (currPoint.isEqual(neighbor)) {
-            console.log("SECOND IF ENTERED");
-            queue.push(neighbor);
+        neighbor = new Pixel(neighborIndex, pixels[neighborIndex], pixels[neighborIndex + 1], pixels[neighborIndex + 2], pixels[neighborIndex + 3]);//always store old color
+        //console.log(neighbor);
+        if (currPoint.isEqual(pixels, neighbor)) {
+            //console.log("SECOND IF ENTERED");
+            denque.push(neighbor);
+            pixels[neighbor.indexR] = ColorRGB[color].r;
+            pixels[neighbor.indexR + 1] = ColorRGB[color].g;
+            pixels[neighbor.indexR + 2] = ColorRGB[color].b;
+            pixels[neighbor.indexR + 3] = ColorRGB[color].a;
         }
     }
 }
