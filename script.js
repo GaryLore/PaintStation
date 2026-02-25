@@ -142,20 +142,40 @@ trashCan.addEventListener("click", function(){
 
 const magnify = document.getElementsByClassName("zoom")[0];
 magnify.addEventListener("click", function(){
+
+  this.classList.add('selected');
+  brush.classList.remove('selected');
+  bucket.classList.remove('selected');
+
+
   option = Options.PANZOOM;
   canvas.classList.add('optionPanZoom');
   canvas.classList.remove('optionBucket', 'optionBrush');
+
+  this.classList.add('selected');
 });
 
 const brush = document.getElementsByClassName("brush")[0];
 brush.addEventListener("click", function(){
+
+  this.classList.add('selected');
+  magnify.classList.remove('selected');
+  bucket.classList.remove('selected');
+
+
   option = Options.BRUSH;
   canvas.classList.add('optionBrush');
   canvas.classList.remove('optionBucket', 'optionPanZoom');
+
 });
 
 const bucket = document.getElementsByClassName("bucket")[0];
 bucket.addEventListener("click", function(){
+
+  this.classList.add('selected');
+  magnify.classList.remove('selected');
+  brush.classList.remove('selected');
+
   option = Options.BUCKET;
   canvas.classList.add('optionBucket');
   canvas.classList.remove('optionBrush', 'optionPanZoom');

@@ -124,3 +124,16 @@ img{
 .optionPanZoom{
     cursor: all-scroll;
 }
+
+.selected {
+  position: relative;
+}
+
+.selected::before {
+  content: "";
+  position: absolute;
+  inset: -8px;              
+  box-shadow: 0 0 5px 5px  rgb(32, 104, 187);
+  border-radius: 30px;       
+  pointer-events: none;      
+}
