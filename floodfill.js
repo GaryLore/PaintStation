@@ -56,28 +56,6 @@ class Pixel {
     }
 
     isEqual(DATA, object){
-
-        /*
-        console.log("RED:", 
-        "this =", this.red, 
-        "object =", object.red
-        );
-
-        console.log("GREEN:", 
-        "this =", this.green, 
-        "object =", object.green
-        );
-
-        console.log("BLUE:", 
-        "this =", this.blue, 
-        "object =", object.blue
-        );
-
-        console.log("ALPHA:", 
-        "this =", this.alpha, 
-        "object =", object.alpha
-        );*/
-        
         return object instanceof Pixel && this.red == object.red && this.green == object.green  && this.blue == object.blue && this.alpha == object.alpha;
     }
 }
@@ -98,18 +76,26 @@ function floodFillBFS(x, y, color){
     let colorIndices = getColorIndicesForCoord(x, y, offscreen.width);
     let [r, g, b, a] = colorIndices;
     let point = new Pixel(r, pixels[r], pixels[g], pixels[b], pixels[a]);
+    let temp = new Pixel(0, ColorRGB[color].r, ColorRGB[color].g, ColorRGB[color].b, 255);//used to compare just in case color is same as pixel selected
+
+    //if its tehcnically the same color as the pixels selected, its always going to be color = color, since even when the neighbors color is changed, its changed to the exact same color,
+    //due to this its needed that we break if its the exact same color, leading to a infinite while.
+    if(point.isEqual(pixels, temp))
+        return;
+
     pixels[r] = ColorRGB[color].r;
     pixels[g] = ColorRGB[color].g;
     pixels[b] = ColorRGB[color].b;
-    pixels[a] = ColorRGB[color].a;
+    pixels[a] = 255;//originalyl had an error accessing Color.RBG[color].a because that doesnt exist so paint wasnt working
     denque.push(point);//point will still contain old colors in it even after update, which is ok because we want to compare old colors not new
 
     let colored = 0;
+    let num = 0;
+    let limit = 100000;
     while(!denque.isEmpty()){
 
         //pops node and assigns the new color
         let currPoint = denque.shift();
-        //console.log(currPoint);
 
         const currIndex = currPoint.indexR;
         let neighborIndex;
@@ -119,27 +105,39 @@ function floodFillBFS(x, y, color){
         neighborIndex = currIndex - cols;
         if(neighborIndex >= 0){
             PushIFSameColor(neighbor, neighborIndex, currPoint);
+            if(num >= limit){
+                break;
+            }
         }
         //push right
         neighborIndex = currIndex + 4;
         if(neighborIndex < size){
             PushIFSameColor(neighbor, neighborIndex, currPoint);
+            if(num >= limit){
+                break;
+            }
         }
         //push down
         neighborIndex = currIndex + cols;
         if(neighborIndex < size){
             PushIFSameColor(neighbor, neighborIndex, currPoint);
+            if(num >= limit){
+                break;
+            }
         }
         //push left
         neighborIndex = currIndex - 4;
         if(neighborIndex >= 0){
             PushIFSameColor(neighbor, neighborIndex, currPoint);
+            if(num >= limit){
+                break;
+            }
         }
 
-        
         ++colored
-        if(colored % 100 == 0)
+        if(colored % 100 == 0){
             console.log(colored);
+        }
     }
 
     //updates offScreen canvas with new painted pixels
@@ -147,14 +145,14 @@ function floodFillBFS(x, y, color){
 
     function PushIFSameColor(neighbor, neighborIndex, currPoint) {
         neighbor = new Pixel(neighborIndex, pixels[neighborIndex], pixels[neighborIndex + 1], pixels[neighborIndex + 2], pixels[neighborIndex + 3]);//always store old color
-        //console.log(neighbor);
+
         if (currPoint.isEqual(pixels, neighbor)) {
-            //console.log("SECOND IF ENTERED");
             denque.push(neighbor);
+            num++;
             pixels[neighbor.indexR] = ColorRGB[color].r;
             pixels[neighbor.indexR + 1] = ColorRGB[color].g;
             pixels[neighbor.indexR + 2] = ColorRGB[color].b;
-            pixels[neighbor.indexR + 3] = ColorRGB[color].a;
+            pixels[neighbor.indexR + 3] = 255;
         }
     }
 }

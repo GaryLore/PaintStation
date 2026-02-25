@@ -1,4 +1,3 @@
-
 //canvas 
 const canvas = document.getElementById("canvas");
 console.log(canvas);
@@ -11,8 +10,8 @@ canvas.width = 1280;
 canvas.height = 720;
 
 
-//hidden canvas used to achieve paint bucket implementation
 
+//hidden canvas used to achieve paint bucket implementation
 const offscreen = new OffscreenCanvas(canvas.width*2, canvas.height*2); //2560 x 1440
 const ctxHidden = offscreen.getContext("2d");
 //makes sure small canvas is in the center
@@ -37,7 +36,14 @@ window.addEventListener('resize', function() {
 });
 
 //canvas paintbrush properties
+const Options = Object.freeze({
+  BRUSH: 0,
+  PANZOOM: 1,
+  BUCKET: 2,
+});
+
 let colorBrush = "black";
+let option = Options.BRUSH;
 ctx.strokeStyle = colorBrush;
 ctx.fillStyle = colorBrush;
 let paintWidth = 15;
@@ -47,15 +53,13 @@ ctx.lineCap = ctxHidden.lineCap = "round"; //avoids weird lines, due to mousemov
 ctx.lineJoin = ctxHidden.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
 
 //pan and zoom features
-let pan_zoom = false;
-let zoomEfficient = true;
 let mouseDown = false;
 let GlobalOffsetX = 0, GlobalOffsetY = 0;
 const viewportTransform = {
         x: 0,
         y: 0,
         scale: 1
-      }
+      };
 let previousX = 0, previousY = 0;
 
 function updatePanning(e){
@@ -102,8 +106,6 @@ function updateZooming(e){
   viewportTransform.x = offsetX;
   viewportTransform.y = offsetY;
 
-  //viewportTransform.x = centerX - ((centerX - viewportTransform.x) / oldScale) * newScale;
-  //viewportTransform.y = centerY - ((centerY - viewportTransform.y) / oldScale) * newScale;
 }
 
 //variables to allow drawing
@@ -130,6 +132,7 @@ trashCan.addEventListener("click", function(){
   const debug = false;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctxHidden.clearRect(-viewportTransformHidden.x, -viewportTransformHidden.y, offscreen.width, offscreen.height);
 
   if(!debug){
     paintHistory = [];
@@ -139,29 +142,28 @@ trashCan.addEventListener("click", function(){
 
 const magnify = document.getElementsByClassName("zoom")[0];
 magnify.addEventListener("click", function(){
-  pan_zoom = true;
+  option = Options.PANZOOM;
+  canvas.classList.add('optionPanZoom');
+  canvas.classList.remove('optionBucket', 'optionBrush');
 });
 
 const brush = document.getElementsByClassName("brush")[0];
 brush.addEventListener("click", function(){
-  pan_zoom = false;
+  option = Options.BRUSH;
+  canvas.classList.add('optionBrush');
+  canvas.classList.remove('optionBucket', 'optionPanZoom');
+});
+
+const bucket = document.getElementsByClassName("bucket")[0];
+bucket.addEventListener("click", function(){
+  option = Options.BUCKET;
+  canvas.classList.add('optionBucket');
+  canvas.classList.remove('optionBrush', 'optionPanZoom');
 });
 
 const title = document.getElementsByClassName("title")[0];
 title.addEventListener("click", function(){
   render();
-});
-
-const bucket = document.getElementsByClassName("bucket")[0];
-bucket.addEventListener("click", function(){
-  drawHidden();
-  
-
-  //ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
-
-  floodFillBFS(offscreen.width/2, offscreen.height/2, Color.LIME);
-  ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
-
 });
 
 //other paint features
@@ -178,11 +180,11 @@ let tempStroke = null;
 //event listeners
 canvas.addEventListener("mousemove", function (e) {
   
-  if(pan_zoom & mouseDown){
+  if(option == Options.PANZOOM && mouseDown){
     updatePanning(e);
     render();
   }
-  else if(isDraw){
+  else if(option == Options.BRUSH && isDraw){
     let x2, y2;
     mouseDrawing = true;
     x2 = scaleX(e.offsetX);
@@ -194,9 +196,8 @@ canvas.addEventListener("mousemove", function (e) {
     tempStroke.addPoint(historyX,historyY);//keeping track of stroke history
     draw(x2,y2);
 
-
-    console.log(`X1 : ${x1} Y1 : ${y1}`)
-    console.log(`X1 HISTORY : ${historyX} Y1 HISTORY : ${historyY}`)
+    //console.log(`X1 : ${x1} Y1 : ${y1}`)
+    //console.log(`X1 HISTORY : ${historyX} Y1 HISTORY : ${historyY}`)
     x1 = x2;
     y1 = y2;
   }
@@ -204,19 +205,19 @@ canvas.addEventListener("mousemove", function (e) {
 });
 
 canvas.addEventListener("wheel", function(e){
-  if(pan_zoom){
+  if(option == Options.PANZOOM){
     updateZooming(e);
     render();
   }
 });
 
 canvas.addEventListener("mousedown", function (e) {
-  if(pan_zoom){
+  if(option == Options.PANZOOM){
     mouseDown = true;
     previousX = e.offsetX
     previousY = e.offsetY
   }
-  else{
+  else if(option == Options.BRUSH){
     isDraw = true;
     x1 = scaleX(e.offsetX);
     y1 = scaleY(e.offsetY);
@@ -229,10 +230,21 @@ canvas.addEventListener("mousedown", function (e) {
 
     tempStroke.addPoint(historyX,historyY);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
+  else if(option == Options.BUCKET){
+
+    let spotX = scaleX(e.offsetX);//coordinate on regular canvas
+    let spotY = scaleY(e.offsetY);
+    let x = viewportTransformHidden.x + Math.round((spotX - viewportTransform.x) / viewportTransform.scale); //correct coordinate on hidden canvas
+    let y = viewportTransformHidden.y + Math.round((spotY - viewportTransform.y) / viewportTransform.scale);
+    drawHidden();
+    //console.log(x," ",y);
+    floodFillBFS(x, y, Color[colorBrush.toUpperCase()]);
+    ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
+  }
 });
 
 canvas.addEventListener("mouseup", function (e) {
-  if(pan_zoom){
+  if(option == Options.PANZOOM){
     mouseDown = false;
   }
   else if(isDraw){
@@ -250,7 +262,6 @@ canvas.addEventListener('mouseleave', function (e) {
 
   console.log("BEGIN PAINT HISTORY")
   paintHistory.forEach((e) => console.log("    ",e.constructor.name, e));
-  
   console.log("END")
 });
 
@@ -272,10 +283,12 @@ function recordStroke() {
 //because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
 //changes based on the screen size
 function scaleX(x){
+  rect = canvas.getBoundingClientRect();
   return (x/rect.width) * canvas.width;
 }
 
 function scaleY(y){
+  rect = canvas.getBoundingClientRect();
   return (y/rect.height) * canvas.height;
 }
 
@@ -287,7 +300,7 @@ function draw(x2,y2){
 }
 
 function dot(e){
-  if(!pan_zoom){
+  if(option == Options.BRUSH){
     //console.log("ENTERED DOT ", mouseDrawing);
 
     //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
@@ -295,7 +308,13 @@ function dot(e){
     if(!mouseDrawing){
       let x = scaleX(e.offsetX);
       let y = scaleY(e.offsetY);
-      console.log("DOT ", x, " ", y);
+
+      //const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      //const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+      //const x = (e.offsetX) * (canvas.width / rect.width);
+      //const y = (e.offsetY) * (canvas.height / rect.height);
+      //console.log("DOT ", x, " ", y);
       ctx.beginPath();
       ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
       ctx.fill();
@@ -371,15 +390,4 @@ function drawHidden(){
   paintHistory.forEach((e) => e.drawHidden());
   ctx.restore();
   
-}
-
-
-//takes all the paint history and redraws everything with transform and scale
-function zoomWithQuality(){
-
-}
-
-//takes the current bitmap and zooms it
-function zoomEfficiently(){
-
 }

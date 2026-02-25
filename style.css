@@ -110,3 +110,17 @@ img{
 .brush{
     margin-right: 2%;
 }
+
+.optionBucket{
+    cursor: url("img/bucket_cursor.png") 5 16, auto;
+    border: 2px solid red;
+}
+
+.optionBrush{
+    cursor: crosshair;
+}
+
+
+.optionPanZoom{
+    cursor: all-scroll;
+}
