@@ -47,7 +47,9 @@ const ColorRGB = [
 class Pixel {
 
     //contain indexes of the colors not the actual color values
-    constructor(indexR, red, green, blue, alpha){
+    constructor(x, y, indexR, red, green, blue, alpha){
+        this.x = x;
+        this.y = y;
         this.indexR = indexR;
         this.red = red;
         this.green = green;
@@ -55,7 +57,7 @@ class Pixel {
         this.alpha = alpha;
     }
 
-    isEqual(DATA, object){
+    isEqual(object){
         return object instanceof Pixel && this.red == object.red && this.green == object.green  && this.blue == object.blue && this.alpha == object.alpha;
     }
 }
@@ -75,8 +77,8 @@ function floodFillBFS(x, y, color){
     var denque = new Denque();
     let colorIndices = getColorIndicesForCoord(x, y, offscreen.width);
     let [r, g, b, a] = colorIndices;
-    let point = new Pixel(r, pixels[r], pixels[g], pixels[b], pixels[a]);
-    let temp = new Pixel(0, ColorRGB[color].r, ColorRGB[color].g, ColorRGB[color].b, 255);//used to compare just in case color is same as pixel selected
+    let point = new Pixel(x, y, r, pixels[r], pixels[g], pixels[b], pixels[a]);
+    let temp = new Pixel(x, y, 0, ColorRGB[color].r, ColorRGB[color].g, ColorRGB[color].b, 255);//used to compare just in case color is same as pixel selected
 
     //if its tehcnically the same color as the pixels selected, its always going to be color = color, since even when the neighbors color is changed, its changed to the exact same color,
     //due to this its needed that we break if its the exact same color, leading to a infinite while.
@@ -100,11 +102,18 @@ function floodFillBFS(x, y, color){
         const currIndex = currPoint.indexR;
         let neighborIndex;
         let neighbor;
+        let x = currPoint.x;
+        let y = currPoint.y;
+        let tempX, tempY;
 
         //push up if equal color to original and not out of bounds
         neighborIndex = currIndex - cols;
         if(neighborIndex >= 0){
-            PushIFSameColor(neighbor, neighborIndex, currPoint);
+            tempX = x;
+            tempY = y - 1;
+            if(tempY >= 0){
+                PushIFSameColor(tempX, tempY, neighbor, neighborIndex, currPoint);
+            }
             if(num >= limit){
                 break;
             }
@@ -112,7 +121,11 @@ function floodFillBFS(x, y, color){
         //push right
         neighborIndex = currIndex + 4;
         if(neighborIndex < size){
-            PushIFSameColor(neighbor, neighborIndex, currPoint);
+            tempX = x + 1;
+            tempY = y;
+            if(tempX <= myImageData.width){
+                PushIFSameColor(tempX, tempY, neighbor, neighborIndex, currPoint);
+            }
             if(num >= limit){
                 break;
             }
@@ -120,7 +133,11 @@ function floodFillBFS(x, y, color){
         //push down
         neighborIndex = currIndex + cols;
         if(neighborIndex < size){
-            PushIFSameColor(neighbor, neighborIndex, currPoint);
+            tempX = x;
+            tempY = y + 1;
+            if(tempY <= myImageData.height){
+                PushIFSameColor(tempX, tempY, neighbor, neighborIndex, currPoint);
+            }
             if(num >= limit){
                 break;
             }
@@ -128,7 +145,11 @@ function floodFillBFS(x, y, color){
         //push left
         neighborIndex = currIndex - 4;
         if(neighborIndex >= 0){
-            PushIFSameColor(neighbor, neighborIndex, currPoint);
+            tempX = x - 1;
+            tempY = y;
+            if(tempX >= 0){
+                PushIFSameColor(tempX, tempY, neighbor, neighborIndex, currPoint);
+            }
             if(num >= limit){
                 break;
             }
@@ -143,10 +164,10 @@ function floodFillBFS(x, y, color){
     //updates offScreen canvas with new painted pixels
     ctxHidden.putImageData(myImageData, 0, 0);
 
-    function PushIFSameColor(neighbor, neighborIndex, currPoint) {
-        neighbor = new Pixel(neighborIndex, pixels[neighborIndex], pixels[neighborIndex + 1], pixels[neighborIndex + 2], pixels[neighborIndex + 3]);//always store old color
+    function PushIFSameColor(x, y, neighbor, neighborIndex, currPoint) {
+        neighbor = new Pixel(x, y, neighborIndex, pixels[neighborIndex], pixels[neighborIndex + 1], pixels[neighborIndex + 2], pixels[neighborIndex + 3]);//always store old color
 
-        if (currPoint.isEqual(pixels, neighbor)) {
+        if (currPoint.isEqual(neighbor)) {
             denque.push(neighbor);
             num++;
             pixels[neighbor.indexR] = ColorRGB[color].r;
