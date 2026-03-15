@@ -72,25 +72,29 @@ function updatePanning(e){
   //we scale it since pixels shown on screen and actual canvas dimensions are different
   //canvas is 1280x 720
   //so if we drag our mouse half way accross the canvas, we want to ensure 640 pixels are moved even if half of the canvas is more or less than 640 pixels
-  viewportTransform.x += scaleX(diffX);
-  GlobalOffsetX += scaleX(diffX) / viewportTransform.scale; //CHANGED
+  const xDIFF = scaleX(diffX);
+  viewportTransform.x += xDIFF;
+  GlobalOffsetX += xDIFF / viewportTransform.scale; //CHANGED
 
-  viewportTransform.y += scaleY(diffY);
-  GlobalOffsetY += scaleX(diffY) / viewportTransform.scale;  //CHANGED
+  const yDIFF = scaleY(diffY);
+  viewportTransform.y += yDIFF;
+  GlobalOffsetY += yDIFF / viewportTransform.scale;  //CHANGED
 
   //you have to divide it because when you zoom in and are very close and move by a certain amount of pixels, but realistically if it wasnt zoomed in that amount of pixels
   //you moved is actually be signficiantly less since irs proportional so we divide
 
   previousX = localX;
   previousY = localY;
+
+  //console.log(viewportTransform.x,viewportTransform.y,viewportTransform.scale)
 }
 
 function updateZooming(e){
 
   const change = e.deltaY * -0.001;
-  const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.5);
+  const newScale = Math.max(Math.min(viewportTransform.scale + change, 50),0.5);
 
-  let oldScale = viewportTransform.scale;
+  //let oldScale = viewportTransform.scale;
   const centerX = canvas.width / 2;
   const centerY = canvas.width / 2;
 
@@ -258,8 +262,9 @@ canvas.addEventListener("mousedown", function (e) {
     let y = viewportTransformHidden.y + Math.round((spotY - viewportTransform.y) / viewportTransform.scale);
     drawHidden();
     //console.log(x," ",y);
-    floodFillBFS(x, y, Color[colorBrush.toUpperCase()]);
-    ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
+    floodFillBFS(x, y, colorBrush);
+    render();
+    //ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
   }
 });
 

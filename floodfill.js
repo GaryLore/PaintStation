@@ -67,8 +67,9 @@ const getColorIndicesForCoord = (x, y, width) => {
   return [red, red + 1, red + 2, red + 3];
 };
 
-function floodFillBFS(x, y, color){
+function floodFillBFS(x, y, stringColor){
 
+    let color = Color[stringColor.toUpperCase()];
     const myImageData = ctxHidden.getImageData(0, 0, offscreen.width, offscreen.height);
     const pixels = myImageData.data;
     const size = myImageData.width * myImageData.height * 4;
@@ -89,6 +90,9 @@ function floodFillBFS(x, y, color){
     pixels[g] = ColorRGB[color].g;
     pixels[b] = ColorRGB[color].b;
     pixels[a] = 255;//originalyl had an error accessing Color.RBG[color].a because that doesnt exist so paint wasnt working
+
+    let paintBucket = new Bucket(stringColor);
+    paintBucket.addPoint(x - viewportTransformHidden.x ,y - viewportTransformHidden.y);
     denque.push(point);//point will still contain old colors in it even after update, which is ok because we want to compare old colors not new
 
     let colored = 0;
@@ -114,9 +118,10 @@ function floodFillBFS(x, y, color){
             if(tempY >= 0){
                 PushIFSameColor(tempX, tempY, neighbor, neighborIndex, currPoint);
             }
+            /*
             if(num >= limit){
                 break;
-            }
+            }*/
         }
         //push right
         neighborIndex = currIndex + 4;
@@ -126,9 +131,10 @@ function floodFillBFS(x, y, color){
             if(tempX <= myImageData.width){
                 PushIFSameColor(tempX, tempY, neighbor, neighborIndex, currPoint);
             }
+            /*
             if(num >= limit){
                 break;
-            }
+            }*/
         }
         //push down
         neighborIndex = currIndex + cols;
@@ -138,9 +144,10 @@ function floodFillBFS(x, y, color){
             if(tempY <= myImageData.height){
                 PushIFSameColor(tempX, tempY, neighbor, neighborIndex, currPoint);
             }
+            /*
             if(num >= limit){
                 break;
-            }
+            }*/
         }
         //push left
         neighborIndex = currIndex - 4;
@@ -150,9 +157,10 @@ function floodFillBFS(x, y, color){
             if(tempX >= 0){
                 PushIFSameColor(tempX, tempY, neighbor, neighborIndex, currPoint);
             }
+            /*
             if(num >= limit){
                 break;
-            }
+            }*/
         }
 
         ++colored
@@ -160,6 +168,8 @@ function floodFillBFS(x, y, color){
             console.log(colored);
         }
     }
+    paintHistory.push(paintBucket);
+    //paintBucket.draw();
 
     //updates offScreen canvas with new painted pixels
     ctxHidden.putImageData(myImageData, 0, 0);
@@ -169,6 +179,7 @@ function floodFillBFS(x, y, color){
 
         if (currPoint.isEqual(neighbor)) {
             denque.push(neighbor);
+            paintBucket.addPoint(x - viewportTransformHidden.x ,y - viewportTransformHidden.y);
             num++;
             pixels[neighbor.indexR] = ColorRGB[color].r;
             pixels[neighbor.indexR + 1] = ColorRGB[color].g;
