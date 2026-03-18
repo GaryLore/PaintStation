@@ -193,7 +193,7 @@ title.addEventListener("click", function(){
 //other paint features
 const slider = document.getElementById("all_thickness");
 slider.addEventListener("change", function (){
-  paintWidth = slider.value;
+  paintWidth = slider.valueAsNumber;
   ctx.lineWidth = paintWidth * viewportTransform.scale;
 });
 
