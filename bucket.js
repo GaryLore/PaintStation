@@ -1,15 +1,19 @@
 class Bucket{
 
     color;
-    points = [];
+    shapes = [];
 
     constructor(color){
         this.color = color;
     }
 
-    addPoint(x,y){
+    addPoint(shapeIndex,x,y){
         let point = [x,y];
-        this.points.push(point);
+        this.shapes[shapeIndex].push(point);
+    }
+
+    createShape(){
+        this.shapes.push([]);
     }
 
     draw(){
@@ -18,21 +22,21 @@ class Bucket{
         ctx.fillStyle = this.color;
         ctx.lineWidth = this.width;
 
-        this.points.forEach((coordinate) => {
-            ctx.fillRect(coordinate[0],coordinate[1],2,2);
-        });
+        ctx.beginPath();
+        this.shapes.forEach((shape) => {
+
+            shape.forEach((coordinate, index) => {
+            if(index == 0){
+                ctx.moveTo(coordinate[0],coordinate[1]);
+            }
+            else{
+                ctx.lineTo(coordinate[0],coordinate[1]);
+            }
+            });
+            
+        })
+        ctx.stroke();
 
     }
 
-    drawHidden(){
-        ctxHidden.imageSmoothingEnabled = false
-        ctxHidden.strokeStyle = this.color;
-        ctxHidden.fillStyle = this.color;
-        ctxHidden.lineWidth = this.width;
-
-        this.points.forEach((coordinate) => {
-            ctxHidden.fillRect(coordinate[0],coordinate[1],2,2);
-        });
-
-    }
 }
