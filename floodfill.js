@@ -21,7 +21,7 @@ const Color = Object.freeze({
   LAVENDER: 19
 });
 
-const ColorRGB = [
+const Colors = [
   { r: 0, g: 0, b: 0 },        // BLACK
   { r: 128, g: 128, b: 128 },  // GRAY
   { r: 139, g: 0, b: 0 },      // DARKRED
@@ -79,16 +79,16 @@ function floodFillBFS(x, y, stringColor){
     let colorIndices = getColorIndicesForCoord(x, y, offscreen.width);
     let [r, g, b, a] = colorIndices;
     let point = new Pixel(x, y, r, pixels[r], pixels[g], pixels[b], pixels[a]);
-    let temp = new Pixel(x, y, 0, ColorRGB[color].r, ColorRGB[color].g, ColorRGB[color].b, 255);//used to compare just in case color is same as pixel selected
+    let temp = new Pixel(x, y, 0, Colors[color].r, Colors[color].g, Colors[color].b, 255);//used to compare just in case color is same as pixel selected
 
     //if its tehcnically the same color as the pixels selected, its always going to be color = color, since even when the neighbors color is changed, its changed to the exact same color,
     //due to this its needed that we break if its the exact same color, leading to a infinite while.
     if(point.isEqual(pixels, temp))
         return;
 
-    pixels[r] = ColorRGB[color].r;
-    pixels[g] = ColorRGB[color].g;
-    pixels[b] = ColorRGB[color].b;
+    pixels[r] = Colors[color].r;
+    pixels[g] = Colors[color].g;
+    pixels[b] = Colors[color].b;
     pixels[a] = 255;//originalyl had an error accessing Color.RBG[color].a because that doesnt exist so paint wasnt working
 
     let paintBucket = new Bucket(stringColor);
@@ -181,9 +181,9 @@ function floodFillBFS(x, y, stringColor){
             denque.push(neighbor);
             paintBucket.addPoint(x - viewportTransformHidden.x ,y - viewportTransformHidden.y);
             num++;
-            pixels[neighbor.indexR] = ColorRGB[color].r;
-            pixels[neighbor.indexR + 1] = ColorRGB[color].g;
-            pixels[neighbor.indexR + 2] = ColorRGB[color].b;
+            pixels[neighbor.indexR] = Colors[color].r;
+            pixels[neighbor.indexR + 1] = Colors[color].g;
+            pixels[neighbor.indexR + 2] = Colors[color].b;
             pixels[neighbor.indexR + 3] = 255;
         }
     }
