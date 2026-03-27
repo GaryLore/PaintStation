@@ -421,9 +421,7 @@ function render(){
 
 function drawHidden(){
 
-  ctx.save();
   ctx.clearRect(0, 0, offscreen.width, offscreen.height)
   paintHistory.forEach((e) => e.drawHidden());
-  ctx.restore();
   
 }

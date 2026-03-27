@@ -59,7 +59,6 @@ function floodFillBFS(x, y, stringColor){
     let color = stringColor.toUpperCase();
     const myImageData = ctxHidden.getImageData(0, 0, offscreen.width, offscreen.height);
     const pixels = myImageData.data;
-    const size = myImageData.width * myImageData.height * 4;
     const cols = offscreen.width * 4;
     const visited = new Uint8Array(myImageData.width * myImageData.height);
 
@@ -69,16 +68,12 @@ function floodFillBFS(x, y, stringColor){
     let startPixel = new Pixel(x, y, r, pixels[r], pixels[g], pixels[b], pixels[a]);
     let temp = new Pixel(x, y, 0, Colors[color].r, Colors[color].g, Colors[color].b, 255);//used to compare just in case color is same as pixel selected
 
-    console.log(startPixel);
-    console.log(temp);
     //if its tehcnically the same color as the pixels selected, its always going to be color = color, since even when the neighbors color is changed, its changed to the exact same color,
     //due to this its needed that we break if its the exact same color, leading to a infinite while., also if its touching the edge it doesnt work as intended
-    console.log("FLOODFILL");
     if(startPixel.isEqual(temp) || isEdge(startPixel))
         return;
 
 
-    console.log("FLOODFILL");
     let paintBucket = new Bucket(stringColor);
     let shapeIndex = 0;
     denque.push(startPixel);//point will still contain old colors in it even after update, which is ok because we want to compare old colors not new
