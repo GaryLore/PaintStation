@@ -57,13 +57,15 @@ const getColorIndicesForCoord = (x, y, width) => {
 function floodFillBFS(x, y, stringColor){
 
     let color = stringColor.toUpperCase();
-    const myImageData = ctxHidden.getImageData(0, 0, offscreen.width, offscreen.height);
+    const WIDTH = offscreen.width;
+    const HEIGHT = offscreen.height;
+    const myImageData = ctxHidden.getImageData(0, 0, WIDTH, HEIGHT);
     const pixels = myImageData.data;
-    const cols = offscreen.width * 4;
+    const cols = WIDTH * 4;
     const visited = new Uint8Array(myImageData.width * myImageData.height);
 
     var denque = new Denque();
-    let colorIndices = getColorIndicesForCoord(x, y, offscreen.width);
+    let colorIndices = getColorIndicesForCoord(x, y, WIDTH);
     let [r, g, b, a] = colorIndices;
     let startPixel = new Pixel(x, y, r, pixels[r], pixels[g], pixels[b], pixels[a]);
     let temp = new Pixel(x, y, 0, Colors[color].r, Colors[color].g, Colors[color].b, 255);//used to compare just in case color is same as pixel selected
@@ -91,16 +93,14 @@ function floodFillBFS(x, y, stringColor){
         let y = current.y;
 
         let adj = neighbors(current, x, y);
-        adj.forEach((adjacent) => {
-
-            //console.log("ADJACENT : ", adjacent);
-            if(!isVisited(adjacent)){
-                //console.log("PUSHED");
-                denque.push(adjacent);
-                setVisited(adjacent);
+        const len = adj.length;
+        for (let i = 0; i < len; i++){
+            const node = adj[i];          
+            if (!isVisited(node)) {      
+                denque.push(node);        
+                setVisited(node);        
             }
-
-        });
+        }
 
     }
 
@@ -124,7 +124,7 @@ function floodFillBFS(x, y, stringColor){
         neighborIndex = currIndex + 4;
         neighborX = x + 1;
         neighborY = y;
-        if(neighborX < myImageData.width){
+        if(neighborX < WIDTH){
             pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 7);
         }
 
@@ -132,7 +132,7 @@ function floodFillBFS(x, y, stringColor){
         neighborIndex = currIndex + cols;
         neighborX = x;
         neighborY = y + 1;
-        if(neighborY < myImageData.height){
+        if(neighborY < HEIGHT){
             pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 1);
         }
 
@@ -150,7 +150,8 @@ function floodFillBFS(x, y, stringColor){
     function pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, dir) {
         let neighbor = new Pixel(neighborX, neighborY, neighborIndex, pixels[neighborIndex], pixels[neighborIndex + 1], pixels[neighborIndex + 2], pixels[neighborIndex + 3]);
         //console.log("CHECK IF PIXEL ACCESS IS WORKING : ", pixels[neighborIndex] )
-        if (sameColor(current, neighbor) && !isEdge(neighbor)) {
+        //checks if same color and not edge
+        if (current.isEqual(neighbor) && !isEdge(neighbor)) {
             neighbors.push(neighbor);
         }
         else if(!isVisited(neighbor)){//means we have found an outline of a shape
@@ -162,24 +163,19 @@ function floodFillBFS(x, y, stringColor){
 
     function setVisited(p){
         //console.log("BEFORE Visited: " , visited[p.y * myImageData.width + p.x]);
-        visited[p.y * myImageData.width + p.x] = 1;
+        visited[p.y * WIDTH + p.x] = 1;
         //console.log("After Visited: " , visited[p.y * myImageData.width + p.x]);
     }
 
     function isVisited(p){
-        return visited[p.y * myImageData.width + p.x] === 1;
+        return visited[p.y * WIDTH + p.x] === 1;
     }
 
-    function sameColor(current, neighbor){
-        return current.isEqual(neighbor);
-    }
-
-    
-    function Moore(start, dir){
+       function Moore(start, dir){
 
         console.log("----------      IN MOORE TRACING ALGORITHM        ----------");
         const t0 = performance.now();
-        console.log("FIRST DIRECTION : ", dir);
+        //console.log("FIRST DIRECTION : ", dir);
         /*
         enter is pixel that it enters from
         start is the first boundary pixel
@@ -255,9 +251,15 @@ function floodFillBFS(x, y, stringColor){
         console.log(`       Moore Tracing Algorithm took ${(t1 - t0).toFixed(3)} ms`);
 
         paintBucket.createShape();
-        B.forEach((point) => {
-            paintBucket.addPoint(shapeIndex, point[0] - viewportTransformHidden.x + 0.5, point[1] - viewportTransformHidden.y + 0.5);
-        });
+        const offsetX = viewportTransformHidden.x;
+        const offsetY = viewportTransformHidden.y;
+        for (let i = 0; i < B.length; i++) {
+            const point = B[i];
+            const x = point[0];
+            const y = point[1];
+
+            paintBucket.addPoint(shapeIndex, x - offsetX + 0.5, y - offsetY + 0.5);
+        }
         ++shapeIndex;
         //console.log("SHAPE CREATED : ", shapeIndex);
 
@@ -287,7 +289,10 @@ function floodFillBFS(x, y, stringColor){
 
     function isEdge(p){
 
-        if(p.x == 0 || p.x == myImageData.width - 1 || p.y == 0 || p.y == myImageData.height - 1){
+        const x = p.x;
+        const y = p.y;
+
+        if(x == 0 || x == WIDTH - 1 || y == 0 || y == HEIGHT - 1){
             return true;
         }
         return false;
