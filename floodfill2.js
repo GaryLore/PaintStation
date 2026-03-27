@@ -161,7 +161,7 @@ function floodFillBFS(x, y, stringColor){
         else if(!isVisited(neighbor)){//means we have found an outline of a shape
             //console.log("CURRENT : ", current);
             //console.log("Neighbor: ", neighbor);
-            Moore(current, neighbor, dir);
+            Moore(neighbor, dir);
         }
     }
 
@@ -180,7 +180,7 @@ function floodFillBFS(x, y, stringColor){
     }
 
     
-    function Moore(enter, start, dir){
+    function Moore(start, dir){
 
         console.log("----------      IN MOORE TRACING ALGORITHM        ----------");
         const t0 = performance.now();
