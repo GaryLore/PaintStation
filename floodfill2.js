@@ -221,11 +221,11 @@ function floodFillBFS(x, y, stringColor){
 
         let B = [] //outline of shape
         const s = [start.x,start.y]
-        console.log("S : ", start);
+        //console.log("S : ", start);
         B.push(s);
         setVisited(start);
         let p = s, pIndex = start.indexR; //current boundary pixel
-        console.log("P : ", p);
+        //console.log("P : ", p);
         let currentDir = (dir + 1) % 8
         console.log(currentDir);
         dx = directions[currentDir][0]; dy = directions[currentDir][1]; //zero indexed
@@ -272,14 +272,14 @@ function floodFillBFS(x, y, stringColor){
              
         }
         const t1 = performance.now();
-        console.log(`       myFunction took ${(t1 - t0).toFixed(3)} ms`);
+        console.log(`       Moore Tracing Algorithm took ${(t1 - t0).toFixed(3)} ms`);
 
         paintBucket.createShape();
         B.forEach((point) => {
             paintBucket.addPoint(shapeIndex, point[0] - viewportTransformHidden.x + 0.5, point[1] - viewportTransformHidden.y + 0.5);
         });
         ++shapeIndex;
-        console.log("SHAPE CREATED : ", shapeIndex);
+        //console.log("SHAPE CREATED : ", shapeIndex);
 
     } 
     function isSame(p1, p2){

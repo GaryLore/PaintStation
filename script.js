@@ -13,7 +13,7 @@ canvas.height = 720;
 
 //hidden canvas used to achieve paint bucket implementation
 const offscreen = new OffscreenCanvas(canvas.width*2, canvas.height*2); //2560 x 1440
-const ctxHidden = offscreen.getContext("2d");
+const ctxHidden = offscreen.getContext("2d", { willReadFrequently: true });
 //makes sure small canvas is in the center
 const viewportTransformHidden = {
         x: 640,
