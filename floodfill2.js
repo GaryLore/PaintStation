@@ -133,7 +133,6 @@ function floodFillBFS(x, y, stringColor){
         neighborX = x;
         neighborY = y - 1;
         if(neighborY >= 0){
-            //console.log("1");
             pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 5);
         }
 
@@ -142,7 +141,6 @@ function floodFillBFS(x, y, stringColor){
         neighborX = x + 1;
         neighborY = y;
         if(neighborX < myImageData.width){
-            //console.log("2");
             pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 7);
         }
 
@@ -151,7 +149,6 @@ function floodFillBFS(x, y, stringColor){
         neighborX = x;
         neighborY = y + 1;
         if(neighborY < myImageData.height){
-            //console.log("3");
             pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 1);
         }
 
@@ -160,7 +157,6 @@ function floodFillBFS(x, y, stringColor){
         neighborX = x - 1;
         neighborY = y;
         if(neighborX >= 0){
-            //console.log("4");
             pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 3);
         }
 
