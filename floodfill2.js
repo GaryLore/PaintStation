@@ -92,7 +92,6 @@ function floodFillBFS(x, y, stringColor){
 
     //this is not the traditional way of implementing flood fill, we will not change color of pixels
 
-    let i = 0;
     console.log("----------      IN BFS ALGORITHM        ----------");
     while(!denque.isEmpty()){
 
@@ -114,10 +113,6 @@ function floodFillBFS(x, y, stringColor){
 
         });
 
-        if(i % 100 == 0){
-            //console.log("                   ITERATION   ",i);
-        }
-        ++i;
     }
 
     paintHistory.push(paintBucket);
