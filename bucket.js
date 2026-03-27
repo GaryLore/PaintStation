@@ -20,7 +20,7 @@ class Bucket{
         ctx.imageSmoothingEnabled = false
         ctx.strokeStyle = this.color;
         ctx.fillStyle = this.color;
-        ctx.lineWidth = this.width;
+        ctx.lineWidth = 1;
 
         ctx.beginPath();
         this.shapes.forEach((shape) => {
@@ -35,8 +35,31 @@ class Bucket{
             });
             
         })
+        ctx.fill();
         ctx.stroke();
+    }
 
+    drawHidden(){
+        ctxHidden.imageSmoothingEnabled = false
+        ctxHidden.strokeStyle = this.color;
+        ctxHidden.fillStyle = this.color;
+        ctxHidden.lineWidth = 1;
+
+        ctxHidden.beginPath();
+        this.shapes.forEach((shape) => {
+
+            shape.forEach((coordinate, index) => {
+            if(index == 0){
+                ctxHidden.moveTo(coordinate[0],coordinate[1]);
+            }
+            else{
+                ctxHidden.lineTo(coordinate[0],coordinate[1]);
+            }
+            });
+            
+        })
+        ctxHidden.fill();
+        ctxHidden.stroke();
     }
 
 }

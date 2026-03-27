@@ -21,6 +21,16 @@ const Colors = Object.freeze({
   LAVENDER:     { r: 230, g: 230, b: 250 }
 });
 
+const backtrack = new Map();
+backtrack.set(0,5);
+backtrack.set(1,7);
+backtrack.set(2,7);
+backtrack.set(3,1);
+backtrack.set(4,1);
+backtrack.set(5,3);
+backtrack.set(6,3);
+backtrack.set(7,5);
+
 class Pixel {
 
     //contain indexes of the colors not the actual color values
@@ -51,6 +61,7 @@ function floodFillBFS(x, y, stringColor){
     const pixels = myImageData.data;
     const size = myImageData.width * myImageData.height * 4;
     const cols = offscreen.width * 4;
+    const visited = new Uint8Array(myImageData.width * myImageData.height);
 
     var denque = new Denque();
     let colorIndices = getColorIndicesForCoord(x, y, offscreen.width);
@@ -58,16 +69,22 @@ function floodFillBFS(x, y, stringColor){
     let startPixel = new Pixel(x, y, r, pixels[r], pixels[g], pixels[b], pixels[a]);
     let temp = new Pixel(x, y, 0, Colors[color].r, Colors[color].g, Colors[color].b, 255);//used to compare just in case color is same as pixel selected
 
+    console.log(startPixel);
+    console.log(temp);
     //if its tehcnically the same color as the pixels selected, its always going to be color = color, since even when the neighbors color is changed, its changed to the exact same color,
-    //due to this its needed that we break if its the exact same color, leading to a infinite while.
-    if(startPixel.isEqual(pixels, temp))
+    //due to this its needed that we break if its the exact same color, leading to a infinite while., also if its touching the edge it doesnt work as intended
+    console.log("FLOODFILL");
+    if(startPixel.isEqual(temp) || isEdge(startPixel))
         return;
 
+    /*
     pixels[r] = Colors[color].r;
     pixels[g] = Colors[color].g;
     pixels[b] = Colors[color].b;
     pixels[a] = 255;//originalyl had an error accessing Color.RBG[color].a because that doesnt exist so paint wasnt working
+    */
 
+    console.log("FLOODFILL");
     let paintBucket = new Bucket(stringColor);
     let shapeIndex = 0;
     denque.push(startPixel);//point will still contain old colors in it even after update, which is ok because we want to compare old colors not new
@@ -76,18 +93,21 @@ function floodFillBFS(x, y, stringColor){
     //this is not the traditional way of implementing flood fill, we will not change color of pixels
 
     let i = 0;
+    console.log("----------      IN BFS ALGORITHM        ----------");
     while(!denque.isEmpty()){
 
         let current = denque.shift();
 
-        console.log("POINT IN BFS   ", current);
+        //console.log("POINT IN BFS   ", current);
         let x = current.x;
         let y = current.y;
 
         let adj = neighbors(current, x, y);
         adj.forEach((adjacent) => {
 
+            //console.log("ADJACENT : ", adjacent);
             if(!isVisited(adjacent)){
+                //console.log("PUSHED");
                 denque.push(adjacent);
                 setVisited(adjacent);
             }
@@ -95,9 +115,8 @@ function floodFillBFS(x, y, stringColor){
         });
 
         if(i % 100 == 0){
-            console.log(i);
+            //console.log("                   ITERATION   ",i);
         }
-
         ++i;
     }
 
@@ -107,30 +126,33 @@ function floodFillBFS(x, y, stringColor){
 
         let neighborIndex, neighborX, neighborY;
         let neighbors = [];
-        let currIndex = current.r;
+        let currIndex = current.indexR;
 
         //up
-        neighborIndex = currIndex + cols;
+        neighborIndex = currIndex - cols;
         neighborX = x;
         neighborY = y - 1;
         if(neighborY >= 0){
-            pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 6);
+            //console.log("1");
+            pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 5);
         }
 
         //right
         neighborIndex = currIndex + 4;
         neighborX = x + 1;
         neighborY = y;
-        if(neighborX >= myImageData.width){
-            pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 8);
+        if(neighborX < myImageData.width){
+            //console.log("2");
+            pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 7);
         }
 
         //down
-        neighborIndex = currIndex - cols;
+        neighborIndex = currIndex + cols;
         neighborX = x;
         neighborY = y + 1;
-        if(neighborY <= myImageData.height){
-            pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 2);
+        if(neighborY < myImageData.height){
+            //console.log("3");
+            pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 1);
         }
 
         //left
@@ -138,7 +160,8 @@ function floodFillBFS(x, y, stringColor){
         neighborX = x - 1;
         neighborY = y;
         if(neighborX >= 0){
-            pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 4);
+            //console.log("4");
+            pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, 3);
         }
 
         return neighbors;
@@ -146,20 +169,25 @@ function floodFillBFS(x, y, stringColor){
 
     function pushIfSameColor(neighborX, neighborY, neighborIndex, current, neighbors, dir) {
         let neighbor = new Pixel(neighborX, neighborY, neighborIndex, pixels[neighborIndex], pixels[neighborIndex + 1], pixels[neighborIndex + 2], pixels[neighborIndex + 3]);
-        if (sameColor(current, neighbor)) {
+        //console.log("CHECK IF PIXEL ACCESS IS WORKING : ", pixels[neighborIndex] )
+        if (sameColor(current, neighbor) && !isEdge(neighbor)) {
             neighbors.push(neighbor);
         }
         else if(!isVisited(neighbor)){//means we have found an outline of a shape
+            //console.log("CURRENT : ", current);
+            //console.log("Neighbor: ", neighbor);
             Moore(current, neighbor, dir);
         }
     }
 
     function setVisited(p){
-        pixels[p.indexR + 3] = 0; 
+        //console.log("BEFORE Visited: " , visited[p.y * myImageData.width + p.x]);
+        visited[p.y * myImageData.width + p.x] = 1;
+        //console.log("After Visited: " , visited[p.y * myImageData.width + p.x]);
     }
 
     function isVisited(p){
-        return pixels[p.indexR + 3] == 0;
+        return visited[p.y * myImageData.width + p.x] === 1;
     }
 
     function sameColor(current, neighbor){
@@ -169,6 +197,8 @@ function floodFillBFS(x, y, stringColor){
     
     function Moore(enter, start, dir){
 
+        console.log("----------      IN MOORE TRACING ALGORITHM        ----------");
+        const t0 = performance.now();
         console.log("FIRST DIRECTION : ", dir);
         /*
         enter is pixel that it enters from
@@ -179,70 +209,77 @@ function floodFillBFS(x, y, stringColor){
 
         let dx, dy;
         const directions = [
-            [-1, -1],   //P1
-            [0, -1],    //P2
-            [1, -1],    //P3
-            [1, 0],     //P4
-            [1, 1],     //P5
-            [0, 1],     //P6
-            [-1, 1],    //P7
-            [-1, 0]     //P8
+            [-1, -1],   //P1 0 we will use zero indexing to not make code complex
+            [0, -1],    //P2 1
+            [1, -1],    //P3 2
+            [1, 0],     //P4 3
+            [1, 1],     //P5 4
+            [0, 1],     //P6 5
+            [-1, 1],    //P7 6
+            [-1, 0]     //P8 7
         ];
 
         let B = [] //outline of shape
-        let s = [start.x,start.y]
+        const s = [start.x,start.y]
         console.log("S : ", start);
         B.push(s);
+        setVisited(start);
         let p = s, pIndex = start.indexR; //current boundary pixel
         console.log("P : ", p);
-        let currentDir = (dir + 1 > 8) ? 1 : dir + 1;
+        let currentDir = (dir + 1) % 8
         console.log(currentDir);
-        dx = directions[currentDir - 1][0]; dy = directions[currentDir - 1][1]; //zero indexed
+        dx = directions[currentDir][0]; dy = directions[currentDir][1]; //zero indexed
         let c = [p[0] + dx, p[1] + dy], cIndex = pIndex + (dx * 4) + (dy * cols);
-        console.log("C BEFORE WHILE : ", c);
+        //console.log("C BEFORE WHILE : ", c);
 
         let num = 0;
         while(!isSame(c,s)){
 
-            console.log("C : " , c);
+            //console.log("C : " , c);
+            //console.log("C INDEX : ", cIndex);
             if(isBorder(c, cIndex)){
-                console.log("FIRST IF");
+                //console.log("FIRST IF");
                 B.push(c);
-                p = c; pIndex = c;
+                p = c; pIndex = cIndex;
+
+                //console.log("           X : ", p[0], " Y : ", p[1]);
 
                 //we backtrack the pixel then move counterclockwise one
                 //no point in just going backtrack and not moving clockwise one
                 //since the next iteration will obviously not be border so thats wasting
                 //efficiency since we will have to rotate it anyway
 
-                //currDir + 4 reverses the dir, plus 1 to rotate it once, and plus 1 because its 
-                //1 based index not 0
-                console.log("BEFORE TERNARY : ", currentDir);
-                currentDir = (currentDir + 5 > 8) ? (currentDir + 5) % 9 + 1 : currentDir + 5;//error here
-                console.log("After TERNARY : ", currentDir);
-                dx = directions[currentDir - 1][0]; dy = directions[currentDir - 1][1];
+                //gets the correct backtrack direction
+                //currentDir = (currentDir + 5) % 8;
+                currentDir = backtrack.get(currentDir);
+                //console.log("After TERNARY : ", currentDir);
+                dx = directions[currentDir][0]; dy = directions[currentDir][1];
                 c = [p[0] + dx, p[1] + dy]; cIndex = pIndex + (dx * 4) + (dy * cols);
             }
             else{
-                console.log("ELSE");
+                //console.log("ELSE");
                 //advances current pixel c to next clockwise pixel in M(p)
-                currentDir = (dir + 1 > 8) ? 1 : dir + 1;
-                dx = directions[currentDir - 1][0]; dy = directions[currentDir - 1][1];
+                currentDir = (currentDir + 1) % 8;
+                dx = directions[currentDir][0]; dy = directions[currentDir][1];
                 c = [p[0] + dx, p[1] + dy]; cIndex = pIndex + (dx * 4) + (dy * cols);
             }
-             console.log("DIRECTION: ", currentDir);
+             //console.log("DIRECTION: ", currentDir);
 
              num++;
-             if(num > 10){
+             if(num > 3686400){
                 break;
              }
+             
         }
+        const t1 = performance.now();
+        console.log(`       myFunction took ${(t1 - t0).toFixed(3)} ms`);
 
         paintBucket.createShape();
         B.forEach((point) => {
-            paintBucket.addPoint(shapeIndex, point[0], point[1]);
+            paintBucket.addPoint(shapeIndex, point[0] - viewportTransformHidden.x + 0.5, point[1] - viewportTransformHidden.y + 0.5);
         });
         ++shapeIndex;
+        console.log("SHAPE CREATED : ", shapeIndex);
 
     } 
     function isSame(p1, p2){
@@ -254,18 +291,26 @@ function floodFillBFS(x, y, stringColor){
     function isBorder(p, index){
 
         let currPixel = new Pixel(p[0], p[1], index, pixels[index], pixels[index + 1], pixels[index + 2], pixels[index + 3]);
-        console.log(currPixel);
-        console.log(startPixel);
-        if(!startPixel.isEqual(currPixel)){//if color is not equal then it must be the border of some object
-            setVisited(p);
+        //console.log(currPixel);
+        //console.log(startPixel);
+        if(!startPixel.isEqual(currPixel) && !isVisited(currPixel)){//if color is not equal then it must be the border of some object
+            setVisited(currPixel);
             return true;
         }
-        else if(p[0] == 0 || p[0] == myImageData.width || p[1] == 0 || p[1] == myImageData.height){
-            setVisited(p);
+        else if(isEdge(currPixel)){
+            setVisited(currPixel);
             return true;
         }
         return false;
 
+    }
+
+    function isEdge(p){
+
+        if(p.x == 0 || p.x == myImageData.width - 1 || p.y == 0 || p.y == myImageData.height - 1){
+            return true;
+        }
+        return false;
     }
 }
 

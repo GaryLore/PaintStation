@@ -91,8 +91,9 @@ function updatePanning(e){
 
 function updateZooming(e){
 
-  const change = e.deltaY * -0.001;
-  const newScale = Math.max(Math.min(viewportTransform.scale + change, 50),0.5);
+  //const change = e.deltaY * -0.001;
+  const change = e.deltaY * -0.01;
+  const newScale = Math.max(Math.min(viewportTransform.scale + change, 1000),0.5);
 
   //let oldScale = viewportTransform.scale;
   const centerX = canvas.width / 2;
@@ -262,7 +263,14 @@ canvas.addEventListener("mousedown", function (e) {
     let y = viewportTransformHidden.y + Math.round((spotY - viewportTransform.y) / viewportTransform.scale);
     drawHidden();
     //console.log(x," ",y);
-    floodFillBFS(x, y, colorBrush);
+
+    const debug = false;
+    if(debug){
+      floodFillBFS(1280, 720, colorBrush);
+    }
+    else{
+      floodFillBFS(x, y, colorBrush);
+    }
     render();
     //ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
   }
@@ -395,7 +403,7 @@ function render(){
   //save and restore is to put each paint settings back to normal after redrwaing everything which can change the paint settings
   ctx.save();
   ctx.resetTransform();
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(
     viewportTransform.scale,
     0,
