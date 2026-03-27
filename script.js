@@ -257,6 +257,7 @@ canvas.addEventListener("mousedown", function (e) {
   }
   else if(option == Options.BUCKET){
 
+    const t0 = performance.now();
     let spotX = scaleX(e.offsetX);//coordinate on regular canvas
     let spotY = scaleY(e.offsetY);
     let x = viewportTransformHidden.x + Math.round((spotX - viewportTransform.x) / viewportTransform.scale); //correct coordinate on hidden canvas
@@ -272,6 +273,8 @@ canvas.addEventListener("mousedown", function (e) {
       floodFillBFS(x, y, colorBrush);
     }
     render();
+    const t1 = performance.now();
+    console.log(`       Paint Bucket took ${(t1 - t0).toFixed(3)} ms`);
     //ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
   }
 });
