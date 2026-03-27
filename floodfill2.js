@@ -77,12 +77,6 @@ function floodFillBFS(x, y, stringColor){
     if(startPixel.isEqual(temp) || isEdge(startPixel))
         return;
 
-    /*
-    pixels[r] = Colors[color].r;
-    pixels[g] = Colors[color].g;
-    pixels[b] = Colors[color].b;
-    pixels[a] = 255;//originalyl had an error accessing Color.RBG[color].a because that doesnt exist so paint wasnt working
-    */
 
     console.log("FLOODFILL");
     let paintBucket = new Bucket(stringColor);
