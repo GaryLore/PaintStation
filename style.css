@@ -16,6 +16,11 @@
     margin: 0 2vw;
 }
 
+#canvas.error{
+    border: 2px solid #ff0000;
+    box-shadow: 0 0 5px 3px #ff0000;
+}
+
 html{
     background-color: antiquewhite;
 }

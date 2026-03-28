@@ -103,6 +103,8 @@ function floodFillBFS(x, y, stringColor){
                 }
             }
         } catch (err){
+            canvas.classList.add("error");
+            setTimeout(() => { canvas.classList.remove("error"); }, 3000);
             return;
         }
 
