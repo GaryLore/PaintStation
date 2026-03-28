@@ -35,6 +35,7 @@ class Bucket{
             }
         }
         ctx.fill();
+        //ctx.strokeStyle = 'white';
         ctx.stroke();
     }
 

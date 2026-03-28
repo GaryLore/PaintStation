@@ -277,7 +277,12 @@ canvas.addEventListener("mousedown", function (e) {
     else{
       floodFillBFS(x, y, colorBrush);
     }
-    render();
+    //render();
+
+    renderHidden();
+    ctx.drawImage(offscreen, 0, 0, WIDTH, HEIGHT, 0, 0, canvas.width, canvas.height);
+
+
     const t1 = performance.now();
     console.log(`       Paint Bucket took ${(t1 - t0).toFixed(3)} ms`);
   }
