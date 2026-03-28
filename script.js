@@ -267,7 +267,7 @@ canvas.addEventListener("mousedown", function (e) {
     let spotY = scaleY(e.offsetY);
     let x = viewportTransformHidden.x + Math.round((spotX - viewportTransform.x) / viewportTransform.scale); //correct coordinate on hidden canvas
     let y = viewportTransformHidden.y + Math.round((spotY - viewportTransform.y) / viewportTransform.scale);
-    drawHidden();
+    renderHidden();
     //console.log(x," ",y);
 
     const debug = false;
@@ -280,7 +280,6 @@ canvas.addEventListener("mousedown", function (e) {
     render();
     const t1 = performance.now();
     console.log(`       Paint Bucket took ${(t1 - t0).toFixed(3)} ms`);
-    //ctx.drawImage(offscreen, 0, 0, offscreen.width, offscreen.height, 0, 0, canvas.width, canvas.height);
   }
 });
 
@@ -289,18 +288,16 @@ canvas.addEventListener("mouseup", function (e) {
     mouseDown = false;
   }
   else if(isDraw){
-
     recordStroke();
   }
 });
 
-canvas.addEventListener("click", dot);
+canvas.addEventListener("click", drawDot);
 
 canvas.addEventListener('mouseleave', function (e) {
 
   //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
   recordStroke();
-
   console.log("BEGIN PAINT HISTORY")
   paintHistory.forEach((e) => console.log("    ",e.constructor.name, e));
   console.log("END")
@@ -336,7 +333,7 @@ function draw(x2,y2){
   ctx.stroke();
 }
 
-function dot(e){
+function drawDot(e){
   if(option == Options.BRUSH){
     //console.log("ENTERED DOT ", mouseDrawing);
 
@@ -420,7 +417,7 @@ function render(){
   ctx.restore();
 }
 
-function drawHidden(){
+function renderHidden(){
 
   ctx.clearRect(0, 0, offscreen.width, offscreen.height)
   paintHistory.forEach((e) => e.drawHidden());
