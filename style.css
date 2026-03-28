@@ -86,6 +86,11 @@ input[type="range"]{
     box-shadow: 0 0 6px #0d8bf3;
 }
 
+.colors > div.selected{
+    border-color: #0d8bf3; 
+    box-shadow: 0 0 6px #0d8bf3;
+}
+
 .zoom{
     height:auto;
     width: 5%;
@@ -125,11 +130,11 @@ img{
     cursor: all-scroll;
 }
 
-.selected {
+.options > .selected {
   position: relative;
 }
 
-.selected::before {
+.options > .selected::before {
   content: "";
   position: absolute;
   inset: -8px;              

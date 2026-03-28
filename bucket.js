@@ -22,19 +22,19 @@ class Bucket{
         ctx.fillStyle = this.color;
         ctx.lineWidth = 1;
 
+        const shapes = this.shapes;
         ctx.beginPath();
-        this.shapes.forEach((shape) => {
+        for (let i = 0; i < shapes.length; i++) {
+            const shape = shapes[i];
 
-            shape.forEach((coordinate, index) => {
-            if(index == 0){
-                ctx.moveTo(coordinate[0],coordinate[1]);
+            //first accesses the [point] then x or y with the next bracket
+            ctx.moveTo(shape[0][0], shape[0][1]);
+
+            for (let j = 1; j < shape.length; j++) {
+                const coord = shape[j];
+                ctx.lineTo(coord[0], coord[1]);
             }
-            else{
-                ctx.lineTo(coordinate[0],coordinate[1]);
-            }
-            });
-            
-        })
+        }
         ctx.fill();
         ctx.stroke();
     }
@@ -45,19 +45,20 @@ class Bucket{
         ctxHidden.fillStyle = this.color;
         ctxHidden.lineWidth = 1;
 
+        //used to use forEach function however this is more efficient 
+        const shapes = this.shapes;
         ctxHidden.beginPath();
-        this.shapes.forEach((shape) => {
+        for (let i = 0; i < shapes.length; i++) {
+            const shape = shapes[i];
 
-            shape.forEach((coordinate, index) => {
-            if(index == 0){
-                ctxHidden.moveTo(coordinate[0],coordinate[1]);
+            //first accesses the [point] then x or y with the next bracket
+            ctxHidden.moveTo(shape[0][0], shape[0][1]);
+
+            for (let j = 1; j < shape.length; j++) {
+                const coord = shape[j];
+                ctxHidden.lineTo(coord[0], coord[1]);
             }
-            else{
-                ctxHidden.lineTo(coordinate[0],coordinate[1]);
-            }
-            });
-            
-        })
+        }
         ctxHidden.fill();
         ctxHidden.stroke();
     }

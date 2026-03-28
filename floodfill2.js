@@ -31,6 +31,8 @@ backtrack.set(5,3);
 backtrack.set(6,3);
 backtrack.set(7,5);
 
+let flagError = false;
+
 class Pixel {
 
     //contain indexes of the colors not the actual color values
@@ -92,15 +94,20 @@ function floodFillBFS(x, y, stringColor){
         let x = current.x;
         let y = current.y;
 
-        let adj = neighbors(current, x, y);
-        const len = adj.length;
-        for (let i = 0; i < len; i++){
-            const node = adj[i];          
-            if (!isVisited(node)) {      
-                denque.push(node);        
-                setVisited(node);        
+        try {
+            let adj = neighbors(current, x, y);
+            const len = adj.length;
+            for (let i = 0; i < len; i++){
+                const node = adj[i];          
+                if (!isVisited(node)) {      
+                    denque.push(node);        
+                    setVisited(node);        
+                }
             }
+        } catch (err){
+            return;
         }
+
 
     }
 
@@ -158,6 +165,9 @@ function floodFillBFS(x, y, stringColor){
             //console.log("CURRENT : ", current);
             //console.log("Neighbor: ", neighbor);
             Moore(neighbor, dir);
+            if(flagError){
+
+            }
         }
     }
 
@@ -175,7 +185,6 @@ function floodFillBFS(x, y, stringColor){
 
         console.log("----------      IN MOORE TRACING ALGORITHM        ----------");
         const t0 = performance.now();
-        //console.log("FIRST DIRECTION : ", dir);
         /*
         enter is pixel that it enters from
         start is the first boundary pixel
@@ -243,7 +252,8 @@ function floodFillBFS(x, y, stringColor){
 
              num++;
              if(num > 3686400){
-                break;
+                console.log("minor error");
+                throw new Error("Something went wrong");
              }
              
         }
@@ -261,7 +271,6 @@ function floodFillBFS(x, y, stringColor){
             paintBucket.addPoint(shapeIndex, x - offsetX + 0.5, y - offsetY + 0.5);
         }
         ++shapeIndex;
-        //console.log("SHAPE CREATED : ", shapeIndex);
 
     } 
     function isSame(p1, p2){
@@ -271,7 +280,6 @@ function floodFillBFS(x, y, stringColor){
     }
 
     function isBorder(p, index){
-
         let currPixel = new Pixel(p[0], p[1], index, pixels[index], pixels[index + 1], pixels[index + 2], pixels[index + 3]);
         //console.log(currPixel);
         //console.log(startPixel);
@@ -288,7 +296,6 @@ function floodFillBFS(x, y, stringColor){
     }
 
     function isEdge(p){
-
         const x = p.x;
         const y = p.y;
 

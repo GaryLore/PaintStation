@@ -91,9 +91,8 @@ function updatePanning(e){
 
 function updateZooming(e){
 
-  //const change = e.deltaY * -0.001;
-  const change = e.deltaY * -0.01;
-  const newScale = Math.max(Math.min(viewportTransform.scale + change, 1000),0.5);
+  const change = e.deltaY * -0.001;
+  const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.5);
 
   //let oldScale = viewportTransform.scale;
   const centerX = canvas.width / 2;
@@ -120,15 +119,21 @@ let mouseDrawing = false;//checks if there has been actual movement to draw
 
 //populate paintbrush options in html
 populateColors();
+const blackColor = document.getElementById("black");
+blackColor.classList.add("selected");
+
 let colorOptions = document.getElementById("all_colors");
 colorOptions.addEventListener("click", function (e){
 
-  console.log("entered boss");
-  if(e.target.tagName === "DIV"){
+  if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
+    document.querySelector(".colors .selected").classList.remove("selected");
+    e.target.classList.add("selected");
+
     console.log("entered boss");
     colorBrush = e.target.id;
     ctx.strokeStyle = colorBrush;
     ctx.fillStyle = colorBrush;
+    console.log(colorBrush);
   }
 });
 
@@ -309,7 +314,7 @@ function recordStroke() {
     paintHistory.push(tempStroke);
   }
   else{
-    //console.log("SOMETHING NULL WAS FOR SOME REASON ");
+    console.log("SOMETHING NULL WAS FOR SOME REASON ");
   }
 
   tempStroke = null;
