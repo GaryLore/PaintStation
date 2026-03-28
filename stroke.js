@@ -20,16 +20,13 @@ class Stroke{
         ctx.fillStyle = this.color;
         ctx.lineWidth = this.width;
 
-        
+        const points = this.points;
         ctx.beginPath();
-        this.points.forEach((coordinate, index) => {
-            if(index == 0){
-                ctx.moveTo(coordinate[0],coordinate[1]);
-            }
-            else{
-                ctx.lineTo(coordinate[0],coordinate[1]);
-            }
-        })
+        ctx.moveTo(points[0][0],points[0][1]);
+        for(let i = 1; i < points.length; i++){
+            const coord = points[i];
+            ctx.lineTo(coord[0], coord[1]);
+        }
         ctx.stroke();
     
     }
@@ -39,16 +36,14 @@ class Stroke{
         ctxHidden.fillStyle = this.color;
         ctxHidden.lineWidth = this.width;
 
-
+        const points = this.points;
         ctxHidden.beginPath();
-        this.points.forEach((coordinate, index) => {
-            if(index == 0){
-                ctxHidden.moveTo(coordinate[0],coordinate[1]);
-            }
-            else{
-                ctxHidden.lineTo(coordinate[0],coordinate[1]);
-            }
-        })
+        ctxHidden.moveTo(points[0][0],points[0][1]);
+        for(let i = 1; i < points.length; i++){
+            const coord = points[i];
+            ctxHidden.lineTo(coord[0], coord[1]);
+        }
         ctxHidden.stroke();
+
     }
 }

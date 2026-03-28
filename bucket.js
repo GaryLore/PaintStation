@@ -29,7 +29,6 @@ class Bucket{
 
             //first accesses the [point] then x or y with the next bracket
             ctx.moveTo(shape[0][0], shape[0][1]);
-
             for (let j = 1; j < shape.length; j++) {
                 const coord = shape[j];
                 ctx.lineTo(coord[0], coord[1]);

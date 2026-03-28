@@ -251,6 +251,7 @@ function floodFillBFS(x, y, stringColor){
              num++;
              if(num > 3686400){
                 console.log("minor error");
+                console.log(shapeIndex);
                 throw new Error("Something went wrong");
              }
              

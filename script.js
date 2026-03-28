@@ -354,7 +354,6 @@ function drawDot(e){
       ctx.fill();
 
       //actual x and y may be different due to transformations
-
       let historyX = (x - viewportTransform.x) / viewportTransform.scale; // changing this
       let historyY = (y - viewportTransform.y) / viewportTransform.scale;
 
@@ -418,8 +417,6 @@ function render(){
 }
 
 function renderHidden(){
-
   ctx.clearRect(0, 0, offscreen.width, offscreen.height)
   paintHistory.forEach((e) => e.drawHidden());
-  
 }
