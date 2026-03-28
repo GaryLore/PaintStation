@@ -9,10 +9,10 @@ let rect = canvas.getBoundingClientRect();
 canvas.width = 1280;
 canvas.height = 720;
 
+const WIDTH = 2560;
+const HEIGHT = 1440;
+const offscreen = new OffscreenCanvas(WIDTH, HEIGHT); 
 
-
-//hidden canvas used to achieve paint bucket implementation
-const offscreen = new OffscreenCanvas(canvas.width*2, canvas.height*2); //2560 x 1440
 const ctxHidden = offscreen.getContext("2d", { willReadFrequently: true });
 //makes sure small canvas is in the center
 const viewportTransformHidden = {

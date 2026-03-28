@@ -59,8 +59,6 @@ const getColorIndicesForCoord = (x, y, width) => {
 function floodFillBFS(x, y, stringColor){
 
     let color = stringColor.toUpperCase();
-    const WIDTH = offscreen.width;
-    const HEIGHT = offscreen.height;
     const myImageData = ctxHidden.getImageData(0, 0, WIDTH, HEIGHT);
     const pixels = myImageData.data;
     const cols = WIDTH * 4;
