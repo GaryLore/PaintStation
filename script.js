@@ -313,10 +313,6 @@ function recordStroke() {
   if(tempStroke != null && tempStroke.points.length != 1){//length of one is always recorded just in case mouse starts to move
     paintHistory.push(tempStroke);
   }
-  else{
-    console.log("SOMETHING NULL WAS FOR SOME REASON ");
-  }
-
   tempStroke = null;
 }
 
