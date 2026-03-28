@@ -87,8 +87,8 @@ input[type="range"]{
 }
 
 .colors > div.selected{
-    border-color: #0d8bf3; 
-    box-shadow: 0 0 6px #0d8bf3;
+    border-color: #0d5df3; 
+    box-shadow: 0 0 5px 3px #0d5df3;  
 }
 
 .zoom{
