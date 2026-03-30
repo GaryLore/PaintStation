@@ -105,6 +105,22 @@ function floodFillBFS(x, y, stringColor){
         } catch (err){
             canvas.classList.add("error");
             setTimeout(() => { canvas.classList.remove("error"); }, 3000);
+
+            let R = 0 ,G = 0 ,B = 0 ,A = 255;
+            for(let i = 4; i != pixels.length; i = i + 4){
+                //console.log(i);
+                let [r, g, b, a] = [pixels[i],pixels[i+1],pixels[i+2],pixels[i+3]];
+                if(R != r || G != g || B != b || A != a){
+                    console.log(`R:${R}, r:${r}, G:${G}, g:${g}, B:${B}, b:${b}, A:${A}, a:${a}`);
+                    console.log("THIS PIXEL IS DIFFERENT", i);
+                    let y = Math.floor(i / (2560 * 4));
+                    let x = Math.floor((i % (2560 * 4))/4);
+                    console.log("(", x, ",", y, ")");
+                    //break;
+                }
+
+            }
+            console.log(pixels);
             return;
         }
 
@@ -218,11 +234,13 @@ function floodFillBFS(x, y, stringColor){
         //console.log("C BEFORE WHILE : ", c);
 
         let num = 0;
+        let dirCount = 1;
         while(!isSame(c,s)){
 
             //console.log("C : " , c);
             //console.log("C INDEX : ", cIndex);
             if(isBorder(c, cIndex)){
+                dirCount = 1;
                 //console.log("FIRST IF");
                 B.push(c);
                 p = c; pIndex = cIndex;
@@ -242,11 +260,18 @@ function floodFillBFS(x, y, stringColor){
                 c = [p[0] + dx, p[1] + dy]; cIndex = pIndex + (dx * 4) + (dy * cols);
             }
             else{
+
+                if(dirCount == 8){
+                    console.log("OVER 8");
+                    return;
+                }
                 //console.log("ELSE");
                 //advances current pixel c to next clockwise pixel in M(p)
                 currentDir = (currentDir + 1) % 8;
                 dx = directions[currentDir][0]; dy = directions[currentDir][1];
                 c = [p[0] + dx, p[1] + dy]; cIndex = pIndex + (dx * 4) + (dy * cols);
+
+                dirCount++;
             }
              //console.log("DIRECTION: ", currentDir);
 

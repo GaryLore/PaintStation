@@ -60,7 +60,10 @@ class Bucket{
             }
         }
         ctxHidden.fill();
+
+        //ctxHidden.strokeStyle = '#DAA520';
         ctxHidden.stroke();
+        //ctxHidden.stroke();
     }
 
 }

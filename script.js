@@ -6,8 +6,8 @@ if (!canvas.getContext) {
 } 
 const ctx = canvas.getContext("2d");
 let rect = canvas.getBoundingClientRect();
-canvas.width = 1280;
-canvas.height = 720;
+canvas.width = 2560;//1280;
+canvas.height = 1440;//720;
 
 const WIDTH = 2560;
 const HEIGHT = 1440;
@@ -16,8 +16,8 @@ const offscreen = new OffscreenCanvas(WIDTH, HEIGHT);
 const ctxHidden = offscreen.getContext("2d", { willReadFrequently: true });
 //makes sure small canvas is in the center
 const viewportTransformHidden = {
-        x: 640,
-        y: 360,
+        x: 0,//640,
+        y: 0,//360,
         scale: 1
       }
 
@@ -216,7 +216,9 @@ canvas.addEventListener("mousemove", function (e) {
     //render(); CHANGED
 
     renderHidden();
-    ctx.drawImage(offscreen, GlobalOffsetX, GlobalOffsetY, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
+    const offX = (WIDTH - WIDTH/viewportTransform.scale)/2 - GlobalOffsetX;
+    const offY = (HEIGHT - HEIGHT/viewportTransform.scale)/2 - GlobalOffsetY;
+    ctx.drawImage(offscreen, offX, offY, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
 
   }
   else if(option == Options.BRUSH && isDraw){
@@ -246,7 +248,9 @@ canvas.addEventListener("wheel", function(e){
     //render(); CHANGED
 
     renderHidden();
-    ctx.drawImage(offscreen, viewportTransform.x, viewportTransform.y, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
+    const offX = (WIDTH - WIDTH/viewportTransform.scale)/2;
+    const offY = (HEIGHT - HEIGHT/viewportTransform.scale)/2;
+    ctx.drawImage(offscreen, offX, offY, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
   }
 });
 
@@ -277,7 +281,7 @@ canvas.addEventListener("mousedown", function (e) {
     let x = viewportTransformHidden.x + Math.round((spotX - viewportTransform.x) / viewportTransform.scale); //correct coordinate on hidden canvas
     let y = viewportTransformHidden.y + Math.round((spotY - viewportTransform.y) / viewportTransform.scale);
     renderHidden();
-    //console.log(x," ",y);
+    console.log(x," ",y);
 
     const debug = false;
     if(debug){
@@ -289,7 +293,9 @@ canvas.addEventListener("mousedown", function (e) {
     //render();
 
     renderHidden();
-    ctx.drawImage(offscreen, 0, 0, WIDTH, HEIGHT, viewportTransform.x, viewportTransform.y, canvas.width, canvas.height);
+    const offX = (WIDTH - WIDTH/viewportTransform.scale)/2;
+    const offY = (HEIGHT - HEIGHT/viewportTransform.scale)/2;
+    ctx.drawImage(offscreen, offX, offY, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
 
 
     const t1 = performance.now();
