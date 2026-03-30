@@ -92,7 +92,7 @@ function updatePanning(e){
 function updateZooming(e){
 
   const change = e.deltaY * -0.001;
-  const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.5);
+  const newScale = Math.max(Math.min(viewportTransform.scale + change, 100),0.5);
 
   //let oldScale = viewportTransform.scale;
   const centerX = canvas.width / 2;
@@ -212,7 +212,12 @@ canvas.addEventListener("mousemove", function (e) {
   
   if(option == Options.PANZOOM && mouseDown){
     updatePanning(e);
-    render();
+
+    //render(); CHANGED
+
+    renderHidden();
+    ctx.drawImage(offscreen, GlobalOffsetX, GlobalOffsetY, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
+
   }
   else if(option == Options.BRUSH && isDraw){
     let x2, y2;
@@ -237,7 +242,11 @@ canvas.addEventListener("mousemove", function (e) {
 canvas.addEventListener("wheel", function(e){
   if(option == Options.PANZOOM){
     updateZooming(e);
-    render();
+
+    //render(); CHANGED
+
+    renderHidden();
+    ctx.drawImage(offscreen, viewportTransform.x, viewportTransform.y, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
   }
 });
 
@@ -280,7 +289,7 @@ canvas.addEventListener("mousedown", function (e) {
     //render();
 
     renderHidden();
-    ctx.drawImage(offscreen, 0, 0, WIDTH, HEIGHT, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(offscreen, 0, 0, WIDTH, HEIGHT, viewportTransform.x, viewportTransform.y, canvas.width, canvas.height);
 
 
     const t1 = performance.now();
