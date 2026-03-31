@@ -287,17 +287,24 @@ function floodFillBFS(x, y, stringColor){
         const t1 = performance.now();
         console.log(`       Moore Tracing Algorithm took ${(t1 - t0).toFixed(3)} ms`);
 
-        paintBucket.createShape();
-        const offsetX = viewportTransformHidden.x;
-        const offsetY = viewportTransformHidden.y;
-        for (let i = 0; i < B.length; i++) {
-            const point = B[i];
-            const x = point[0];
-            const y = point[1];
+         /*
+            special case where it only advances one pixel and back, due to pixels connected of length two
+            this happens because the pixels arent perfectly alligned to where each stroke is drawn causing, causing a few pixels of the same color
+            to be created. 
+        */
+        if(B.length != 2){
+            paintBucket.createShape();
+            const offsetX = viewportTransformHidden.x;
+            const offsetY = viewportTransformHidden.y;
+            for (let i = 0; i < B.length; i++) {
+                const point = B[i];
+                const x = point[0];
+                const y = point[1];
 
-            paintBucket.addPoint(shapeIndex, x - offsetX + 0.5, y - offsetY + 0.5);
+                paintBucket.addPoint(shapeIndex, x - offsetX + 0.5, y - offsetY + 0.5);
+            }
+            ++shapeIndex;
         }
-        ++shapeIndex;
 
     } 
     function isSame(p1, p2){
