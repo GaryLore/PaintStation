@@ -80,9 +80,8 @@ function floodFillBFS(x, y, stringColor){
     let shapeIndex = 0;
     denque.push(startPixel);//point will still contain old colors in it even after update, which is ok because we want to compare old colors not new
 
-
     //this is not the traditional way of implementing flood fill, we will not change color of pixels
-
+    ErrorHistory = [];
     console.log("----------      IN BFS ALGORITHM        ----------");
     while(!denque.isEmpty()){
 
@@ -128,6 +127,7 @@ function floodFillBFS(x, y, stringColor){
     }
 
     paintHistory.push(paintBucket);
+
 
     function neighbors(current,x,y){
 
@@ -261,8 +261,9 @@ function floodFillBFS(x, y, stringColor){
             }
             else{
 
-                if(dirCount == 8){
+                if(dirCount == 10){
                     console.log("OVER 8");
+                    ErrorHistory.push(new Error(p[0], p[1]));
                     return;
                 }
                 //console.log("ELSE");
@@ -312,6 +313,10 @@ function floodFillBFS(x, y, stringColor){
         if(!startPixel.isEqual(currPixel) && !isVisited(currPixel)){//if color is not equal then it must be the border of some object
             setVisited(currPixel);
             return true;
+        }
+        else if(!startPixel.isEqual(currPixel) && isVisited(currPixel)){
+            console.log("encountered same pixel while rotating");
+            return false;
         }
         else if(isEdge(currPixel)){
             setVisited(currPixel);

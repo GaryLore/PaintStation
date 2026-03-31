@@ -6,8 +6,8 @@ if (!canvas.getContext) {
 } 
 const ctx = canvas.getContext("2d");
 let rect = canvas.getBoundingClientRect();
-canvas.width = 2560;//1280;
-canvas.height = 1440;//720;
+canvas.width = 1280;
+canvas.height = 720;
 
 const WIDTH = 2560;
 const HEIGHT = 1440;
@@ -205,6 +205,7 @@ slider.addEventListener("change", function (){
 
 //History
 let paintHistory = [];
+let ErrorHistory = [];
 let tempStroke = null;
 
 //event listeners
@@ -213,12 +214,14 @@ canvas.addEventListener("mousemove", function (e) {
   if(option == Options.PANZOOM && mouseDown){
     updatePanning(e);
 
-    //render(); CHANGED
+    render(); 
 
+    /* DEBUGGING
     renderHidden();
     const offX = (WIDTH - WIDTH/viewportTransform.scale)/2 - GlobalOffsetX;
     const offY = (HEIGHT - HEIGHT/viewportTransform.scale)/2 - GlobalOffsetY;
     ctx.drawImage(offscreen, offX, offY, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
+    */
 
   }
   else if(option == Options.BRUSH && isDraw){
@@ -245,12 +248,14 @@ canvas.addEventListener("wheel", function(e){
   if(option == Options.PANZOOM){
     updateZooming(e);
 
-    //render(); CHANGED
+    render(); 
 
+    /* DEBUGGING
     renderHidden();
     const offX = (WIDTH - WIDTH/viewportTransform.scale)/2;
     const offY = (HEIGHT - HEIGHT/viewportTransform.scale)/2;
     ctx.drawImage(offscreen, offX, offY, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
+    */
   }
 });
 
@@ -290,12 +295,14 @@ canvas.addEventListener("mousedown", function (e) {
     else{
       floodFillBFS(x, y, colorBrush);
     }
-    //render();
+    render();
 
+    /*DEBUGGING
     renderHidden();
     const offX = (WIDTH - WIDTH/viewportTransform.scale)/2;
     const offY = (HEIGHT - HEIGHT/viewportTransform.scale)/2;
     ctx.drawImage(offscreen, offX, offY, WIDTH/viewportTransform.scale, HEIGHT/viewportTransform.scale, 0, 0, canvas.width, canvas.height);
+    */
 
 
     const t1 = performance.now();
@@ -320,7 +327,10 @@ canvas.addEventListener('mouseleave', function (e) {
   recordStroke();
   console.log("BEGIN PAINT HISTORY")
   paintHistory.forEach((e) => console.log("    ",e.constructor.name, e));
-  console.log("END")
+  console.log("END");
+  console.log("BEGIN ERROR HISTORY")
+  ErrorHistory.forEach((e) => console.log("    ",e.constructor.name, e));
+  console.log("END");
 });
 
 
@@ -433,6 +443,7 @@ function render(){
     viewportTransform.y
   );
   paintHistory.forEach((e) => e.draw());
+  ErrorHistory.forEach((e) => e.draw());
   ctx.restore();
 }
 
