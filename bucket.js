@@ -35,11 +35,12 @@ class Bucket{
             }
         }
         ctx.fill();
-        ctx.strokeStyle = '#000000';
+        //ctx.strokeStyle = '#000000';
         ctx.stroke();
     }
 
     drawHidden(){
+        
         ctxHidden.imageSmoothingEnabled = false
         ctxHidden.strokeStyle = this.color;
         ctxHidden.fillStyle = this.color;
@@ -61,8 +62,9 @@ class Bucket{
         }
         ctxHidden.fill();
         //ctxHidden.strokeStyle = '#DAA520';
-        ctxHidden.strokeStyle = '#000000';
+        //ctxHidden.strokeStyle = '#000000';
         ctxHidden.stroke();// if you include this there is tehcnically less directions over 8, however each time you paint the same line drawn gets smaller
+        
     }
 
 }
