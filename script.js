@@ -16,8 +16,8 @@ const offscreen = new OffscreenCanvas(WIDTH, HEIGHT);
 const ctxHidden = offscreen.getContext("2d", { willReadFrequently: true });
 //makes sure small canvas is in the center
 const viewportTransformHidden = {
-        x: 0,//640,
-        y: 0,//360,
+        x: 640,
+        y: 360,
         scale: 1
       }
 

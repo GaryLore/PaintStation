@@ -107,7 +107,6 @@ function floodFillBFS(x, y, stringColor){
 
             let R = 0 ,G = 0 ,B = 0 ,A = 255;
             for(let i = 4; i != pixels.length; i = i + 4){
-                //console.log(i);
                 let [r, g, b, a] = [pixels[i],pixels[i+1],pixels[i+2],pixels[i+3]];
                 if(R != r || G != g || B != b || A != a){
                     console.log(`R:${R}, r:${r}, G:${G}, g:${g}, B:${B}, b:${b}, A:${A}, a:${a}`);
@@ -122,12 +121,9 @@ function floodFillBFS(x, y, stringColor){
             console.log(pixels);
             return;
         }
-
-
     }
 
     paintHistory.push(paintBucket);
-
 
     function neighbors(current,x,y){
 
@@ -178,8 +174,6 @@ function floodFillBFS(x, y, stringColor){
             neighbors.push(neighbor);
         }
         else if(!isVisited(neighbor)){//means we have found an outline of a shape
-            //console.log("CURRENT : ", current);
-            //console.log("Neighbor: ", neighbor);
             Moore(neighbor, dir);
             if(flagError){
 
@@ -188,9 +182,7 @@ function floodFillBFS(x, y, stringColor){
     }
 
     function setVisited(p){
-        //console.log("BEFORE Visited: " , visited[p.y * myImageData.width + p.x]);
         visited[p.y * WIDTH + p.x] = 1;
-        //console.log("After Visited: " , visited[p.y * myImageData.width + p.x]);
     }
 
     function isVisited(p){
@@ -222,16 +214,13 @@ function floodFillBFS(x, y, stringColor){
 
         let B = [] //outline of shape
         const s = [start.x,start.y]
-        //console.log("S : ", start);
         B.push(s);
         setVisited(start);
         let p = s, pIndex = start.indexR; //current boundary pixel
-        //console.log("P : ", p);
         let currentDir = (dir + 1) % 8
         console.log(currentDir);
         dx = directions[currentDir][0]; dy = directions[currentDir][1]; //zero indexed
         let c = [p[0] + dx, p[1] + dy], cIndex = pIndex + (dx * 4) + (dy * cols);
-        //console.log("C BEFORE WHILE : ", c);
 
         let num = 0;
         let dirCount = 1;
@@ -253,7 +242,6 @@ function floodFillBFS(x, y, stringColor){
                 //efficiency since we will have to rotate it anyway
 
                 //gets the correct backtrack direction
-                //currentDir = (currentDir + 5) % 8;
                 currentDir = backtrack.get(currentDir);
                 //console.log("After TERNARY : ", currentDir);
                 dx = directions[currentDir][0]; dy = directions[currentDir][1];
@@ -263,10 +251,9 @@ function floodFillBFS(x, y, stringColor){
 
                 if(dirCount == 10){
                     console.log("OVER 8");
-                    ErrorHistory.push(new Error(p[0], p[1]));
+                    ErrorHistory.push(new Error(p[0] - viewportTransformHidden.x, p[1] - viewportTransformHidden.y));
                     return;
                 }
-                //console.log("ELSE");
                 //advances current pixel c to next clockwise pixel in M(p)
                 currentDir = (currentDir + 1) % 8;
                 dx = directions[currentDir][0]; dy = directions[currentDir][1];

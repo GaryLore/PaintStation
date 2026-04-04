@@ -169,7 +169,6 @@ function floodFillBFS(x, y, stringColor){
         }
     }
     paintHistory.push(paintBucket);
-    //paintBucket.draw();
 
     //updates offScreen canvas with new painted pixels
     ctxHidden.putImageData(myImageData, 0, 0);

@@ -20,7 +20,7 @@ class Bucket{
         ctx.imageSmoothingEnabled = false
         ctx.strokeStyle = this.color;
         ctx.fillStyle = this.color;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;//to avoid pixel problems do to pixel allignment generating a slightly different color
 
         const shapes = this.shapes;
         ctx.beginPath();
@@ -35,7 +35,7 @@ class Bucket{
             }
         }
         ctx.fill();
-        //ctx.strokeStyle = 'white';
+        ctx.strokeStyle = '#000000';
         ctx.stroke();
     }
 
@@ -43,7 +43,7 @@ class Bucket{
         ctxHidden.imageSmoothingEnabled = false
         ctxHidden.strokeStyle = this.color;
         ctxHidden.fillStyle = this.color;
-        ctxHidden.lineWidth = 1;
+        ctxHidden.lineWidth = 2;
 
         //used to use forEach function however this is more efficient 
         const shapes = this.shapes;
@@ -60,10 +60,9 @@ class Bucket{
             }
         }
         ctxHidden.fill();
-
         //ctxHidden.strokeStyle = '#DAA520';
-        ctxHidden.stroke();
-        //ctxHidden.stroke();
+        ctxHidden.strokeStyle = '#000000';
+        ctxHidden.stroke();// if you include this there is tehcnically less directions over 8, however each time you paint the same line drawn gets smaller
     }
 
 }
