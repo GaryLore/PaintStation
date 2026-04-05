@@ -129,11 +129,8 @@ let colorOptions = document.getElementById("all_colors");
 colorOptions.addEventListener("click", function (e){
 
   if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
-    document.querySelector(".colors .selected").classList.remove("selected");
-    e.target.classList.add("selected");
 
     console.log("entered boss");
-    ctx.fillStyle = colorBrush;
     console.log(colorBrush);
 
     if(choice == 1){
