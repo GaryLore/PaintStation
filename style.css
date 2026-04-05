@@ -93,6 +93,7 @@ input[type="range"]{
 .bucket{
     height:auto;
     width: 4%;
+    margin-right: 2%;
 }
 .brush{
     height:auto;
@@ -105,10 +106,6 @@ input[type="range"]{
 img{
     aspect-ratio: 1 / 1;
     width:100%;
-}
-
-.brush{
-    margin-right: 2%;
 }
 
 .optionBucket{

@@ -103,9 +103,10 @@ populateColors();
 const blackColor = document.getElementById("black");
 blackColor.classList.add("selected");
 
-let choice;
+let choice = 1;
 const [option1, inner1] = createOptions("1", "black");
 const [option2, inner2] = createOptions("2", "white");
+option1.classList.add("selected");
 
 
 option1.addEventListener("click", function(){
@@ -344,7 +345,10 @@ function drawDot(e){
       //console.log("DOT ", x, " ", y);
       ctx.beginPath();
       ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
+      ctx.fillStyle = colorBrush;//neccessary because fill i used to implement dot
       ctx.fill();
+
+      ctx.fillStyle = bucketColor;
 
       //actual x and y may be different due to transformations
       let historyX = (x - viewportTransform.x) / viewportTransform.scale; // changing this
