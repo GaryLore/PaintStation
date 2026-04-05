@@ -60,25 +60,23 @@ function updatePanning(e){
   //so if we drag our mouse half way accross the canvas, we want to ensure 640 pixels are moved even if half of the canvas is more or less than 640 pixels
   const xDIFF = scaleX(diffX);
   viewportTransform.x += xDIFF;
-  GlobalOffsetX += xDIFF / viewportTransform.scale; //CHANGED
+  GlobalOffsetX += xDIFF / viewportTransform.scale; 
 
   const yDIFF = scaleY(diffY);
   viewportTransform.y += yDIFF;
-  GlobalOffsetY += yDIFF / viewportTransform.scale;  //CHANGED
+  GlobalOffsetY += yDIFF / viewportTransform.scale;  
 
   //you have to divide it because when you zoom in and are very close and move by a certain amount of pixels, but realistically if it wasnt zoomed in that amount of pixels
   //you moved is actually be signficiantly less since irs proportional so we divide
 
   previousX = localX;
   previousY = localY;
-
-  //console.log(viewportTransform.x,viewportTransform.y,viewportTransform.scale)
 }
 
 function updateZooming(e){
 
   const change = e.deltaY * -0.001;
-  const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.5);
+  const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.25);
 
   viewportTransform.scale = newScale;
   ctx.lineWidth = paintWidth * viewportTransform.scale;
@@ -110,19 +108,15 @@ option1.classList.add("selected");
 
 
 option1.addEventListener("click", function(){
-
   choice = 1;
   option2.classList.remove("selected");
   this.classList.add("selected");
- 
 });
 
 option2.addEventListener("click", function(){
-
   choice = 2;
   option1.classList.remove("selected");
   this.classList.add("selected");
- 
 });
 
 let colorOptions = document.getElementById("all_colors");
@@ -291,6 +285,12 @@ canvas.addEventListener('mouseleave', function (e) {
 
   //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
   recordStroke();
+  if(fill && tempStroke != null && tempStroke.points.length != 1){
+      ctx.fill();
+      ctx.closePath();
+      ctx.stroke();
+  }
+
   console.log("BEGIN PAINT HISTORY")
   paintHistory.forEach((e) => console.log("    ",e.constructor.name, e));
   console.log("END")
@@ -384,7 +384,6 @@ function createOptions(num, string){
 
 //populates colors in html
 function populateColors(){
-
   createColor("black");
   createColor("gray");
   createColor("darkred");
@@ -395,7 +394,6 @@ function populateColors(){
   createColor("turquoise");
   createColor("indigo");
   createColor("purple");
-
   createColor("white");
   createColor("lightgray");
   createColor("brown");
@@ -421,7 +419,18 @@ function render(){
     viewportTransform.x,
     viewportTransform.y
   );
+
+  drawBorder();
   paintHistory.forEach((e) => e.draw());
   ctx.restore();
+}
+
+function drawBorder(){
+
+  ctx.fillStyle = "dimgray";
+  ctx.fillRect(-1920, -1080, 5120, 2880);
+
+  ctx.fillStyle = "white";
+  ctx.fillRect(-640, -360, 2560, 1440);
 }
 

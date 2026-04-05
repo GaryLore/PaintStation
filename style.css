@@ -108,11 +108,6 @@ img{
     width:100%;
 }
 
-.optionBucket{
-    cursor: url("img/bucket_cursor.png") 5 16, auto;
-    border: 2px solid red;
-}
-
 .optionBrush{
     cursor: crosshair;
 }
