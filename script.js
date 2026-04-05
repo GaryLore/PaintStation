@@ -9,48 +9,33 @@ let rect = canvas.getBoundingClientRect();
 canvas.width = 1280;
 canvas.height = 720;
 
-const WIDTH = 2560;
-const HEIGHT = 1440;
-const offscreen = new OffscreenCanvas(WIDTH, HEIGHT); 
-
-const ctxHidden = offscreen.getContext("2d", { willReadFrequently: true });
-//makes sure small canvas is in the center
-const viewportTransformHidden = {
-        x: 640,
-        y: 360,
-        scale: 1
-      }
-
-ctxHidden.setTransform(
-    viewportTransformHidden.scale,
-    0,
-    0,
-    viewportTransformHidden.scale,
-    viewportTransformHidden.x,
-    viewportTransformHidden.y
-  );
-
 //fixes problem where if you resize browser the paint stroke isnt in the correct location
 window.addEventListener('resize', function() {
     rect = canvas.getBoundingClientRect();
 });
 
 //canvas paintbrush properties
+let fill = false;
 const Options = Object.freeze({
   BRUSH: 0,
   PANZOOM: 1,
-  BUCKET: 2,
+});
+
+const slider = document.getElementById("all_thickness");
+slider.addEventListener("change", function (){
+  paintWidth = slider.valueAsNumber;
+  ctx.lineWidth = paintWidth * viewportTransform.scale;
 });
 
 let colorBrush = "black";
 let option = Options.BRUSH;
 ctx.strokeStyle = colorBrush;
 ctx.fillStyle = colorBrush;
-let paintWidth = 15;
+let paintWidth = slider.valueAsNumber;
 ctx.lineWidth = paintWidth;
 //we set linecap and line join both to the same so the redraws with render are the same
-ctx.lineCap = ctxHidden.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
-ctx.lineJoin = ctxHidden.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
+ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
+ctx.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
 
 //pan and zoom features
 let mouseDown = false;
@@ -94,13 +79,8 @@ function updateZooming(e){
   const change = e.deltaY * -0.001;
   const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.5);
 
-  //let oldScale = viewportTransform.scale;
-  const centerX = canvas.width / 2;
-  const centerY = canvas.width / 2;
-
   viewportTransform.scale = newScale;
   ctx.lineWidth = paintWidth * viewportTransform.scale;
-
   
   //makes sure it zooms on the center, and stays there where you offset it
   
@@ -142,7 +122,6 @@ trashCan.addEventListener("click", function(){
   const debug = false;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctxHidden.clearRect(-viewportTransformHidden.x, -viewportTransformHidden.y, offscreen.width, offscreen.height);
 
   if(!debug){
     paintHistory = [];
@@ -153,42 +132,39 @@ trashCan.addEventListener("click", function(){
 const magnify = document.getElementsByClassName("zoom")[0];
 magnify.addEventListener("click", function(){
 
+  option = Options.PANZOOM;
   this.classList.add('selected');
   brush.classList.remove('selected');
-  bucket.classList.remove('selected');
-
-
-  option = Options.PANZOOM;
   canvas.classList.add('optionPanZoom');
-  canvas.classList.remove('optionBucket', 'optionBrush');
+  canvas.classList.remove('optionBrush');
 
-  this.classList.add('selected');
 });
 
 const brush = document.getElementsByClassName("brush")[0];
 brush.addEventListener("click", function(){
 
+  option = Options.BRUSH;
   this.classList.add('selected');
   magnify.classList.remove('selected');
-  bucket.classList.remove('selected');
-
-
-  option = Options.BRUSH;
   canvas.classList.add('optionBrush');
-  canvas.classList.remove('optionBucket', 'optionPanZoom');
+  canvas.classList.remove('optionPanZoom');
 
 });
 
 const bucket = document.getElementsByClassName("bucket")[0];
 bucket.addEventListener("click", function(){
 
-  this.classList.add('selected');
-  magnify.classList.remove('selected');
-  brush.classList.remove('selected');
+  fill = !fill;
 
-  option = Options.BUCKET;
-  canvas.classList.add('optionBucket');
-  canvas.classList.remove('optionBrush', 'optionPanZoom');
+  if(fill){
+    this.classList.add('selected');
+    canvas.classList.add('optionBucket');
+  }
+  else{
+    this.classList.remove('selected');
+    canvas.classList.remove('optionBucket');
+  }
+
 });
 
 const title = document.getElementsByClassName("title")[0];
@@ -197,11 +173,6 @@ title.addEventListener("click", function(){
 });
 
 //other paint features
-const slider = document.getElementById("all_thickness");
-slider.addEventListener("change", function (){
-  paintWidth = slider.valueAsNumber;
-  ctx.lineWidth = paintWidth * viewportTransform.scale;
-});
 
 //History
 let paintHistory = [];
@@ -252,7 +223,10 @@ canvas.addEventListener("mousedown", function (e) {
     x1 = scaleX(e.offsetX);
     y1 = scaleY(e.offsetY);
 
-    tempStroke = new Stroke(colorBrush, paintWidth);
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+
+    tempStroke = new Stroke(colorBrush, paintWidth, fill);
 
     //actual x and y may be different due to transformations
     let historyX = (x1 - viewportTransform.x) / viewportTransform.scale;
@@ -260,27 +234,7 @@ canvas.addEventListener("mousedown", function (e) {
 
     tempStroke.addPoint(historyX,historyY);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
-  else if(option == Options.BUCKET){
 
-    const t0 = performance.now();
-    let spotX = scaleX(e.offsetX);//coordinate on regular canvas
-    let spotY = scaleY(e.offsetY);
-    let x = viewportTransformHidden.x + Math.round((spotX - viewportTransform.x) / viewportTransform.scale); //correct coordinate on hidden canvas
-    let y = viewportTransformHidden.y + Math.round((spotY - viewportTransform.y) / viewportTransform.scale);
-    renderHidden();
-    //console.log(x," ",y);
-
-    const debug = false;
-    if(debug){
-      floodFillBFS(1280, 720, colorBrush);
-    }
-    else{
-      floodFillBFS(x, y, colorBrush);
-    }
-    render();
-    const t1 = performance.now();
-    console.log(`       Paint Bucket took ${(t1 - t0).toFixed(3)} ms`);
-  }
 });
 
 canvas.addEventListener("mouseup", function (e) {
@@ -289,6 +243,11 @@ canvas.addEventListener("mouseup", function (e) {
   }
   else if(isDraw){
     recordStroke();
+    if(fill){
+      ctx.fill();
+      ctx.closePath();
+      ctx.stroke();
+    }
   }
 });
 
@@ -327,8 +286,6 @@ function scaleY(y){
 }
 
 function draw(x2,y2){
-  ctx.beginPath();
-  ctx.moveTo(x1,y1);
   ctx.lineTo(x2,y2);
   ctx.stroke();
 }
@@ -416,7 +373,3 @@ function render(){
   ctx.restore();
 }
 
-function renderHidden(){
-  ctx.clearRect(0, 0, offscreen.width, offscreen.height)
-  paintHistory.forEach((e) => e.drawHidden());
-}

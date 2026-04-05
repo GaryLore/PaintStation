@@ -3,10 +3,12 @@ class Stroke{
     color;
     width;
     points = [];
+    fill;
 
-    constructor(color, width){
+    constructor(color, width, fill){
         this.color = color;
         this.width = width;
+        this.fill = fill;
     }
 
     addPoint(x,y){
@@ -27,23 +29,13 @@ class Stroke{
             const coord = points[i];
             ctx.lineTo(coord[0], coord[1]);
         }
-        ctx.stroke();
-    
-    }
 
-    drawHidden(){
-        ctxHidden.strokeStyle = this.color;
-        ctxHidden.fillStyle = this.color;
-        ctxHidden.lineWidth = this.width;
-
-        const points = this.points;
-        ctxHidden.beginPath();
-        ctxHidden.moveTo(points[0][0],points[0][1]);
-        for(let i = 1; i < points.length; i++){
-            const coord = points[i];
-            ctxHidden.lineTo(coord[0], coord[1]);
+        if(this.fill){
+            ctx.fill();
+            ctx.closePath();
         }
-        ctxHidden.stroke();
+        ctx.stroke();
 
     }
+
 }
