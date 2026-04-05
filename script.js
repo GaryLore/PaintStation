@@ -28,9 +28,10 @@ slider.addEventListener("change", function (){
 });
 
 let colorBrush = "black";
+let bucketColor = "white";
 let option = Options.BRUSH;
 ctx.strokeStyle = colorBrush;
-ctx.fillStyle = colorBrush;
+ctx.fillStyle = bucketColor;
 let paintWidth = slider.valueAsNumber;
 ctx.lineWidth = paintWidth;
 //we set linecap and line join both to the same so the redraws with render are the same
@@ -102,6 +103,27 @@ populateColors();
 const blackColor = document.getElementById("black");
 blackColor.classList.add("selected");
 
+let choice;
+const [option1, inner1] = createOptions("1", "black");
+const [option2, inner2] = createOptions("2", "white");
+
+
+option1.addEventListener("click", function(){
+
+  choice = 1;
+  option2.classList.remove("selected");
+  this.classList.add("selected");
+ 
+});
+
+option2.addEventListener("click", function(){
+
+  choice = 2;
+  option1.classList.remove("selected");
+  this.classList.add("selected");
+ 
+});
+
 let colorOptions = document.getElementById("all_colors");
 colorOptions.addEventListener("click", function (e){
 
@@ -110,10 +132,19 @@ colorOptions.addEventListener("click", function (e){
     e.target.classList.add("selected");
 
     console.log("entered boss");
-    colorBrush = e.target.id;
-    ctx.strokeStyle = colorBrush;
     ctx.fillStyle = colorBrush;
     console.log(colorBrush);
+
+    if(choice == 1){
+      colorBrush = e.target.id;
+      inner1.style.backgroundColor = colorBrush;
+      ctx.strokeStyle = colorBrush;
+    }
+    else if(choice == 2){
+      bucketColor = e.target.id;;
+      inner2.style.backgroundColor = bucketColor
+      ctx.fillStyle = bucketColor;
+    }
   }
 });
 
@@ -226,7 +257,12 @@ canvas.addEventListener("mousedown", function (e) {
     ctx.beginPath();
     ctx.moveTo(x1,y1);
 
-    tempStroke = new Stroke(colorBrush, paintWidth, fill);
+    if(fill){
+      tempStroke = new Stroke(colorBrush, bucketColor, paintWidth, fill);
+    }
+    else{
+      tempStroke = new Stroke(colorBrush, "", paintWidth, fill);
+    }
 
     //actual x and y may be different due to transformations
     let historyX = (x1 - viewportTransform.x) / viewportTransform.scale;
@@ -332,8 +368,22 @@ function createColor(string){
   colors.appendChild(square);
 }
 
+function createOptions(num, string){
+
+  let square = document.createElement("div");
+  let colors = document.querySelector(".choices");
+  let inner = document.createElement("div");
+  square.setAttribute("id", num);
+  inner.style.backgroundColor = string;
+  square.appendChild(inner);
+  colors.appendChild(square);
+
+  return [square, inner];
+}
+
 //populates colors in html
 function populateColors(){
+
   createColor("black");
   createColor("gray");
   createColor("darkred");
@@ -344,6 +394,7 @@ function populateColors(){
   createColor("turquoise");
   createColor("indigo");
   createColor("purple");
+
   createColor("white");
   createColor("lightgray");
   createColor("brown");

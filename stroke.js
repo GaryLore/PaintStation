@@ -1,12 +1,14 @@
 class Stroke{
 
-    color;
+    brushColor;
+    bucketColor;
     width;
     points = [];
     fill;
 
-    constructor(color, width, fill){
-        this.color = color;
+    constructor(brushColor, bucketColor, width, fill){
+        this.brushColor = brushColor;
+        this.bucketColor = bucketColor;
         this.width = width;
         this.fill = fill;
     }
@@ -18,8 +20,7 @@ class Stroke{
 
     draw(){
 
-        ctx.strokeStyle = this.color;
-        ctx.fillStyle = this.color;
+        ctx.strokeStyle = this.brushColor;
         ctx.lineWidth = this.width;
 
         const points = this.points;
@@ -31,6 +32,7 @@ class Stroke{
         }
 
         if(this.fill){
+            ctx.fillStyle = this.bucketColor;
             ctx.fill();
             ctx.closePath();
         }

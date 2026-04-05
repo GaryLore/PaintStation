@@ -6,19 +6,9 @@
 
 #canvas {
     aspect-ratio: 16 / 9;
-
     width: 60vw;
-
-    /*
-    width: 1280px;
-    height: 720px;*/
     border: 2px solid black;
     margin: 0 2vw;
-}
-
-#canvas.error{
-    border: 2px solid #ff0000;
-    box-shadow: 0 0 5px 3px #ff0000;
 }
 
 html{
@@ -57,7 +47,7 @@ body {
 }
 
 .colors {
-    width: 40%;
+    width: 35%;
     border: 2px solid blue;
     display: grid;
     grid-template-columns: repeat(10, 1fr);
@@ -91,22 +81,22 @@ input[type="range"]{
     box-shadow: 0 0 6px #0d8bf3;
 }
 
-.colors > div.selected{
+.choices > div.selected{
     border-color: #0d5df3; 
     box-shadow: 0 0 5px 3px #0d5df3;  
 }
 
 .zoom{
     height:auto;
-    width: 5%;
+    width: 4%;
 }
 .bucket{
     height:auto;
-    width: 5%;
+    width: 4%;
 }
 .brush{
     height:auto;
-    width: 5%;
+    width: 4%;
 }
 .trash{
     height:auto;
@@ -130,7 +120,6 @@ img{
     cursor: crosshair;
 }
 
-
 .optionPanZoom{
     cursor: all-scroll;
 }
@@ -146,4 +135,23 @@ img{
   box-shadow: 0 0 5px 5px  rgb(32, 104, 187);
   border-radius: 30px;       
   pointer-events: none;      
+}
+
+.choices{
+    display: flex;
+    flex-direction: row;
+    width: 10%;
+}
+
+.choices > div{
+    aspect-ratio: 1 / 1;
+    padding: 3px;
+    margin: 2px;
+    border: 2px solid gray;
+    width: 100%;
+}
+
+.choices > div > div{
+    aspect-ratio: 1 / 1;
+    pointer-events: none;
 }
