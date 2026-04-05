@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="dot.js" ></script>
     <script src="stroke.js" ></script>
-    <script src="bucket.js" ></script>
-    <script src="https://cdn.jsdelivr.net/npm/denque@2.1.0/index.min.js"></script>
-    <script src="floodfill2.js" ></script>
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -23,21 +20,25 @@
     <canvas id="canvas" class="optionBrush">Paint Canvas</canvas>
 
     <div class="options">
+
+        <div class="choices">
+           
+        </div>
         <div id="all_colors" class="colors">
 
         </div>
         <div class="thickness">
             <p>Paint Thickness</p>
-            <input type="range" name="thickness" id="all_thickness" min="8" max="50" value="15">
+            <input type="range" name="thickness" id="all_thickness" min="4" max="50" value="10">
         </div>
         <div class="zoom">
              <img src="img/magnify.png" alt="Zoom" > 
         </div>
-        <div class="bucket">
-             <img src="img/bucket.png" alt="Bucket" > 
-        </div>
         <div class="brush selected">
              <img src="img/paint.png" alt="PaintBrush" > 
+        </div>
+        <div class="bucket">
+             <img src="img/bucket.png" alt="Bucket" > 
         </div>
     </div>
 </body>
