@@ -1,4 +1,3 @@
-
 const trashCan = document.getElementsByClassName("trash")[0];
 trashCan.addEventListener("click", function(){
   const debug = false;
@@ -16,8 +15,9 @@ magnify.addEventListener("click", function(){
 
   option = Options.PANZOOM;
   this.classList.add('selected');
-  brush.classList.remove('selected');
   canvas.classList.add('optionPanZoom');
+
+  brush.classList.remove('selected');
   canvas.classList.remove('optionBrush');
 
 });
@@ -71,7 +71,6 @@ function createColor(string){
 }
 
 function createOptions(num, string){
-
   let square = document.createElement("div");
   let colors = document.querySelector(".choices");
   let inner = document.createElement("div");
@@ -131,22 +130,23 @@ option2.addEventListener("click", function(){
 });
 
 let colorOptions = document.getElementById("all_colors");
-colorOptions.addEventListener("click", function (e){
+colorOptions.addEventListener("click", setBrushColors);
 
+function setBrushColors(e){
   if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
 
-    console.log("entered boss");
-    console.log(colorBrush);
+      console.log("entered boss");
+      console.log(colorBrush);
 
-    if(choice == 1){
-      colorBrush = e.target.id;
-      inner1.style.backgroundColor = colorBrush;
-      ctx.strokeStyle = colorBrush;
+      if(choice == 1){
+        colorBrush = e.target.id;
+        inner1.style.backgroundColor = colorBrush;
+        ctx.strokeStyle = colorBrush;
+      }
+      else if(choice == 2){
+        bucketColor = e.target.id;;
+        inner2.style.backgroundColor = bucketColor
+        ctx.fillStyle = bucketColor;
+      }
     }
-    else if(choice == 2){
-      bucketColor = e.target.id;;
-      inner2.style.backgroundColor = bucketColor
-      ctx.fillStyle = bucketColor;
-    }
-  }
-});
+}

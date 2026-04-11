@@ -38,7 +38,6 @@ function updateZooming(e){
 
   viewportTransform.x = offsetX;
   viewportTransform.y = offsetY;
-
 }
 
 //event listeners
@@ -99,7 +98,6 @@ canvas.addEventListener("mousedown", function (e) {
     //actual x and y may be different due to transformations
     let historyX = (x1 - viewportTransform.x) / viewportTransform.scale;
     let historyY = (y1 - viewportTransform.y) / viewportTransform.scale;
-
     tempStroke.addPoint(historyX,historyY);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
 
@@ -120,9 +118,42 @@ canvas.addEventListener("mouseup", function (e) {
 });
 
 canvas.addEventListener("click", drawDot);
+function drawDot(e){
+  if(option == Options.BRUSH){
+    //console.log("ENTERED DOT ", mouseDrawing);
+
+    //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
+    //if a stroke has been drawn
+    if(!mouseDrawing){
+      let x = scaleX(e.offsetX);
+      let y = scaleY(e.offsetY);
+
+      //const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      //const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+      //const x = (e.offsetX) * (canvas.width / rect.width);
+      //const y = (e.offsetY) * (canvas.height / rect.height);
+      //console.log("DOT ", x, " ", y);
+      ctx.beginPath();
+      ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
+      ctx.fillStyle = colorBrush;//neccessary because fill i used to implement dot
+      ctx.fill();
+
+      ctx.fillStyle = bucketColor;
+
+      //actual x and y may be different due to transformations
+      let historyX = (x - viewportTransform.x) / viewportTransform.scale; // changing this
+      let historyY = (y - viewportTransform.y) / viewportTransform.scale;
+
+      let record = new Dot(colorBrush, paintWidth, historyX, historyY);
+      paintHistory.push(record);
+    }
+    mouseDrawing = false;
+  }
+
+}
 
 canvas.addEventListener('mouseleave', function (e) {
-
   //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
   recordStroke();
   if(fill && tempStroke != null && tempStroke.points.length != 1){
@@ -164,41 +195,6 @@ function draw(x2,y2){
   ctx.stroke();
 }
 
-function drawDot(e){
-  if(option == Options.BRUSH){
-    //console.log("ENTERED DOT ", mouseDrawing);
-
-    //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
-    //if a stroke has been drawn
-    if(!mouseDrawing){
-      let x = scaleX(e.offsetX);
-      let y = scaleY(e.offsetY);
-
-      //const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-      //const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-
-      //const x = (e.offsetX) * (canvas.width / rect.width);
-      //const y = (e.offsetY) * (canvas.height / rect.height);
-      //console.log("DOT ", x, " ", y);
-      ctx.beginPath();
-      ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
-      ctx.fillStyle = colorBrush;//neccessary because fill i used to implement dot
-      ctx.fill();
-
-      ctx.fillStyle = bucketColor;
-
-      //actual x and y may be different due to transformations
-      let historyX = (x - viewportTransform.x) / viewportTransform.scale; // changing this
-      let historyY = (y - viewportTransform.y) / viewportTransform.scale;
-
-      let record = new Dot(colorBrush, paintWidth, historyX, historyY);
-      paintHistory.push(record);
-    }
-    mouseDrawing = false;
-  }
-
-}
-
 function render(){
   //save and restore is to put each paint settings back to normal after redrwaing everything which can change the paint settings
   ctx.save();
@@ -219,7 +215,6 @@ function render(){
 }
 
 function drawBorder(){
-
   ctx.fillStyle = "dimgray";
   ctx.fillRect(-1920, -1080, 5120, 2880);
 
