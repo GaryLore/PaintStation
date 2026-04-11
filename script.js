@@ -1,53 +1,3 @@
-//canvas 
-const canvas = document.getElementById("canvas");
-console.log(canvas);
-if (!canvas.getContext) {
-  console.log("CANVAS IS NOT SUPPORTED PLEASE USE ANOTHER BROWSER");
-} 
-const ctx = canvas.getContext("2d");
-let rect = canvas.getBoundingClientRect();
-canvas.width = 1280;
-canvas.height = 720;
-
-//fixes problem where if you resize browser the paint stroke isnt in the correct location
-window.addEventListener('resize', function() {
-    rect = canvas.getBoundingClientRect();
-});
-
-//canvas paintbrush properties
-let fill = false;
-const Options = Object.freeze({
-  BRUSH: 0,
-  PANZOOM: 1,
-});
-
-const slider = document.getElementById("all_thickness");
-slider.addEventListener("change", function (){
-  paintWidth = slider.valueAsNumber;
-  ctx.lineWidth = paintWidth * viewportTransform.scale;
-});
-
-let colorBrush = "black";
-let bucketColor = "white";
-let option = Options.BRUSH;
-ctx.strokeStyle = colorBrush;
-ctx.fillStyle = bucketColor;
-let paintWidth = slider.valueAsNumber;
-ctx.lineWidth = paintWidth;
-//we set linecap and line join both to the same so the redraws with render are the same
-ctx.lineCap = "round"; //avoids weird lines, due to mousemove not being immediate and varying ys
-ctx.lineJoin = "round"; //avoids weird lines when redrawing, since when redrwaing from history theire is only one end ctx.stroke() and a bunch of .Lineto, default is 
-
-//pan and zoom features
-let mouseDown = false;
-let GlobalOffsetX = 0, GlobalOffsetY = 0;
-const viewportTransform = {
-        x: 0,
-        y: 0,
-        scale: 1
-      };
-let previousX = 0, previousY = 0;
-
 function updatePanning(e){
   const localX = e.offsetX;
   const localY = e.offsetY;
@@ -83,123 +33,13 @@ function updateZooming(e){
   
   //makes sure it zooms on the center, and stays there where you offset it
   
-  const offsetX = canvas.width/2 - (canvas.width/2 - GlobalOffsetX )*viewportTransform.scale;  //CHANGED
-  const offsetY = canvas.height/2 - (canvas.height/2 - GlobalOffsetY)*viewportTransform.scale;  //CHANGED
+  const offsetX = canvas.width/2 - (canvas.width/2 - GlobalOffsetX )*viewportTransform.scale;  
+  const offsetY = canvas.height/2 - (canvas.height/2 - GlobalOffsetY)*viewportTransform.scale; 
 
   viewportTransform.x = offsetX;
   viewportTransform.y = offsetY;
 
 }
-
-//variables to allow drawing
-let x1, y1;
-let isDraw = false;//checks if drawing is allowed
-let mouseDrawing = false;//checks if there has been actual movement to draw
-
-//populate paintbrush options in html
-populateColors();
-const blackColor = document.getElementById("black");
-blackColor.classList.add("selected");
-
-let choice = 1;
-const [option1, inner1] = createOptions("1", "black");
-const [option2, inner2] = createOptions("2", "white");
-option1.classList.add("selected");
-
-
-option1.addEventListener("click", function(){
-  choice = 1;
-  option2.classList.remove("selected");
-  this.classList.add("selected");
-});
-
-option2.addEventListener("click", function(){
-  choice = 2;
-  option1.classList.remove("selected");
-  this.classList.add("selected");
-});
-
-let colorOptions = document.getElementById("all_colors");
-colorOptions.addEventListener("click", function (e){
-
-  if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
-
-    console.log("entered boss");
-    console.log(colorBrush);
-
-    if(choice == 1){
-      colorBrush = e.target.id;
-      inner1.style.backgroundColor = colorBrush;
-      ctx.strokeStyle = colorBrush;
-    }
-    else if(choice == 2){
-      bucketColor = e.target.id;;
-      inner2.style.backgroundColor = bucketColor
-      ctx.fillStyle = bucketColor;
-    }
-  }
-});
-
-const trashCan = document.getElementsByClassName("trash")[0];
-trashCan.addEventListener("click", function(){
-  const debug = false;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if(!debug){
-    paintHistory = [];
-  }
-
-});
-
-const magnify = document.getElementsByClassName("zoom")[0];
-magnify.addEventListener("click", function(){
-
-  option = Options.PANZOOM;
-  this.classList.add('selected');
-  brush.classList.remove('selected');
-  canvas.classList.add('optionPanZoom');
-  canvas.classList.remove('optionBrush');
-
-});
-
-const brush = document.getElementsByClassName("brush")[0];
-brush.addEventListener("click", function(){
-
-  option = Options.BRUSH;
-  this.classList.add('selected');
-  magnify.classList.remove('selected');
-  canvas.classList.add('optionBrush');
-  canvas.classList.remove('optionPanZoom');
-
-});
-
-const bucket = document.getElementsByClassName("bucket")[0];
-bucket.addEventListener("click", function(){
-
-  fill = !fill;
-
-  if(fill){
-    this.classList.add('selected');
-    canvas.classList.add('optionBucket');
-  }
-  else{
-    this.classList.remove('selected');
-    canvas.classList.remove('optionBucket');
-  }
-
-});
-
-const title = document.getElementsByClassName("title")[0];
-title.addEventListener("click", function(){
-  render();
-});
-
-//other paint features
-
-//History
-let paintHistory = [];
-let tempStroke = null;
 
 //event listeners
 canvas.addEventListener("mousemove", function (e) {
@@ -357,53 +197,6 @@ function drawDot(e){
     mouseDrawing = false;
   }
 
-}
-
-function createColor(string){
-  let square = document.createElement("div");
-  let colors = document.getElementById("all_colors");
-  let inner = document.createElement("div");
-  square.setAttribute("id", string);
-  inner.style.backgroundColor = string;
-  square.appendChild(inner);
-  colors.appendChild(square);
-}
-
-function createOptions(num, string){
-
-  let square = document.createElement("div");
-  let colors = document.querySelector(".choices");
-  let inner = document.createElement("div");
-  square.setAttribute("id", num);
-  inner.style.backgroundColor = string;
-  square.appendChild(inner);
-  colors.appendChild(square);
-
-  return [square, inner];
-}
-
-//populates colors in html
-function populateColors(){
-  createColor("black");
-  createColor("gray");
-  createColor("darkred");
-  createColor("red");
-  createColor("orange");
-  createColor("yellow");
-  createColor("green");
-  createColor("turquoise");
-  createColor("indigo");
-  createColor("purple");
-  createColor("white");
-  createColor("lightgray");
-  createColor("brown");
-  createColor("pink");
-  createColor("gold");
-  createColor("lightyellow");
-  createColor("lime");
-  createColor("paleturquoise");
-  createColor("cadetblue");
-  createColor("lavender");
 }
 
 function render(){
