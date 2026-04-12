@@ -1,4 +1,4 @@
-class Dot{
+export default class Dot{
 
     color;
     width;

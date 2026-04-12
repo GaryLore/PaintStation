@@ -1,4 +1,6 @@
 import "./userInterface.js";
+import Stroke from "./stroke.js";
+import Dot from "./dot.js";
 
 function updatePanning(e){
   const localX = e.offsetX;

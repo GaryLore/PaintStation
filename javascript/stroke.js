@@ -1,4 +1,4 @@
-class Stroke{
+export default class Stroke{
 
     brushColor;
     bucketColor;
