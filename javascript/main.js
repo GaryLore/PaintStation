@@ -1,3 +1,5 @@
+import "./userInterface.js";
+
 function updatePanning(e){
   const localX = e.offsetX;
   const localY = e.offsetY;
@@ -52,17 +54,15 @@ canvas.addEventListener("mousemove", function (e) {
     mouseDrawing = true;
     x2 = scaleX(e.offsetX);
     y2 = scaleY(e.offsetY);
+    draw(x2,y2);
+
+    x1 = x2;
+    y1 = y2;
 
     //actual x and y may be different due to transformations
     let historyX = (x2 - viewportTransform.x) / viewportTransform.scale;
     let historyY = (y2 - viewportTransform.y) / viewportTransform.scale;
     tempStroke.addPoint(historyX,historyY);//keeping track of stroke history
-    draw(x2,y2);
-
-    //console.log(`X1 : ${x1} Y1 : ${y1}`)
-    //console.log(`X1 HISTORY : ${historyX} Y1 HISTORY : ${historyY}`)
-    x1 = x2;
-    y1 = y2;
   }
 
 });
@@ -144,7 +144,6 @@ function drawDot(e){
       //actual x and y may be different due to transformations
       let historyX = (x - viewportTransform.x) / viewportTransform.scale; // changing this
       let historyY = (y - viewportTransform.y) / viewportTransform.scale;
-
       let record = new Dot(colorBrush, paintWidth, historyX, historyY);
       paintHistory.push(record);
     }

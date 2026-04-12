@@ -112,20 +112,20 @@ const blackColor = document.getElementById("black");
 blackColor.classList.add("selected");
 
 let choice = 1;
-const [option1, inner1] = createOptions("1", "black");
-const [option2, inner2] = createOptions("2", "white");
-option1.classList.add("selected");
+const [brushSquare, innerBrushSquare] = createOptions("1", "black");
+const [bucketSquare, innerBucketSquare] = createOptions("2", "white");
+brushSquare.classList.add("selected");
 
 
-option1.addEventListener("click", function(){
+brushSquare.addEventListener("click", function(){
   choice = 1;
-  option2.classList.remove("selected");
+  bucketSquare.classList.remove("selected");
   this.classList.add("selected");
 });
 
-option2.addEventListener("click", function(){
+bucketSquare.addEventListener("click", function(){
   choice = 2;
-  option1.classList.remove("selected");
+  brushSquare.classList.remove("selected");
   this.classList.add("selected");
 });
 
@@ -140,12 +140,12 @@ function setBrushColors(e){
 
       if(choice == 1){
         colorBrush = e.target.id;
-        inner1.style.backgroundColor = colorBrush;
+        innerBrushSquare.style.backgroundColor = colorBrush;
         ctx.strokeStyle = colorBrush;
       }
       else if(choice == 2){
         bucketColor = e.target.id;;
-        inner2.style.backgroundColor = bucketColor
+        innerBucketSquare.style.backgroundColor = bucketColor
         ctx.fillStyle = bucketColor;
       }
     }
