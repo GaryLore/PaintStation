@@ -14,6 +14,8 @@ window.addEventListener('resize', function() {
     rect = canvas.getBoundingClientRect();
 });
 
+const slider = document.getElementById("all_thickness");
+
 //canvas paintbrush properties
 const Options = Object.freeze({
   BRUSH: 0,
@@ -53,15 +55,17 @@ const canvasState = {
   previousY : 0
 };
 
-ctx.strokeStyle = colorBrush;
-ctx.fillStyle = bucketColor;
-ctx.lineWidth = paintWidth;
+ctx.strokeStyle = canvasState.colorBrush;
+ctx.fillStyle = canvasState.bucketColor;
+ctx.lineWidth = canvasState.paintWidth;
 //we set linecap and line join both to the same so the redraws with render are the same
 ctx.lineCap = "round"; 
 ctx.lineJoin = "round"; 
 
 function render(){
   //save and restore is to put each paint settings back to normal after redrwaing everything which can change the paint settings
+  const viewportTransform = canvasState.viewportTransform;
+
   ctx.save();
   ctx.resetTransform();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -75,7 +79,7 @@ function render(){
   );
 
   drawBorder();
-  paintHistory.forEach((e) => e.draw());
+  canvasState.paintHistory.forEach((e) => e.draw());
   ctx.restore();
 }
 
@@ -86,3 +90,5 @@ function drawBorder(){
   ctx.fillStyle = "white";
   ctx.fillRect(-640, -360, 2560, 1440);
 }
+
+export {canvasState, Options, render, canvas, ctx, rect, slider};

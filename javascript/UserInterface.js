@@ -1,4 +1,4 @@
-import {canvasState, Options, render, canvas, ctx} from "./canvasState.js"
+import {canvasState, Options, render, canvas, ctx, slider} from "./canvasState.js"
 
 const trashCan = document.getElementsByClassName("trash")[0];
 trashCan.addEventListener("click", function(){
@@ -56,7 +56,6 @@ title.addEventListener("click", function(){
   render();
 });
 
-const slider = document.getElementById("all_thickness");
 slider.addEventListener("change", function (){
   canvasState.paintWidth = slider.valueAsNumber;
   ctx.lineWidth = canvasState.paintWidth * canvasState.viewportTransform.scale;

@@ -3,8 +3,6 @@ import {canvasState, Options, render, canvas, ctx, rect} from "./canvasState.js"
 import Stroke from "./stroke.js";
 import Dot from "./dot.js";
 
-
-
 function updatePanning(e){
 
   const viewportTransform = canvasState.viewportTransform;
@@ -12,8 +10,8 @@ function updatePanning(e){
   const localX = e.offsetX;
   const localY = e.offsetY;
 
-  const diffX = localX - previousX;
-  const diffY = localY - previousY;
+  const diffX = localX - canvasState.previousX;
+  const diffY = localY - canvasState.previousY;
 
   //we scale it since pixels shown on screen and actual canvas dimensions are different
   //canvas is 1280x 720
@@ -41,12 +39,12 @@ function updateZooming(e){
   const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.25);
 
   viewportTransform.scale = newScale;
-  ctx.lineWidth = paintWidth * viewportTransform.scale;
+  ctx.lineWidth = canvasState.paintWidth * viewportTransform.scale;
   
   //makes sure it zooms on the center, and stays there where you offset it
   
-  const offsetX = canvas.width/2 - (canvas.width/2 - GlobalOffsetX )*viewportTransform.scale;  
-  const offsetY = canvas.height/2 - (canvas.height/2 - GlobalOffsetY)*viewportTransform.scale; 
+  const offsetX = canvas.width/2 - (canvas.width/2 - canvasState.GlobalOffsetX )*viewportTransform.scale;  
+  const offsetY = canvas.height/2 - (canvas.height/2 - canvasState.GlobalOffsetY)*viewportTransform.scale; 
 
   viewportTransform.x = offsetX;
   viewportTransform.y = offsetY;
@@ -68,8 +66,8 @@ canvas.addEventListener("mousemove", function (e) {
     y2 = scaleY(e.offsetY);
     draw(x2,y2);
 
-    x1 = x2;
-    y1 = y2;
+    canvasState.x1 = x2;
+    canvasState.y1 = y2;
 
     //actual x and y may be different due to transformations
     let historyX = (x2 - viewportTransform.x) / viewportTransform.scale;
@@ -88,17 +86,19 @@ canvas.addEventListener("wheel", function(e){
 
 canvas.addEventListener("mousedown", function (e) {
   if(canvasState.option == Options.PANZOOM){
-    mouseDown = true;
+    canvasState.mouseDown = true;
     canvasState.previousX = e.offsetX
     canvasState.previousY = e.offsetY
   }
   else if(canvasState.option == Options.BRUSH){
+    const viewportTransform = canvasState.viewportTransform;
+
     canvasState.isDraw = true;
     canvasState.x1 = scaleX(e.offsetX);
     canvasState.y1 = scaleY(e.offsetY);
 
     ctx.beginPath();
-    ctx.moveTo(x1,y1);
+    ctx.moveTo(canvasState.x1,canvasState.y1);
 
     const color = canvasState.colorBrush;
     const bucketColor = canvasState.bucketColor;
@@ -114,8 +114,8 @@ canvas.addEventListener("mousedown", function (e) {
     }
 
     //actual x and y may be different due to transformations
-    let historyX = (x1 - viewportTransform.x) / viewportTransform.scale;
-    let historyY = (y1 - viewportTransform.y) / viewportTransform.scale;
+    let historyX = (canvasState.x1 - viewportTransform.x) / viewportTransform.scale;
+    let historyY = (canvasState.y1 - viewportTransform.y) / viewportTransform.scale;
     canvasState.tempStroke.addPoint(historyX,historyY);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
 
@@ -186,10 +186,10 @@ canvas.addEventListener('mouseleave', function (e) {
 
 
 function recordStroke() {
-  canvasState.isDraw = mouseDown = false;
+  canvasState.isDraw = canvasState.mouseDown = false;
 
   if(canvasState.tempStroke != null && canvasState.tempStroke.points.length != 1){//length of one is always recorded just in case mouse starts to move
-    canvasState.paintHistory.push(tempStroke);
+    canvasState.paintHistory.push(canvasState.tempStroke);
   }
   canvasState.tempStroke = null;
 }
@@ -198,12 +198,12 @@ function recordStroke() {
 //because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
 //changes based on the screen size
 function scaleX(x){
-  rect = canvas.getBoundingClientRect();
+  //rect = canvas.getBoundingClientRect();
   return (x/rect.width) * canvas.width;
 }
 
 function scaleY(y){
-  rect = canvas.getBoundingClientRect();
+  //rect = canvas.getBoundingClientRect();
   return (y/rect.height) * canvas.height;
 }
 
