@@ -20,11 +20,38 @@ const Options = Object.freeze({
   PANZOOM: 1,
 });
 
-let fill = false;
-let colorBrush = "black";
-let bucketColor = "white";
-let option = Options.BRUSH;
-let paintWidth = slider.valueAsNumber;
+const viewport = {
+        x: 0,
+        y: 0,
+        scale: 1
+      };
+
+const canvasState = {
+  //brush settings
+  fill : false,
+  colorBrush : "black",
+  bucketColor :  "white",
+  option : Options.BRUSH,
+  paintWidth : slider.valueAsNumber,
+
+  //handles history
+  paintHistory : [],
+  tempStroke : null,
+
+  //allows drawing
+  x1 : undefined,
+  y1 : undefined,
+  isDraw : false, //checks if drawing is allowed
+  mouseDrawing : false, //has there been any actual movement to draw
+
+  //allows pan & zoom
+  mouseDown : false,
+  GlobalOffsetX : 0,
+  GlobalOffsetY : 0,
+  viewportTransform : viewport,
+  previousX : 0,
+  previousY : 0
+};
 
 ctx.strokeStyle = colorBrush;
 ctx.fillStyle = bucketColor;
@@ -33,21 +60,29 @@ ctx.lineWidth = paintWidth;
 ctx.lineCap = "round"; 
 ctx.lineJoin = "round"; 
 
-//pan and zoom features
-let mouseDown = false;
-let GlobalOffsetX = 0, GlobalOffsetY = 0;
-const viewportTransform = {
-        x: 0,
-        y: 0,
-        scale: 1
-      };
-let previousX = 0, previousY = 0;
+function render(){
+  //save and restore is to put each paint settings back to normal after redrwaing everything which can change the paint settings
+  ctx.save();
+  ctx.resetTransform();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(
+    viewportTransform.scale,
+    0,
+    0,
+    viewportTransform.scale,
+    viewportTransform.x,
+    viewportTransform.y
+  );
 
-//variables to allow drawing
-let x1, y1;
-let isDraw = false;//checks if drawing is allowed
-let mouseDrawing = false;//checks if there has been actual movement to draw
+  drawBorder();
+  paintHistory.forEach((e) => e.draw());
+  ctx.restore();
+}
 
-//History
-let paintHistory = [];
-let tempStroke = null;
+function drawBorder(){
+  ctx.fillStyle = "dimgray";
+  ctx.fillRect(-1920, -1080, 5120, 2880);
+
+  ctx.fillStyle = "white";
+  ctx.fillRect(-640, -360, 2560, 1440);
+}

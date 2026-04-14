@@ -1,3 +1,5 @@
+import {canvasState, Options, render, canvas, ctx} from "./canvasState.js"
+
 const trashCan = document.getElementsByClassName("trash")[0];
 trashCan.addEventListener("click", function(){
   const debug = false;
@@ -5,7 +7,7 @@ trashCan.addEventListener("click", function(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if(!debug){
-    paintHistory = [];
+    canvasState.paintHistory = [];
   }
 
 });
@@ -13,7 +15,7 @@ trashCan.addEventListener("click", function(){
 const magnify = document.getElementsByClassName("zoom")[0];
 magnify.addEventListener("click", function(){
 
-  option = Options.PANZOOM;
+  canvasState.option = Options.PANZOOM;
   this.classList.add('selected');
   canvas.classList.add('optionPanZoom');
 
@@ -25,7 +27,7 @@ magnify.addEventListener("click", function(){
 const brush = document.getElementsByClassName("brush")[0];
 brush.addEventListener("click", function(){
 
-  option = Options.BRUSH;
+  canvasState.option = Options.BRUSH;
   this.classList.add('selected');
   canvas.classList.add('optionBrush');
 
@@ -36,9 +38,9 @@ brush.addEventListener("click", function(){
 const bucket = document.getElementsByClassName("bucket")[0];
 bucket.addEventListener("click", function(){
 
-  fill = !fill;
+  canvasState.fill = !canvasState.fill;
 
-  if(fill){
+  if(canvasState.fill){
     this.classList.add('selected');
     canvas.classList.add('optionBucket');
   }
@@ -56,8 +58,8 @@ title.addEventListener("click", function(){
 
 const slider = document.getElementById("all_thickness");
 slider.addEventListener("change", function (){
-  paintWidth = slider.valueAsNumber;
-  ctx.lineWidth = paintWidth * viewportTransform.scale;
+  canvasState.paintWidth = slider.valueAsNumber;
+  ctx.lineWidth = canvasState.paintWidth * canvasState.viewportTransform.scale;
 });
 
 function createColor(string){
@@ -136,17 +138,17 @@ function setBrushColors(e){
   if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
 
       console.log("entered boss");
-      console.log(colorBrush);
+      console.log(canvasState.colorBrush);
 
       if(choice == 1){
-        colorBrush = e.target.id;
-        innerBrushSquare.style.backgroundColor = colorBrush;
-        ctx.strokeStyle = colorBrush;
+        canvasState.colorBrush = e.target.id;
+        innerBrushSquare.style.backgroundColor = canvasState.colorBrush;
+        ctx.strokeStyle = canvasState.colorBrush;
       }
       else if(choice == 2){
-        bucketColor = e.target.id;;
-        innerBucketSquare.style.backgroundColor = bucketColor
-        ctx.fillStyle = bucketColor;
+        canvasState.bucketColor = e.target.id;;
+        innerBucketSquare.style.backgroundColor = canvasState.bucketColor
+        ctx.fillStyle = canvasState.bucketColor;
       }
     }
 }
