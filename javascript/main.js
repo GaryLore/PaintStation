@@ -139,7 +139,7 @@ canvas.addEventListener("click", drawDot);
 function drawDot(e){
   if(canvasState.option == Options.BRUSH){
     //console.log("ENTERED DOT ", mouseDrawing);
-
+    const viewportTransform = canvasState.viewportTransform;
     //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
     //if a stroke has been drawn
     if(!canvasState.mouseDrawing){
@@ -154,14 +154,18 @@ function drawDot(e){
       //console.log("DOT ", x, " ", y);
       ctx.beginPath();
       ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
-      ctx.fillStyle = colorBrush;//neccessary because fill i used to implement dot
+      ctx.fillStyle = canvasState.colorBrush;//neccessary because fill i used to implement dot
       ctx.fill();
 
-      ctx.fillStyle = bucketColor;
+      ctx.fillStyle = canvasState.bucketColor;
 
       //actual x and y may be different due to transformations
       let historyX = (x - viewportTransform.x) / viewportTransform.scale; // changing this
       let historyY = (y - viewportTransform.y) / viewportTransform.scale;
+
+      const colorBrush = canvasState.colorBrush;
+      const paintWidth = canvasState.paintWidth;
+
       let record = new Dot(colorBrush, paintWidth, historyX, historyY);
       canvasState.paintHistory.push(record);
     }

@@ -84,6 +84,8 @@ function render(){
 }
 
 function drawBorder(){
+  console.log("draw border is called");
+
   ctx.fillStyle = "dimgray";
   ctx.fillRect(-1920, -1080, 5120, 2880);
 
@@ -91,4 +93,4 @@ function drawBorder(){
   ctx.fillRect(-640, -360, 2560, 1440);
 }
 
-export {canvasState, Options, render, canvas, ctx, rect, slider};
+export {canvasState, Options, render, drawBorder, canvas, ctx, rect, slider};
