@@ -1,11 +1,8 @@
-import {canvasState, Options, render, drawBorder, canvas, ctx, slider} from "./canvasState.js"
+import {canvasState, Options, render, canvas, ctx, slider} from "./canvasState.js"
 
 const trashCan = document.getElementsByClassName("trash")[0];
 trashCan.addEventListener("click", function(){
-  const debug = false;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+  const debug = false;  
 
   if(!debug){
     canvasState.paintHistory = [];

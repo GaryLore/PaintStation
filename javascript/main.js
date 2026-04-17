@@ -3,6 +3,24 @@ import {canvasState, Options, render, canvas, ctx, rect} from "./canvasState.js"
 import Stroke from "./stroke.js";
 import Dot from "./dot.js";
 
+//ignore function
+function withinPanLimit(x,y, scale){
+
+  const defaultWidth = canvas.width, defaultHeight = canvas.height;
+  const maxWidth = 5120, maxHeight = 2880;
+  
+  const width = defaultWidth / scale;
+  const height = defaultHeight / scale;
+
+  const leftBorder = width + (x - defaultWidth)*scale;
+
+  if(leftBorder >= -1920){
+    return true;
+  }
+  console.log("NOT IN LIMIT");
+  return false;
+}
+
 function updatePanning(e){
 
   const viewportTransform = canvasState.viewportTransform;
@@ -16,19 +34,27 @@ function updatePanning(e){
   //we scale it since pixels shown on screen and actual canvas dimensions are different
   //canvas is 1280x 720
   //so if we drag our mouse half way accross the canvas, we want to ensure 640 pixels are moved even if half of the canvas is more or less than 640 pixels
-  const xDIFF = scaleX(diffX);
-  viewportTransform.x += xDIFF;
-  canvasState.GlobalOffsetX += xDIFF / viewportTransform.scale; 
+  const scaledDIFFX = scaleX(diffX);
+  const scaledDIFFY = scaleY(diffY);
+  const tempX = viewportTransform.x + scaledDIFFX;
+  const tempY = viewportTransform.y + scaledDIFFY;
 
-  const yDIFF = scaleY(diffY);
-  viewportTransform.y += yDIFF;
-  canvasState.GlobalOffsetY += yDIFF / viewportTransform.scale;  
+  //ignore short circuit true, not finished feature;
+  if(true || withinPanLimit(tempX, tempY, viewportTransform.scale)){
+    
+    viewportTransform.x = tempX;
+    viewportTransform.y = tempY;
 
-  //you have to divide it because when you zoom in and are very close and move by a certain amount of pixels, but realistically if it wasnt zoomed in that amount of pixels
-  //you moved is actually be signficiantly less since irs proportional so we divide
+    //you have to divide it because when you zoom in and are very close and move by a certain amount of pixels, but realistically if it wasnt zoomed in that amount of pixels
+    //you moved is actually be signficiantly less since irs proportional so we divide
+    canvasState.GlobalOffsetX += scaledDIFFX / viewportTransform.scale; 
+    canvasState.GlobalOffsetY += scaledDIFFY / viewportTransform.scale;  
 
-  canvasState.previousX = localX;
-  canvasState.previousY = localY;
+    canvasState.previousX = localX;
+    canvasState.previousY = localY;
+
+    console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
+  }
 }
 
 function updateZooming(e){
@@ -48,6 +74,8 @@ function updateZooming(e){
 
   viewportTransform.x = offsetX;
   viewportTransform.y = offsetY;
+
+  console.log(viewportTransform.scale);
 }
 
 //event listeners
@@ -146,12 +174,6 @@ function drawDot(e){
       let x = scaleX(e.offsetX);
       let y = scaleY(e.offsetY);
 
-      //const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-      //const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-
-      //const x = (e.offsetX) * (canvas.width / rect.width);
-      //const y = (e.offsetY) * (canvas.height / rect.height);
-      //console.log("DOT ", x, " ", y);
       ctx.beginPath();
       ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
       ctx.fillStyle = canvasState.colorBrush;//neccessary because fill i used to implement dot
@@ -160,9 +182,8 @@ function drawDot(e){
       ctx.fillStyle = canvasState.bucketColor;
 
       //actual x and y may be different due to transformations
-      let historyX = (x - viewportTransform.x) / viewportTransform.scale; // changing this
-      let historyY = (y - viewportTransform.y) / viewportTransform.scale;
-
+      const historyX = (x - viewportTransform.x) / viewportTransform.scale; 
+      const historyY = (y - viewportTransform.y) / viewportTransform.scale;
       const colorBrush = canvasState.colorBrush;
       const paintWidth = canvasState.paintWidth;
 
@@ -176,12 +197,12 @@ function drawDot(e){
 
 canvas.addEventListener('mouseleave', function (e) {
   //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
-  recordStroke();
   if(canvasState.fill && canvasState.tempStroke != null && canvasState.tempStroke.points.length != 1){
       ctx.fill();
       ctx.closePath();
       ctx.stroke();
   }
+  recordStroke();
 
   console.log("BEGIN PAINT HISTORY")
   canvasState.paintHistory.forEach((e) => console.log("    ",e.constructor.name, e));
@@ -202,12 +223,10 @@ function recordStroke() {
 //because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
 //changes based on the screen size
 function scaleX(x){
-  //rect = canvas.getBoundingClientRect();
   return (x/rect.width) * canvas.width;
 }
 
 function scaleY(y){
-  //rect = canvas.getBoundingClientRect();
   return (y/rect.height) * canvas.height;
 }
 
