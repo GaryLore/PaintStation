@@ -1,5 +1,5 @@
 import "./userInterface.js";
-import {canvasState, Options, render, canvas, ctx, rect} from "./canvasState.js"
+import {canvasState, Tool, render, canvas, ctx, rect} from "./canvasState.js"
 import Stroke from "./stroke.js";
 import Dot from "./dot.js";
 
@@ -57,11 +57,11 @@ function updatePanning(e){
   }
 }
 
-function updateZooming(e){
+function updateZooming(event){
 
   const viewportTransform = canvasState.viewportTransform;
 
-  const change = e.deltaY * -0.001;
+  const change = event.deltaY * -0.001;
   const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.25);
 
   viewportTransform.scale = newScale;
@@ -78,20 +78,20 @@ function updateZooming(e){
   console.log(viewportTransform.scale);
 }
 
-//event listeners
-canvas.addEventListener("mousemove", function (e) {
+canvas.addEventListener("mousemove", function (event) {
 
   const viewportTransform = canvasState.viewportTransform;
   
-  if(canvasState.option == Options.PANZOOM && canvasState.mouseDown){
-    updatePanning(e);
+  if(canvasState.isPanning()){
+    console.log("IF has entered");
+    updatePanning(event);
     render();
   }
-  else if(canvasState.option == Options.BRUSH && canvasState.isDraw){
+  else if(canvasState.canDraw){
     let x2, y2;
-    canvasState.mouseDrawing = true;
-    x2 = scaleX(e.offsetX);
-    y2 = scaleY(e.offsetY);
+    canvasState.hasDrawn = true;
+    x2 = scaleX(event.offsetX);
+    y2 = scaleY(event.offsetY);
     draw(x2,y2);
 
     canvasState.x1 = x2;
@@ -100,33 +100,33 @@ canvas.addEventListener("mousemove", function (e) {
     //actual x and y may be different due to transformations
     let historyX = (x2 - viewportTransform.x) / viewportTransform.scale;
     let historyY = (y2 - viewportTransform.y) / viewportTransform.scale;
-    canvasState.tempStroke.addPoint(historyX,historyY);//keeping track of stroke history
+    canvasState.tempStroke.addPoint(historyX,historyY);
   }
 
 });
 
-canvas.addEventListener("wheel", function(e){
-  if(canvasState.option == Options.PANZOOM){
-    updateZooming(e);
+canvas.addEventListener("wheel", function(event){
+  if(canvasState.tool == Tool.PANZOOM){
+    updateZooming(event);
     render();
   }
 });
 
-canvas.addEventListener("mousedown", function (e) {
-  if(canvasState.option == Options.PANZOOM){
+canvas.addEventListener("mousedown", function (event) {
+  if(canvasState.tool == Tool.PANZOOM){
     canvasState.mouseDown = true;
-    canvasState.previousX = e.offsetX
-    canvasState.previousY = e.offsetY
+    canvasState.previousX = event.offsetX
+    canvasState.previousY = event.offsetY
   }
-  else if(canvasState.option == Options.BRUSH){
+  else if(canvasState.tool == Tool.BRUSH){
     const viewportTransform = canvasState.viewportTransform;
 
-    canvasState.isDraw = true;
-    canvasState.x1 = scaleX(e.offsetX);
-    canvasState.y1 = scaleY(e.offsetY);
+    canvasState.canDraw = true;
+    canvasState.x1 = scaleX(event.offsetX);
+    canvasState.y1 = scaleY(event.offsetY);
 
     ctx.beginPath();
-    ctx.moveTo(canvasState.x1,canvasState.y1);
+    ctx.moveTo(canvasState.x1, canvasState.y1);
 
     const color = canvasState.colorBrush;
     const bucketColor = canvasState.bucketColor;
@@ -141,7 +141,6 @@ canvas.addEventListener("mousedown", function (e) {
       canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
     }
 
-    //actual x and y may be different due to transformations
     let historyX = (canvasState.x1 - viewportTransform.x) / viewportTransform.scale;
     let historyY = (canvasState.y1 - viewportTransform.y) / viewportTransform.scale;
     canvasState.tempStroke.addPoint(historyX,historyY);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
@@ -149,11 +148,11 @@ canvas.addEventListener("mousedown", function (e) {
 
 });
 
-canvas.addEventListener("mouseup", function (e) {
-  if(canvasState.option == Options.PANZOOM){
+canvas.addEventListener("mouseup", function (event) {
+  if(canvasState.tool == Tool.PANZOOM){
     canvasState.mouseDown = false;
   }
-  else if(canvasState.isDraw){
+  else if(canvasState.canDraw){
     recordStroke();
     if(canvasState.fill){
       ctx.fill();
@@ -164,15 +163,14 @@ canvas.addEventListener("mouseup", function (e) {
 });
 
 canvas.addEventListener("click", drawDot);
-function drawDot(e){
-  if(canvasState.option == Options.BRUSH){
-    //console.log("ENTERED DOT ", mouseDrawing);
+function drawDot(event){
+  if(canvasState.tool == Tool.BRUSH){
     const viewportTransform = canvasState.viewportTransform;
-    //only draws a dot if there has been no movement more efficient, than what i had before where a dot is placed whereever a click occurs without accounting for
-    //if a stroke has been drawn
-    if(!canvasState.mouseDrawing){
-      let x = scaleX(e.offsetX);
-      let y = scaleY(e.offsetY);
+    
+    //only makes dot if there has been nothing drawn
+    if(!canvasState.hasDrawn){
+      let x = scaleX(event.offsetX);
+      let y = scaleY(event.offsetY);
 
       ctx.beginPath();
       ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
@@ -181,7 +179,6 @@ function drawDot(e){
 
       ctx.fillStyle = canvasState.bucketColor;
 
-      //actual x and y may be different due to transformations
       const historyX = (x - viewportTransform.x) / viewportTransform.scale; 
       const historyY = (y - viewportTransform.y) / viewportTransform.scale;
       const colorBrush = canvasState.colorBrush;
@@ -190,14 +187,14 @@ function drawDot(e){
       let record = new Dot(colorBrush, paintWidth, historyX, historyY);
       canvasState.paintHistory.push(record);
     }
-    canvasState.mouseDrawing = false;
+    canvasState.hasDrawn = false;
   }
 
 }
 
-canvas.addEventListener('mouseleave', function (e) {
+canvas.addEventListener('mouseleave', function (event) {
   //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
-  if(canvasState.fill && canvasState.tempStroke != null && canvasState.tempStroke.points.length != 1){
+  if(canvasState.fill && hasStrokeBeenDrawn()){
       ctx.fill();
       ctx.closePath();
       ctx.stroke();
@@ -205,23 +202,37 @@ canvas.addEventListener('mouseleave', function (e) {
   recordStroke();
 
   console.log("BEGIN PAINT HISTORY")
-  canvasState.paintHistory.forEach((e) => console.log("    ",e.constructor.name, e));
+  canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
   console.log("END")
 });
 
 
 function recordStroke() {
-  canvasState.isDraw = canvasState.mouseDown = false;
+  canvasState.canDraw = canvasState.mouseDown = false;
 
-  if(canvasState.tempStroke != null && canvasState.tempStroke.points.length != 1){//length of one is always recorded just in case mouse starts to move
+  
+  if(hasStrokeBeenDrawn()){
     canvasState.paintHistory.push(canvasState.tempStroke);
   }
   canvasState.tempStroke = null;
 }
 
-//we use scale functions instead of reassigning the width and height of the canvas according to the css 
-//because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
-//changes based on the screen size
+function hasStrokeBeenDrawn() {
+  //length of one is always recorded just in case mouse starts to move, we only record if its an actual stroke
+  return canvasState.tempStroke != null && canvasState.tempStroke.points.length != 1;
+}
+
+function draw(x2,y2){
+  ctx.lineTo(x2,y2);
+  ctx.stroke();
+}
+
+/*
+  we use scale functions instead of reassigning the width and height of the canvas according to the css 
+  because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
+  changes based on the screen size
+*/
+
 function scaleX(x){
   return (x/rect.width) * canvas.width;
 }
@@ -230,10 +241,7 @@ function scaleY(y){
   return (y/rect.height) * canvas.height;
 }
 
-function draw(x2,y2){
-  ctx.lineTo(x2,y2);
-  ctx.stroke();
-}
+
 
 
 

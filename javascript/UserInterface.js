@@ -1,4 +1,4 @@
-import {canvasState, Options, render, canvas, ctx, slider} from "./canvasState.js"
+import {canvasState, Tool, render, canvas, ctx, slider} from "./canvasState.js"
 
 const trashCan = document.getElementsByClassName("trash")[0];
 trashCan.addEventListener("click", function(){
@@ -14,7 +14,7 @@ trashCan.addEventListener("click", function(){
 const magnify = document.getElementsByClassName("zoom")[0];
 magnify.addEventListener("click", function(){
 
-  canvasState.option = Options.PANZOOM;
+  canvasState.tool = Tool.PANZOOM;
   this.classList.add('selected');
   canvas.classList.add('optionPanZoom');
 
@@ -26,7 +26,7 @@ magnify.addEventListener("click", function(){
 const brush = document.getElementsByClassName("brush")[0];
 brush.addEventListener("click", function(){
 
-  canvasState.option = Options.BRUSH;
+  canvasState.tool = Tool.BRUSH;
   this.classList.add('selected');
   canvas.classList.add('optionBrush');
 
@@ -111,20 +111,24 @@ populateColors();
 const blackColor = document.getElementById("black");
 blackColor.classList.add("selected");
 
-let choice = 1;
+const ColorTarget = Object.freeze({
+  BRUSH: 1,
+  BUCKET: 2,
+});
+
+let selectedColorTarget = ColorTarget.BRUSH;
 const [brushSquare, innerBrushSquare] = createOptions("1", "black");
 const [bucketSquare, innerBucketSquare] = createOptions("2", "white");
 brushSquare.classList.add("selected");
 
-
 brushSquare.addEventListener("click", function(){
-  choice = 1;
+  selectedColorTarget = ColorTarget.BRUSH;;
   bucketSquare.classList.remove("selected");
   this.classList.add("selected");
 });
 
 bucketSquare.addEventListener("click", function(){
-  choice = 2;
+  selectedColorTarget = ColorTarget.BUCKET;
   brushSquare.classList.remove("selected");
   this.classList.add("selected");
 });
@@ -135,15 +139,12 @@ colorOptions.addEventListener("click", setBrushColors);
 function setBrushColors(e){
   if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
 
-      console.log("entered boss");
-      console.log(canvasState.colorBrush);
-
-      if(choice == 1){
+      if(selectedColorTarget == ColorTarget.BRUSH){
         canvasState.colorBrush = e.target.id;
         innerBrushSquare.style.backgroundColor = canvasState.colorBrush;
         ctx.strokeStyle = canvasState.colorBrush;
       }
-      else if(choice == 2){
+      else if(selectedColorTarget == ColorTarget.BUCKET){
         canvasState.bucketColor = e.target.id;;
         innerBucketSquare.style.backgroundColor = canvasState.bucketColor
         ctx.fillStyle = canvasState.bucketColor;

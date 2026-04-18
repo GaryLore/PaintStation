@@ -1,4 +1,3 @@
-//canvas 
 const canvas = document.getElementById("canvas");
 console.log(canvas);
 if (!canvas.getContext) {
@@ -16,24 +15,23 @@ window.addEventListener('resize', function() {
 
 const slider = document.getElementById("all_thickness");
 
-//canvas paintbrush properties
-const Options = Object.freeze({
+const Tool = Object.freeze({
   BRUSH: 0,
   PANZOOM: 1,
 });
 
 const viewport = {
-        x: 0,
-        y: 0,
-        scale: 1
-      };
+  x: 0,
+  y: 0,
+  scale: 1
+};
 
 const canvasState = {
   //brush settings
   fill : false,
   colorBrush : "black",
   bucketColor :  "white",
-  option : Options.BRUSH,
+  tool : Tool.BRUSH,
   paintWidth : slider.valueAsNumber,
 
   //handles history
@@ -43,8 +41,8 @@ const canvasState = {
   //allows drawing
   x1 : undefined,
   y1 : undefined,
-  isDraw : false, //checks if drawing is allowed
-  mouseDrawing : false, //has there been any actual movement to draw
+  canDraw : false, 
+  hasDrawn : false, 
 
   //allows pan & zoom
   mouseDown : false,
@@ -52,7 +50,11 @@ const canvasState = {
   GlobalOffsetY : 0,
   viewportTransform : viewport,
   previousX : 0,
-  previousY : 0
+  previousY : 0,
+
+  isPanning(){
+     return this.tool == Tool.PANZOOM && this.mouseDown;
+  }
 };
 
 ctx.strokeStyle = canvasState.colorBrush;
@@ -63,7 +65,6 @@ ctx.lineCap = "round";
 ctx.lineJoin = "round"; 
 
 function render(){
-  //save and restore is to put each paint settings back to normal after redrwaing everything which can change the paint settings
   const viewportTransform = canvasState.viewportTransform;
 
   ctx.save();
@@ -79,8 +80,9 @@ function render(){
   );
 
   drawBorder();
-  canvasState.paintHistory.forEach((e) => e.draw());
+  canvasState.paintHistory.forEach((paintObject) => paintObject.draw());
   ctx.restore();
+  //https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/restore
 }
 
 function drawBorder(){
@@ -93,4 +95,4 @@ function drawBorder(){
   ctx.fillRect(-640, -360, 2560, 1440);
 }
 
-export {canvasState, Options, render, drawBorder, canvas, ctx, rect, slider};
+export {canvasState, Tool, render, drawBorder, canvas, ctx, rect, slider};
