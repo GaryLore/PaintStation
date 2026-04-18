@@ -1,0 +1,121 @@
+const canvas = document.getElementById("canvas");
+console.log(canvas);
+if (!canvas.getContext) {
+  console.log("CANVAS IS NOT SUPPORTED PLEASE USE ANOTHER BROWSER");
+} 
+const ctx = canvas.getContext("2d");
+canvas.width = 1280;
+canvas.height = 720;
+
+//fixes problem where if you resize browser the paint stroke isnt in the correct location
+let rect = canvas.getBoundingClientRect();
+window.addEventListener('resize', function() {
+    rect = canvas.getBoundingClientRect();
+});
+
+const slider = document.getElementById("all_thickness");
+
+const Tool = Object.freeze({
+  BRUSH: 0,
+  PANZOOM: 1,
+});
+
+const viewport = {
+  x: 0,
+  y: 0,
+  scale: 1
+};
+
+const canvasState = {
+
+  //allows drawing
+  x1 : undefined,
+  y1 : undefined,
+  canDraw : false, 
+  hasDrawn : false,
+  tool : Tool.BRUSH, 
+  viewportTransform : viewport,
+
+  //handles history
+  paintHistory : [],
+  tempStroke : null,
+
+  brush : {
+    fill : false,
+    color : "black",
+    bucketColor :  "white",
+    paintWidth : slider.valueAsNumber,
+  },
+
+  panZoom : {
+    //allows pan & zoom
+    mouseDown : false,
+    GlobalOffsetX : 0,
+    GlobalOffsetY : 0,
+    previousX : undefined,
+    previousY : undefined,
+  },
+
+  isPanning(){
+     return this.tool == Tool.PANZOOM && this.panZoom.mouseDown;
+  },
+
+  drawTo(x2,y2){
+  ctx.lineTo(x2,y2);
+  ctx.stroke();
+  },
+
+  /*
+    we use scale functions instead of reassigning the width and height of the canvas according to the css 
+    because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
+    changes based on the screen size
+  */
+  scaleX(x){
+    return (x/rect.width) * canvas.width;
+  },
+
+  scaleY(y){
+    return (y/rect.height) * canvas.height;
+  },
+
+  render(){
+    const viewportTransform = canvasState.viewportTransform;
+
+    //https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/restore
+    ctx.save();
+    ctx.resetTransform();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(
+      this.viewportTransform.scale,
+      0,
+      0,
+      this.viewportTransform.scale,
+      this.viewportTransform.x,
+      this.viewportTransform.y
+    );
+
+    this.drawBorder();
+    canvasState.paintHistory.forEach((paintObject) => paintObject.draw());
+    ctx.restore();
+  },
+
+  drawBorder(){
+    console.log("draw border is called");
+
+    ctx.fillStyle = "dimgray";
+    ctx.fillRect(-1920, -1080, 5120, 2880);
+
+    ctx.fillStyle = "white";
+    ctx.fillRect(-640, -360, 2560, 1440);
+  }
+
+};
+
+ctx.strokeStyle = canvasState.brush.color;
+ctx.fillStyle = canvasState.brush.bucketColor;
+ctx.lineWidth = canvasState.brush.paintWidth;
+//we set linecap and line join both to the same so the redraws with render are the same
+ctx.lineCap = "round"; 
+ctx.lineJoin = "round"; 
+
+export {canvasState, Tool, canvas, ctx, rect, slider};

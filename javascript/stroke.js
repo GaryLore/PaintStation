@@ -1,4 +1,6 @@
-class Stroke{
+import {ctx} from "./canvasState.js"
+
+export default class Stroke{
 
     brushColor;
     bucketColor;

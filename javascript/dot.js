@@ -1,4 +1,6 @@
-class Dot{
+import {ctx} from "./canvasState.js"
+
+export default class Dot{
 
     color;
     width;
