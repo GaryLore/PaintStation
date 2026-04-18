@@ -1,5 +1,5 @@
 import "./userInterface.js";
-import {canvasState, Tool, render, canvas, ctx, rect} from "./canvasState.js"
+import {canvasState, Tool, canvas, ctx, rect} from "./canvasState.js"
 import Stroke from "./stroke.js";
 import Dot from "./dot.js";
 
@@ -21,21 +21,21 @@ function withinPanLimit(x,y, scale){
   return false;
 }
 
-function updatePanning(e){
+function updatePanning(event){
 
   const viewportTransform = canvasState.viewportTransform;
 
-  const localX = e.offsetX;
-  const localY = e.offsetY;
+  const localX = event.offsetX;
+  const localY = event.offsetY;
 
-  const diffX = localX - canvasState.previousX;
-  const diffY = localY - canvasState.previousY;
+  const diffX = localX - canvasState.panZoom.previousX;
+  const diffY = localY - canvasState.panZoom.previousY;
 
   //we scale it since pixels shown on screen and actual canvas dimensions are different
   //canvas is 1280x 720
   //so if we drag our mouse half way accross the canvas, we want to ensure 640 pixels are moved even if half of the canvas is more or less than 640 pixels
-  const scaledDIFFX = scaleX(diffX);
-  const scaledDIFFY = scaleY(diffY);
+  const scaledDIFFX = canvasState.scaleX(diffX);
+  const scaledDIFFY = canvasState.scaleY(diffY);
   const tempX = viewportTransform.x + scaledDIFFX;
   const tempY = viewportTransform.y + scaledDIFFY;
 
@@ -47,13 +47,13 @@ function updatePanning(e){
 
     //you have to divide it because when you zoom in and are very close and move by a certain amount of pixels, but realistically if it wasnt zoomed in that amount of pixels
     //you moved is actually be signficiantly less since irs proportional so we divide
-    canvasState.GlobalOffsetX += scaledDIFFX / viewportTransform.scale; 
-    canvasState.GlobalOffsetY += scaledDIFFY / viewportTransform.scale;  
+    canvasState.panZoom.GlobalOffsetX += scaledDIFFX / viewportTransform.scale; 
+    canvasState.panZoom.GlobalOffsetY += scaledDIFFY / viewportTransform.scale;  
 
-    canvasState.previousX = localX;
-    canvasState.previousY = localY;
+    canvasState.panZoom.previousX = localX;
+    canvasState.panZoom.previousY = localY;
 
-    console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
+    //console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")" , canvasState.panZoom.previousX);
   }
 }
 
@@ -65,12 +65,12 @@ function updateZooming(event){
   const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.25);
 
   viewportTransform.scale = newScale;
-  ctx.lineWidth = canvasState.paintWidth * viewportTransform.scale;
+  ctx.lineWidth = canvasState.brush.paintWidth * viewportTransform.scale;
   
   //makes sure it zooms on the center, and stays there where you offset it
   
-  const offsetX = canvas.width/2 - (canvas.width/2 - canvasState.GlobalOffsetX )*viewportTransform.scale;  
-  const offsetY = canvas.height/2 - (canvas.height/2 - canvasState.GlobalOffsetY)*viewportTransform.scale; 
+  const offsetX = canvas.width/2 - (canvas.width/2 - canvasState.panZoom.GlobalOffsetX )*viewportTransform.scale;  
+  const offsetY = canvas.height/2 - (canvas.height/2 - canvasState.panZoom.GlobalOffsetY)*viewportTransform.scale; 
 
   viewportTransform.x = offsetX;
   viewportTransform.y = offsetY;
@@ -85,14 +85,14 @@ canvas.addEventListener("mousemove", function (event) {
   if(canvasState.isPanning()){
     console.log("IF has entered");
     updatePanning(event);
-    render();
+    canvasState.render();
   }
   else if(canvasState.canDraw){
     let x2, y2;
     canvasState.hasDrawn = true;
-    x2 = scaleX(event.offsetX);
-    y2 = scaleY(event.offsetY);
-    draw(x2,y2);
+    x2 = canvasState.scaleX(event.offsetX);
+    y2 = canvasState.scaleY(event.offsetY);
+    canvasState.drawTo(x2,y2);
 
     canvasState.x1 = x2;
     canvasState.y1 = y2;
@@ -108,31 +108,31 @@ canvas.addEventListener("mousemove", function (event) {
 canvas.addEventListener("wheel", function(event){
   if(canvasState.tool == Tool.PANZOOM){
     updateZooming(event);
-    render();
+    canvasState.render();
   }
 });
 
 canvas.addEventListener("mousedown", function (event) {
   if(canvasState.tool == Tool.PANZOOM){
-    canvasState.mouseDown = true;
-    canvasState.previousX = event.offsetX
-    canvasState.previousY = event.offsetY
+    canvasState.panZoom.mouseDown = true;
+    canvasState.panZoom.previousX = event.offsetX
+    canvasState.panZoom.previousY = event.offsetY
   }
   else if(canvasState.tool == Tool.BRUSH){
     const viewportTransform = canvasState.viewportTransform;
 
     canvasState.canDraw = true;
-    canvasState.x1 = scaleX(event.offsetX);
-    canvasState.y1 = scaleY(event.offsetY);
+    canvasState.x1 = canvasState.scaleX(event.offsetX);
+    canvasState.y1 = canvasState.scaleY(event.offsetY);
 
     ctx.beginPath();
     ctx.moveTo(canvasState.x1, canvasState.y1);
 
-    const color = canvasState.colorBrush;
-    const bucketColor = canvasState.bucketColor;
-    const width = canvasState.paintWidth;
+    const color = canvasState.brush.color;
+    const bucketColor = canvasState.brush.bucketColor;
+    const width = canvasState.brush.paintWidth;
 
-    if(canvasState.fill){
+    if(canvasState.brush.fill){
       const fill = true;
       canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
     }
@@ -150,11 +150,11 @@ canvas.addEventListener("mousedown", function (event) {
 
 canvas.addEventListener("mouseup", function (event) {
   if(canvasState.tool == Tool.PANZOOM){
-    canvasState.mouseDown = false;
+    canvasState.panZoom.mouseDown = false;
   }
   else if(canvasState.canDraw){
     recordStroke();
-    if(canvasState.fill){
+    if(canvasState.brush.fill){
       ctx.fill();
       ctx.closePath();
       ctx.stroke();
@@ -169,20 +169,20 @@ function drawDot(event){
     
     //only makes dot if there has been nothing drawn
     if(!canvasState.hasDrawn){
-      let x = scaleX(event.offsetX);
-      let y = scaleY(event.offsetY);
+      let x = canvasState.scaleX(event.offsetX);
+      let y = canvasState.scaleY(event.offsetY);
 
       ctx.beginPath();
       ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
-      ctx.fillStyle = canvasState.colorBrush;//neccessary because fill i used to implement dot
+      ctx.fillStyle = canvasState.brush.color;//neccessary because fill i used to implement dot
       ctx.fill();
 
-      ctx.fillStyle = canvasState.bucketColor;
+      ctx.fillStyle = canvasState.brush.bucketColor;
 
       const historyX = (x - viewportTransform.x) / viewportTransform.scale; 
       const historyY = (y - viewportTransform.y) / viewportTransform.scale;
-      const colorBrush = canvasState.colorBrush;
-      const paintWidth = canvasState.paintWidth;
+      const colorBrush = canvasState.brush.color;
+      const paintWidth = canvasState.brush.paintWidth;
 
       let record = new Dot(colorBrush, paintWidth, historyX, historyY);
       canvasState.paintHistory.push(record);
@@ -194,7 +194,7 @@ function drawDot(event){
 
 canvas.addEventListener('mouseleave', function (event) {
   //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
-  if(canvasState.fill && hasStrokeBeenDrawn()){
+  if(canvasState.brush.fill && hasStrokeBeenDrawn()){
       ctx.fill();
       ctx.closePath();
       ctx.stroke();
@@ -222,24 +222,7 @@ function hasStrokeBeenDrawn() {
   return canvasState.tempStroke != null && canvasState.tempStroke.points.length != 1;
 }
 
-function draw(x2,y2){
-  ctx.lineTo(x2,y2);
-  ctx.stroke();
-}
 
-/*
-  we use scale functions instead of reassigning the width and height of the canvas according to the css 
-  because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
-  changes based on the screen size
-*/
-
-function scaleX(x){
-  return (x/rect.width) * canvas.width;
-}
-
-function scaleY(y){
-  return (y/rect.height) * canvas.height;
-}
 
 
 

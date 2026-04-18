@@ -1,4 +1,4 @@
-import {canvasState, Tool, render, canvas, ctx, slider} from "./canvasState.js"
+import {canvasState, Tool, canvas, ctx, slider} from "./canvasState.js"
 
 const trashCan = document.getElementsByClassName("trash")[0];
 trashCan.addEventListener("click", function(){
@@ -8,7 +8,7 @@ trashCan.addEventListener("click", function(){
     canvasState.paintHistory = [];
   }
 
-  render();
+  canvasState.render();
 });
 
 const magnify = document.getElementsByClassName("zoom")[0];
@@ -37,9 +37,9 @@ brush.addEventListener("click", function(){
 const bucket = document.getElementsByClassName("bucket")[0];
 bucket.addEventListener("click", function(){
 
-  canvasState.fill = !canvasState.fill;
+  canvasState.brush.fill = !canvasState.brush.fill;
 
-  if(canvasState.fill){
+  if(canvasState.brush.fill){
     this.classList.add('selected');
     canvas.classList.add('optionBucket');
   }
@@ -52,7 +52,7 @@ bucket.addEventListener("click", function(){
 
 const title = document.getElementsByClassName("title")[0];
 title.addEventListener("click", function(){
-  render();
+  canvasState.render();
 });
 
 slider.addEventListener("change", function (){
