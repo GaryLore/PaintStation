@@ -140,14 +140,14 @@ function setBrushColors(e){
   if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
 
       if(selectedColorTarget == ColorTarget.BRUSH){
-        canvasState.colorBrush = e.target.id;
-        innerBrushSquare.style.backgroundColor = canvasState.colorBrush;
-        ctx.strokeStyle = canvasState.colorBrush;
+        canvasState.brush.color = e.target.id;
+        innerBrushSquare.style.backgroundColor = canvasState.brush.color;
+        ctx.strokeStyle = canvasState.brush.color;
       }
       else if(selectedColorTarget == ColorTarget.BUCKET){
-        canvasState.bucketColor = e.target.id;;
-        innerBucketSquare.style.backgroundColor = canvasState.bucketColor
-        ctx.fillStyle = canvasState.bucketColor;
+        canvasState.brush.bucketColor = e.target.id;
+        innerBucketSquare.style.backgroundColor = canvasState.brush.bucketColor;
+        ctx.fillStyle = canvasState.brush.bucketColor;
       }
     }
 }

@@ -4,20 +4,18 @@ import Stroke from "./stroke.js";
 import Dot from "./dot.js";
 
 //ignore function
-function withinPanLimit(x,y, scale){
+function withinPanZoomLimit(x,y, scale){
 
-  const defaultWidth = canvas.width, defaultHeight = canvas.height;
-  const maxWidth = 5120, maxHeight = 2880;
-  
-  const width = defaultWidth / scale;
-  const height = defaultHeight / scale;
+  const leftBorder = (0 - x) / scale; 
+  const topBorder = (0 - y) / scale; 
+  const rightBorder = (canvas.width - x) / scale; 
+  const bottomBorder = (canvas.height - y) / scale; 
 
-  const leftBorder = width + (x - defaultWidth)*scale;
-
-  if(leftBorder >= -1920){
+  if(leftBorder >= -1920 && topBorder >= -1080 && rightBorder <= 3200 && bottomBorder <= 1800){
     return true;
   }
   console.log("NOT IN LIMIT");
+  console.log(leftBorder);
   return false;
 }
 
@@ -40,7 +38,7 @@ function updatePanning(event){
   const tempY = viewportTransform.y + scaledDIFFY;
 
   //ignore short circuit true, not finished feature;
-  if(true || withinPanLimit(tempX, tempY, viewportTransform.scale)){
+  if(withinPanZoomLimit(tempX, tempY, viewportTransform.scale)){
     
     viewportTransform.x = tempX;
     viewportTransform.y = tempY;
@@ -53,7 +51,7 @@ function updatePanning(event){
     canvasState.panZoom.previousX = localX;
     canvasState.panZoom.previousY = localY;
 
-    //console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")" , canvasState.panZoom.previousX);
+    console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
   }
 }
 
@@ -63,19 +61,19 @@ function updateZooming(event){
 
   const change = event.deltaY * -0.001;
   const newScale = Math.max(Math.min(viewportTransform.scale + change, 5),0.25);
-
-  viewportTransform.scale = newScale;
-  ctx.lineWidth = canvasState.brush.paintWidth * viewportTransform.scale;
   
   //makes sure it zooms on the center, and stays there where you offset it
-  
-  const offsetX = canvas.width/2 - (canvas.width/2 - canvasState.panZoom.GlobalOffsetX )*viewportTransform.scale;  
-  const offsetY = canvas.height/2 - (canvas.height/2 - canvasState.panZoom.GlobalOffsetY)*viewportTransform.scale; 
+  const offsetX = canvas.width/2 - (canvas.width/2 - canvasState.panZoom.GlobalOffsetX )*newScale;  
+  const offsetY = canvas.height/2 - (canvas.height/2 - canvasState.panZoom.GlobalOffsetY)*newScale; 
 
-  viewportTransform.x = offsetX;
-  viewportTransform.y = offsetY;
+  if(withinPanZoomLimit(offsetX, offsetY, newScale)){
+    viewportTransform.scale = newScale;
+    viewportTransform.x = offsetX;
+    viewportTransform.y = offsetY;
+    ctx.lineWidth = canvasState.brush.paintWidth * viewportTransform.scale;
 
-  console.log(viewportTransform.scale);
+    console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
+  }
 }
 
 canvas.addEventListener("mousemove", function (event) {
@@ -113,46 +111,22 @@ canvas.addEventListener("wheel", function(event){
 });
 
 canvas.addEventListener("mousedown", function (event) {
+  console.log("ENTERED MOUSE DOWN");
+  canvasState.mouseDown = true;
   if(canvasState.tool == Tool.PANZOOM){
-    canvasState.panZoom.mouseDown = true;
     canvasState.panZoom.previousX = event.offsetX
     canvasState.panZoom.previousY = event.offsetY
   }
   else if(canvasState.tool == Tool.BRUSH){
-    const viewportTransform = canvasState.viewportTransform;
 
-    canvasState.canDraw = true;
-    canvasState.x1 = canvasState.scaleX(event.offsetX);
-    canvasState.y1 = canvasState.scaleY(event.offsetY);
-
-    ctx.beginPath();
-    ctx.moveTo(canvasState.x1, canvasState.y1);
-
-    const color = canvasState.brush.color;
-    const bucketColor = canvasState.brush.bucketColor;
-    const width = canvasState.brush.paintWidth;
-
-    if(canvasState.brush.fill){
-      const fill = true;
-      canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
-    }
-    else{
-      const fill = false;
-      canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
-    }
-
-    let historyX = (canvasState.x1 - viewportTransform.x) / viewportTransform.scale;
-    let historyY = (canvasState.y1 - viewportTransform.y) / viewportTransform.scale;
-    canvasState.tempStroke.addPoint(historyX,historyY);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
+    startBrushStroke(event);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
 
 });
 
-canvas.addEventListener("mouseup", function (event) {
-  if(canvasState.tool == Tool.PANZOOM){
-    canvasState.panZoom.mouseDown = false;
-  }
-  else if(canvasState.canDraw){
+window.addEventListener("mouseup", function (event) {
+  canvasState.mouseDown = false;
+  if(canvasState.canDraw){
     recordStroke();
     if(canvasState.brush.fill){
       ctx.fill();
@@ -164,6 +138,7 @@ canvas.addEventListener("mouseup", function (event) {
 
 canvas.addEventListener("click", drawDot);
 function drawDot(event){
+  console.log(`(${canvasState.scaleX(event.offsetX)},${canvasState.scaleY(event.offsetY)})`);
   if(canvasState.tool == Tool.BRUSH){
     const viewportTransform = canvasState.viewportTransform;
     
@@ -206,9 +181,47 @@ canvas.addEventListener('mouseleave', function (event) {
   console.log("END")
 });
 
+canvas.addEventListener('mouseenter', function (event) {
+  //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
+  console.log("ENTERED");
+  console.log(canvasState.mouseDown);
+  if(canvasState.mouseDown && canvasState.tool == Tool.BRUSH){
+      startBrushStroke(event);
+  }
+  
+});
+
+function startBrushStroke(event) {
+  const viewportTransform = canvasState.viewportTransform;
+
+  canvasState.canDraw = true;
+  canvasState.x1 = canvasState.scaleX(event.offsetX);
+  canvasState.y1 = canvasState.scaleY(event.offsetY);
+
+  ctx.beginPath();
+  ctx.moveTo(canvasState.x1, canvasState.y1);
+
+  const color = canvasState.brush.color;
+  const bucketColor = canvasState.brush.bucketColor;
+  const width = canvasState.brush.paintWidth;
+
+  if (canvasState.brush.fill) {
+    const fill = true;
+    canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
+  }
+  else {
+    const fill = false;
+    canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
+  }
+
+  let historyX = (canvasState.x1 - viewportTransform.x) / viewportTransform.scale;
+  let historyY = (canvasState.y1 - viewportTransform.y) / viewportTransform.scale;
+  canvasState.tempStroke.addPoint(historyX, historyY);
+}
+
 
 function recordStroke() {
-  canvasState.canDraw = canvasState.mouseDown = false;
+  canvasState.canDraw = false;
 
   
   if(hasStrokeBeenDrawn()){

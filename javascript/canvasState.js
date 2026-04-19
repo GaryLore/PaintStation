@@ -31,11 +31,12 @@ const canvasState = {
   //allows drawing
   x1 : undefined,
   y1 : undefined,
+  mouseDown : false,
   canDraw : false, 
   hasDrawn : false,
   tool : Tool.BRUSH, 
   viewportTransform : viewport,
-
+  
   //handles history
   paintHistory : [],
   tempStroke : null,
@@ -49,7 +50,6 @@ const canvasState = {
 
   panZoom : {
     //allows pan & zoom
-    mouseDown : false,
     GlobalOffsetX : 0,
     GlobalOffsetY : 0,
     previousX : undefined,
@@ -57,7 +57,7 @@ const canvasState = {
   },
 
   isPanning(){
-     return this.tool == Tool.PANZOOM && this.panZoom.mouseDown;
+     return this.tool == Tool.PANZOOM && this.mouseDown;
   },
 
   drawTo(x2,y2){
@@ -107,6 +107,20 @@ const canvasState = {
 
     ctx.fillStyle = "white";
     ctx.fillRect(-640, -360, 2560, 1440);
+
+    /*
+    ctx.strokeStyle = "black";
+    ctx.beginPath();
+    ctx.moveTo(-1920,360)
+    ctx.lineTo(3200,360)
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(640,-1080)
+    ctx.lineTo(640,3200)
+    ctx.stroke();
+    */
+    
   }
 
 };
@@ -117,5 +131,6 @@ ctx.lineWidth = canvasState.brush.paintWidth;
 //we set linecap and line join both to the same so the redraws with render are the same
 ctx.lineCap = "round"; 
 ctx.lineJoin = "round"; 
+canvasState.render();
 
 export {canvasState, Tool, canvas, ctx, rect, slider};
