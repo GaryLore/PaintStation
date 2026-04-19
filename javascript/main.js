@@ -3,7 +3,6 @@ import {canvasState, Tool, canvas, ctx, rect} from "./canvasState.js"
 import Stroke from "./stroke.js";
 import Dot from "./dot.js";
 
-//ignore function
 function withinPanZoomLimit(x,y, scale){
 
   const leftBorder = (0 - x) / scale; 
@@ -14,9 +13,16 @@ function withinPanZoomLimit(x,y, scale){
   if(leftBorder >= -1920 && topBorder >= -1080 && rightBorder <= 3200 && bottomBorder <= 1800){
     return true;
   }
-  console.log("NOT IN LIMIT");
-  console.log(leftBorder);
   return false;
+}
+
+function drawingAllowedHere(x,y){
+
+  if(x > -640 && x < 1920 && y > -360 && y < 1080){
+    return true;
+  }
+  return false;
+
 }
 
 function updatePanning(event){
@@ -51,7 +57,6 @@ function updatePanning(event){
     canvasState.panZoom.previousX = localX;
     canvasState.panZoom.previousY = localY;
 
-    console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
   }
 }
 
@@ -78,27 +83,34 @@ function updateZooming(event){
 
 canvas.addEventListener("mousemove", function (event) {
 
-  const viewportTransform = canvasState.viewportTransform;
-  
   if(canvasState.isPanning()){
     console.log("IF has entered");
     updatePanning(event);
     canvasState.render();
   }
   else if(canvasState.canDraw){
-    let x2, y2;
-    canvasState.hasDrawn = true;
-    x2 = canvasState.scaleX(event.offsetX);
-    y2 = canvasState.scaleY(event.offsetY);
-    canvasState.drawTo(x2,y2);
 
-    canvasState.x1 = x2;
-    canvasState.y1 = y2;
+    const viewportTransform = canvasState.viewportTransform;
+    const x2 = canvasState.scaleX(event.offsetX);
+    const y2 = canvasState.scaleY(event.offsetY);
+    const worldX = (x2 - viewportTransform.x) / viewportTransform.scale;
+    const worldY = (y2 - viewportTransform.y) / viewportTransform.scale;
 
-    //actual x and y may be different due to transformations
-    let historyX = (x2 - viewportTransform.x) / viewportTransform.scale;
-    let historyY = (y2 - viewportTransform.y) / viewportTransform.scale;
-    canvasState.tempStroke.addPoint(historyX,historyY);
+    if(drawingAllowedHere(worldX, worldY)){
+
+      canvasState.hasDrawn = true;
+
+      canvasState.drawTo(x2,y2);
+      canvasState.x1 = x2;
+      canvasState.y1 = y2;
+      canvasState.reloadJustBorder();
+
+      //actual x and y may be different due to transformations
+      canvasState.tempStroke.addPoint(worldX,worldY);
+    }
+    else{
+      recordStroke();
+    }
   }
 
 });
@@ -138,32 +150,33 @@ window.addEventListener("mouseup", function (event) {
 
 canvas.addEventListener("click", drawDot);
 function drawDot(event){
+
   console.log(`(${canvasState.scaleX(event.offsetX)},${canvasState.scaleY(event.offsetY)})`);
-  if(canvasState.tool == Tool.BRUSH){
-    const viewportTransform = canvasState.viewportTransform;
-    
-    //only makes dot if there has been nothing drawn
-    if(!canvasState.hasDrawn){
-      let x = canvasState.scaleX(event.offsetX);
-      let y = canvasState.scaleY(event.offsetY);
 
-      ctx.beginPath();
-      ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
-      ctx.fillStyle = canvasState.brush.color;//neccessary because fill i used to implement dot
-      ctx.fill();
+  const viewportTransform = canvasState.viewportTransform;
+  let x = canvasState.scaleX(event.offsetX);
+  let y = canvasState.scaleY(event.offsetY);
+  const worldX = (x - viewportTransform.x) / viewportTransform.scale; 
+  const worldY = (y - viewportTransform.y) / viewportTransform.scale;
 
-      ctx.fillStyle = canvasState.brush.bucketColor;
+  if(canvasState.tool == Tool.BRUSH && !canvasState.hasDrawn && drawingAllowedHere(worldX, worldY)){    
 
-      const historyX = (x - viewportTransform.x) / viewportTransform.scale; 
-      const historyY = (y - viewportTransform.y) / viewportTransform.scale;
-      const colorBrush = canvasState.brush.color;
-      const paintWidth = canvasState.brush.paintWidth;
+    ctx.beginPath();
+    ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
+    ctx.fillStyle = canvasState.brush.color;//neccessary because fill i used to implement dot
+    ctx.fill();
+    ctx.fillStyle = canvasState.brush.bucketColor;
 
-      let record = new Dot(colorBrush, paintWidth, historyX, historyY);
-      canvasState.paintHistory.push(record);
-    }
-    canvasState.hasDrawn = false;
+    canvasState.reloadJustBorder();
+
+    const colorBrush = canvasState.brush.color;
+    const paintWidth = canvasState.brush.paintWidth;
+
+    let record = new Dot(colorBrush, paintWidth, worldX, worldY);
+    canvasState.paintHistory.push(record);
+
   }
+  canvasState.hasDrawn = false;
 
 }
 
@@ -192,37 +205,41 @@ canvas.addEventListener('mouseenter', function (event) {
 });
 
 function startBrushStroke(event) {
+
   const viewportTransform = canvasState.viewportTransform;
 
-  canvasState.canDraw = true;
   canvasState.x1 = canvasState.scaleX(event.offsetX);
   canvasState.y1 = canvasState.scaleY(event.offsetY);
+  let worldX = (canvasState.x1 - viewportTransform.x) / viewportTransform.scale;
+  let worldY = (canvasState.y1 - viewportTransform.y) / viewportTransform.scale;
 
-  ctx.beginPath();
-  ctx.moveTo(canvasState.x1, canvasState.y1);
+  if(drawingAllowedHere(worldX,worldY)){
+    canvasState.canDraw = true;
 
-  const color = canvasState.brush.color;
-  const bucketColor = canvasState.brush.bucketColor;
-  const width = canvasState.brush.paintWidth;
+    ctx.beginPath();
+    ctx.moveTo(canvasState.x1, canvasState.y1);
 
-  if (canvasState.brush.fill) {
-    const fill = true;
-    canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
+    const color = canvasState.brush.color;
+    const bucketColor = canvasState.brush.bucketColor;
+    const width = canvasState.brush.paintWidth;
+
+    if (canvasState.brush.fill) {
+      const fill = true;
+      canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
+    }
+    else {
+      const fill = false;
+      canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
+    }
+
+    canvasState.tempStroke.addPoint(worldX, worldY);
+
   }
-  else {
-    const fill = false;
-    canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
-  }
-
-  let historyX = (canvasState.x1 - viewportTransform.x) / viewportTransform.scale;
-  let historyY = (canvasState.y1 - viewportTransform.y) / viewportTransform.scale;
-  canvasState.tempStroke.addPoint(historyX, historyY);
 }
 
 
 function recordStroke() {
   canvasState.canDraw = false;
-
   
   if(hasStrokeBeenDrawn()){
     canvasState.paintHistory.push(canvasState.tempStroke);

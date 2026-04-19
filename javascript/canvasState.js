@@ -61,8 +61,8 @@ const canvasState = {
   },
 
   drawTo(x2,y2){
-  ctx.lineTo(x2,y2);
-  ctx.stroke();
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
   },
 
   /*
@@ -93,34 +93,48 @@ const canvasState = {
       this.viewportTransform.x,
       this.viewportTransform.y
     );
-
-    this.drawBorder();
+    
     canvasState.paintHistory.forEach((paintObject) => paintObject.draw());
+    this.drawBorder();
     ctx.restore();
   },
 
   drawBorder(){
-    console.log("draw border is called");
 
+    console.log("DRAW BORDER");
     ctx.fillStyle = "dimgray";
-    ctx.fillRect(-1920, -1080, 5120, 2880);
-
-    ctx.fillStyle = "white";
-    ctx.fillRect(-640, -360, 2560, 1440);
-
-    /*
-    ctx.strokeStyle = "black";
-    ctx.beginPath();
-    ctx.moveTo(-1920,360)
-    ctx.lineTo(3200,360)
-    ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(640,-1080)
-    ctx.lineTo(640,3200)
-    ctx.stroke();
-    */
+    ctx.moveTo(-1920, -1080);
+    ctx.lineTo(3200, -1080);
+    ctx.lineTo(3200, 1800);
+    ctx.lineTo(-1920, 1800);
+
+    ctx.moveTo(-640, -360);
+    ctx.lineTo(-640, 1080);
+    ctx.lineTo(1920,1080);
+    ctx.lineTo(1920, -360);
+
+    ctx.fill();
+
+  },
+
+  reloadJustBorder(){
+    ctx.save();
+    ctx.setTransform(
+      this.viewportTransform.scale,
+      0,
+      0,
+      this.viewportTransform.scale,
+      this.viewportTransform.x,
+      this.viewportTransform.y
+    );
+    this.drawBorder();
     
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.moveTo(canvasState.x1, canvasState.y1);
   }
 
 };
