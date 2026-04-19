@@ -20,6 +20,7 @@ magnify.addEventListener("click", function(){
 
   brush.classList.remove('selected');
   canvas.classList.remove('optionBrush');
+  bucket.classList.remove('selected');
 
 });
 
@@ -37,7 +38,8 @@ brush.addEventListener("click", function(){
 const bucket = document.getElementsByClassName("bucket")[0];
 bucket.addEventListener("click", function(){
 
-  canvasState.brush.fill = !canvasState.brush.fill;
+  if(canvasState.tool == Tool.BRUSH)
+    canvasState.brush.fill = !canvasState.brush.fill;
 
   if(canvasState.brush.fill){
     this.classList.add('selected');
@@ -45,7 +47,6 @@ bucket.addEventListener("click", function(){
   }
   else{
     this.classList.remove('selected');
-    canvas.classList.remove('optionBucket');
   }
 
 });
