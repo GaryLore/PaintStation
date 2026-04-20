@@ -21,6 +21,7 @@ magnify.addEventListener("click", function(){
   brush.classList.remove('selected');
   canvas.classList.remove('optionBrush');
   bucket.classList.remove('selected');
+  canvasState.brush.fill = false;
 
 });
 
@@ -43,7 +44,6 @@ bucket.addEventListener("click", function(){
 
   if(canvasState.brush.fill){
     this.classList.add('selected');
-    canvas.classList.add('optionBucket');
   }
   else{
     this.classList.remove('selected');
@@ -57,8 +57,8 @@ title.addEventListener("click", function(){
 });
 
 slider.addEventListener("change", function (){
-  canvasState.paintWidth = slider.valueAsNumber;
-  ctx.lineWidth = canvasState.paintWidth * canvasState.viewportTransform.scale;
+  canvasState.brush.paintWidth = slider.valueAsNumber;
+  ctx.lineWidth = canvasState.brush.paintWidth * canvasState.viewportTransform.scale;
 });
 
 function createColor(string){

@@ -141,9 +141,7 @@ window.addEventListener("mouseup", function (event) {
   if(canvasState.canDraw){
     recordStroke();
     if(canvasState.brush.fill){
-      ctx.fill();
-      ctx.closePath();
-      ctx.stroke();
+      canvasState.render();
     }
   }
 });
@@ -182,20 +180,14 @@ function drawDot(event){
 
 canvas.addEventListener('mouseleave', function (event) {
   //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
-  if(canvasState.brush.fill && hasStrokeBeenDrawn()){
-      ctx.fill();
-      ctx.closePath();
-      ctx.stroke();
-  }
+  
   recordStroke();
-
   console.log("BEGIN PAINT HISTORY")
   canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
   console.log("END")
 });
 
 canvas.addEventListener('mouseenter', function (event) {
-  //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
   console.log("ENTERED");
   console.log(canvasState.mouseDown);
   if(canvasState.mouseDown && canvasState.tool == Tool.BRUSH){
@@ -229,7 +221,7 @@ function startBrushStroke(event) {
     }
     else {
       const fill = false;
-      canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
+      canvasState.tempStroke = new Stroke(color, "", width, fill);
     }
 
     canvasState.tempStroke.addPoint(worldX, worldY);
@@ -243,7 +235,12 @@ function recordStroke() {
   
   if(hasStrokeBeenDrawn()){
     canvasState.paintHistory.push(canvasState.tempStroke);
+
+    if(canvasState.brush.fill){
+      canvasState.render();
   }
+  }
+  
   canvasState.tempStroke = null;
 }
 

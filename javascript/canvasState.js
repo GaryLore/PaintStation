@@ -130,7 +130,6 @@ const canvasState = {
       this.viewportTransform.y
     );
     this.drawBorder();
-    
     ctx.restore();
 
     ctx.beginPath();
