@@ -10,19 +10,12 @@ function withinPanZoomLimit(x,y, scale){
   const rightBorder = (canvas.width - x) / scale; 
   const bottomBorder = (canvas.height - y) / scale; 
 
-  if(leftBorder >= -1920 && topBorder >= -1080 && rightBorder <= 3200 && bottomBorder <= 1800){
-    return true;
-  }
-  return false;
+  return leftBorder >= -1920 && topBorder >= -1080 && rightBorder <= 3200 && bottomBorder <= 1800;
 }
 
 function drawingAllowedHere(x,y){
 
-  if(x > -640 && x < 1920 && y > -360 && y < 1080){
-    return true;
-  }
-  return false;
-
+  return x > -640 && x < 1920 && y > -360 && y < 1080;
 }
 
 function updatePanning(event){
@@ -43,7 +36,6 @@ function updatePanning(event){
   const tempX = viewportTransform.x + scaledDIFFX;
   const tempY = viewportTransform.y + scaledDIFFY;
 
-  //ignore short circuit true, not finished feature;
   if(withinPanZoomLimit(tempX, tempY, viewportTransform.scale)){
     
     viewportTransform.x = tempX;
@@ -123,7 +115,6 @@ canvas.addEventListener("wheel", function(event){
 });
 
 canvas.addEventListener("mousedown", function (event) {
-  console.log("ENTERED MOUSE DOWN");
   canvasState.mouseDown = true;
   if(canvasState.tool == Tool.PANZOOM){
     canvasState.panZoom.previousX = event.offsetX
@@ -178,9 +169,7 @@ function drawDot(event){
 
 }
 
-canvas.addEventListener('mouseleave', function (event) {
-  //have to include this code as well because a stroke should be inputed to history if its finished, fixed glitch where it was accounted for if mouseLeave the canvas
-  
+canvas.addEventListener('mouseleave', function (event) {  
   recordStroke();
   console.log("BEGIN PAINT HISTORY")
   canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
@@ -188,7 +177,6 @@ canvas.addEventListener('mouseleave', function (event) {
 });
 
 canvas.addEventListener('mouseenter', function (event) {
-  console.log("ENTERED");
   console.log(canvasState.mouseDown);
   if(canvasState.mouseDown && canvasState.tool == Tool.BRUSH){
       startBrushStroke(event);
