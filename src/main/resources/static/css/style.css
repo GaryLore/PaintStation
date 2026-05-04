@@ -1,0 +1,151 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#canvas {
+    aspect-ratio: 16 / 9;
+    width: 60vw;
+    border: 2px solid #CAD6E3;
+    margin: 0 2vw;
+}
+
+html{
+    background-color: antiquewhite;
+}
+
+body {
+    /*border: 2px solid black;*/
+    width: 90vw;
+    height: 100vh;
+    margin: auto;
+    background-color: #fafafa;
+    box-shadow: 0 0px 30px rgba(0,0,0,.08);
+}
+
+.title{
+    margin: 1vw 1vw 24px;
+    text-align: center;
+}
+
+.container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.options {
+    margin: 0 2vw;
+    border: 2px solid red;
+    /*background-color: rgb(24, 25, 28); */
+    width: 60vw;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.colors {
+    width: 35%;
+    border: 2px solid blue;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+}
+
+.thickness{
+    border: 2px solid green;
+    width: 30%;
+    height: 100%;
+}
+
+input[type="range"]{
+    width: 100%;
+}
+
+.colors > div{   
+    aspect-ratio: 1 / 1;
+    padding: 2px;
+    border: 2px solid gray;
+    /*background-color: white;*/
+}
+
+.colors > div > div{
+    aspect-ratio: 1 / 1;
+    pointer-events: none;
+}
+
+.colors > div:hover{
+    border-color: #0d8bf3; 
+    box-shadow: 0 0 6px #0d8bf3;
+}
+
+.choices > div.selected{
+    border-color: #0d5df3; 
+    box-shadow: 0 0 5px 3px #0d5df3;  
+}
+
+.zoom{
+    height:auto;
+    width: 4%;
+}
+.bucket{
+    height:auto;
+    width: 4%;
+    margin-right: 2%;
+}
+.brush{
+    height:auto;
+    width: 4%;
+}
+.trash{
+    height:auto;
+    width: 4%;
+    margin: 10px;
+}
+img{
+    aspect-ratio: 1 / 1;
+    width:100%;
+}
+
+.optionBrush{
+    cursor: crosshair;
+}
+
+.optionPanZoom{
+    cursor: all-scroll;
+}
+
+.options > .selected {
+  position: relative;
+}
+
+.options > .selected::before {
+  content: "";
+  position: absolute;
+  inset: -8px;              
+  box-shadow: 0 0 5px 5px  rgb(32, 104, 187);
+  border-radius: 30px;       
+  pointer-events: none;      
+}
+
+.choices{
+    display: flex;
+    flex-direction: row;
+    width: 10%;
+}
+
+.choices > div{
+    aspect-ratio: 1 / 1;
+    padding: 3px;
+    margin: 2px;
+    border: 2px solid gray;
+    width: 100%;
+}
+
+.choices > div > div{
+    aspect-ratio: 1 / 1;
+    pointer-events: none;
+}

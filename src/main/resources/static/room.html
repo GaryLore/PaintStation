@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint Room</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="module" src="/javascript/main.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="left"></div>
+        <h1 class="title">Paint Station 🎨</h1>
+        <div class="trash">
+            <img src="/img/trash.png" alt="trash" >
+        </div>
+    </div>
+    <canvas id="canvas" class="optionBrush">Paint Canvas</canvas>
+
+    <div class="options">
+
+        <div class="choices">
+           
+        </div>
+        <div id="all_colors" class="colors">
+
+        </div>
+        <div class="thickness">
+            <p>Paint Thickness</p>
+            <input type="range" name="thickness" id="all_thickness" min="4" max="50" value="10">
+        </div>
+        <div class="zoom">
+             <img src="/img/magnify.png" alt="Zoom" >
+        </div>
+        <div class="brush selected">
+             <img src="/img/paint.png" alt="PaintBrush" >
+        </div>
+        <div class="bucket">
+             <img src="/img/bucket.png" alt="Bucket" >
+        </div>
+    </div>
+</body>
+</html>
