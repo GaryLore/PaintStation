@@ -27,7 +27,7 @@ public class DashboardService {
         return success ? Optional.of(room) : Optional.empty();
     }
 
-    AccessRoomResult accessRoom(String roomName, JoinRoomRequest request){
+    public AccessRoomResult accessRoom(String roomName, JoinRoomRequest request){
 
         String username = request.name();
         String password = request.password();
