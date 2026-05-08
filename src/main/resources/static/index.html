@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link rel="stylesheet" href="/css/index.css">
+    <script type="module" src="/javascript/RoomService.js" defer></script>
 </head>
 <body>
 
@@ -55,21 +56,21 @@
                         </div>
 
 
-                        <form action="" class="roomForm">
+                        <form class="roomForm">
                             
                             <div class="formGroup">
                                 <label for="roomName">Room Name</label>
-                                <input type="text" id="roomName">
+                                <input type="text" id="roomName" name="roomName">
                             </div>
 
                             <div class="formGroup">
                                 <label for="roomPassword">Room Password (Optional)</label>
-                                <input type="text" id="roomPassword">
+                                <input type="text" id="roomPassword" name="password" >
                             </div>
 
                             <div class="formGroup">
                                 <label for="username">Username</label>
-                                <input type="text" id="username">
+                                <input type="text" id="username" name="ownerName">
                             </div>
 
                             <button type="submit" class="submitBtn">
