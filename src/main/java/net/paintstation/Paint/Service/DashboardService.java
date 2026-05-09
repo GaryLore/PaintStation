@@ -16,13 +16,18 @@ public class DashboardService {
         this.repository = repository;
     }
 
-    public Optional<Room> createRoom(createRoomRequest request) {
+    public Optional<Room> createRoom(CreateRoomRequest request) {
 
         Room room = new Room(
                 request.roomName(),
-                request.ownerName(),
-                request.password()
+                request.password(),
+                request.ownerName()
         );
+
+        System.out.println("Room Name : " + request.roomName());
+        System.out.println("Password : " + request.password());
+        System.out.println("Owner Name : " + request.ownerName());
+
         boolean success = repository.InsertRoom(room);
         return success ? Optional.of(room) : Optional.empty();
     }

@@ -26,9 +26,9 @@ public class RoomController {
 
         AccessRoomResult result = roomService.accessRoom(roomName, request);
 
-        switch (result.getStatus()) {
+        switch (result.status()) {
             case SUCCESS -> {
-                Room room = result.getRoom();
+                Room room = result.room();
                 String playerID = room.getPlayerID(request.name());
                 RoomResponse roomResponse = new RoomResponse(room.getRoomID(), playerID, room.getOwner(), room.getPlayers(), room.getHistory());
                 return ResponseEntity.status(HttpStatus.OK).body(roomResponse);
@@ -44,7 +44,7 @@ public class RoomController {
 
 
     @PostMapping("/create")
-    ResponseEntity<?> startRoom(@Valid @RequestBody createRoomRequest request){
+    ResponseEntity<?> startRoom(@Valid @RequestBody CreateRoomRequest request){
 
         Optional<Room> room = roomService.createRoom(request);
 
@@ -53,6 +53,7 @@ public class RoomController {
         }
 
         Room createdRoom = room.get();
+        System.out.println("OWNER ID : " + createdRoom.getOwnerID());
         RoomResponse response = new RoomResponse(
                 createdRoom.getRoomID(),
                 createdRoom.getOwnerID(), //player in this case is owner

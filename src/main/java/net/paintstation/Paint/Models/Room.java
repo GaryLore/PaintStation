@@ -12,11 +12,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Room {
 
     private final String roomID;
-    @Size(min = 5, max = 25)
     private final String name;
-    @Size(min = 0, max = 64)
     private final String password;
-    @Size(min = 1, max = 10)
     private final String owner;
     private final String ownerID;
     private int numOfPlayers = 1;
@@ -73,10 +70,12 @@ public class Room {
         if (isFull()) return AccessRoomStatus.ROOM_FULL;
         if (isNameTaken(playerName)) return AccessRoomStatus.NAME_TAKEN;
         players.put(playerId, playerName);
+        numOfPlayers++;
         return AccessRoomStatus.SUCCESS;
     }
 
     public synchronized String getPlayerID(String name){
+        System.out.println(players.get(name));
         return players.get(name);
     }
 }

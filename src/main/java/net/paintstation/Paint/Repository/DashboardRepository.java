@@ -16,7 +16,7 @@ public class DashboardRepository {
     public boolean InsertRoom(Room room) {
 
         Room previousRoom = rooms.putIfAbsent(room.getName(), room);
-        return previousRoom != null;
+        return previousRoom == null;
 
     }
 
