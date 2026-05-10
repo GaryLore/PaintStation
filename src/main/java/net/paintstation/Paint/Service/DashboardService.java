@@ -55,11 +55,16 @@ public class DashboardService {
 
     }
 
-    AccessRoomStatus insertPlayerIntoRoom(String username, Room room){
+    private AccessRoomStatus insertPlayerIntoRoom(String username, Room room){
 
         String userID = UUID.randomUUID().toString();
         return room.addPlayer(userID, username);
 
+    }
+
+    public loadAllRoomsMessage getAllRooms(){
+
+        return new loadAllRoomsMessage(repository.getAllRoomsInfo());
     }
 
 }

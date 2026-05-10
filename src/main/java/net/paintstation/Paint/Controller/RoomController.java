@@ -5,6 +5,7 @@ import net.paintstation.Paint.Models.*;
 import net.paintstation.Paint.Service.DashboardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -15,13 +16,15 @@ import java.util.Optional;
 public class RoomController {
 
     private final DashboardService roomService;
+    private SimpMessagingTemplate template;
 
-    public RoomController(DashboardService roomService){
+    public RoomController(DashboardService roomService, SimpMessagingTemplate template){
         this.roomService = roomService;
+        this.template = template;
     }
 
 
-    @GetMapping("/{roomName}/join")
+    @PostMapping("/{roomName}/join")
     ResponseEntity<?> enterRoom(@PathVariable String roomName, @Valid @RequestBody JoinRoomRequest request){
 
         AccessRoomResult result = roomService.accessRoom(roomName, request);
@@ -62,8 +65,18 @@ public class RoomController {
                 createdRoom.getHistory()
         );
 
+        RoomUpdate update = new RoomUpdate(RoomAction.INSERT, createdRoom.getName() );
+        System.out.println(update);
+        template.convertAndSend("/topic/update", update);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
+    }
+
+    @GetMapping("/load")
+    ResponseEntity<?> loadAllRooms(){
+
+        loadAllRoomsMessage allRooms = roomService.getAllRooms();
+        return ResponseEntity.status(HttpStatus.OK).body(allRooms);
     }
 
 

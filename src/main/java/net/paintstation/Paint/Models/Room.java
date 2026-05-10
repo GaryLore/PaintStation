@@ -78,4 +78,8 @@ public class Room {
         System.out.println(players.get(name));
         return players.get(name);
     }
+
+    public RoomInfo getRoomInfo(){
+        return new RoomInfo(this.name, this.numOfPlayers);
+    }
 }
