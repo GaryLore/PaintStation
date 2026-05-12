@@ -1,8 +1,18 @@
 
-const formElement = document.querySelector(".roomForm");
-formElement.addEventListener("submit", submitForm)
+const createFormElement = document.querySelector("#createRoom");
+createFormElement.addEventListener("submit", submitCreateForm)
+
+const enterFormElement = document.querySelector("#enterRoom");
+enterFormElement.addEventListener("submit", submitEnterForm)
+
 const roomsListElement = document.querySelector(".roomsList");
 document.addEventListener("DOMContentLoaded", loadRooms);
+document.addEventListener("click", showEnterForm);
+
+document.querySelector('.close-btn').addEventListener('click', closeModal);
+
+const modalElement =document.getElementById("model_container");
+let roomSelectedName = "";
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const socketURL = `${protocol}//${window.location.host}/load-rooms`;
@@ -31,11 +41,13 @@ stompClient.onStompError = (frame) => {
 //activates connection
 stompClient.activate();
 
-async function submitForm(event) {
+async function submitCreateForm(event) {
     event.preventDefault();
-    const formData = new FormData(formElement);
+    const formData = new FormData(createFormElement);
     const data = Object.fromEntries(formData);
     console.log(data);
+
+    //validate data here client side and if wrong return a string why its wrong so user understands
 
     const response = await fetch("/api/room/create", {
         method: "POST",
@@ -47,11 +59,67 @@ async function submitForm(event) {
 
     const {roomID, playerID, owner, players} = await response.json();
 
+    //storing session so second js file can access this
+    sessionStorage.setItem('USER_ID', playerID);
+    sessionStorage.setItem('ROOM_ID', roomID);
+
     console.log("ROOM ID : ", roomID);
     console.log("PLAYER ID : ", playerID);
     console.log("OWNER : ", owner);
     console.log("PLAYERS : ", players);
+
+    setTimeout(() => {
+        window.location.href = "/room.html";
+    }, 5000);
 }
+
+function showEnterForm(event){
+
+    if (event.target.matches('.roomCard')){
+        roomSelectedName = event.target.getAttribute("name");
+        modalElement.classList.add("show")
+    }
+}
+
+function closeModal(){
+    modalElement.classList.remove("show")
+}
+
+async function submitEnterForm(event) {
+    event.preventDefault();
+    const formData = new FormData(enterFormElement);
+
+    const roomName = roomSelectedName;
+    const username = formData.get('username').trim();
+    const password = formData.get('password').trim();
+
+    //validate data here client side and if wrong return a string why its wrong so user understands
+
+    const response = await fetch(`/api/room/${roomName}/join`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({username, password})
+    });
+
+    const {roomID, playerID, owner, players} = await response.json();
+
+    sessionStorage.setItem('USER_ID', playerID);
+    sessionStorage.setItem('ROOM_ID', roomID);
+
+    console.log("ROOM ID : ", roomID);
+    console.log("PLAYER ID : ", playerID);
+    console.log("OWNER : ", owner);
+    console.log("PLAYERS : ", players);
+
+    // enter room
+
+    setTimeout(() => {
+        window.location.href = "/room.html";
+    }, 5000);
+}
+
 
 async function loadRooms(){
 
@@ -108,3 +176,4 @@ function clearRooms(){
         roomsListElement.removeChild(roomsListElement.firstChild);
     }
 }
+

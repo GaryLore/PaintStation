@@ -21,7 +21,7 @@ public class Room {
     private final ConcurrentLinkedQueue<Integer> history = new ConcurrentLinkedQueue<>();
 
     @JsonCreator
-    public Room(@JsonProperty("name") String name, @JsonProperty("password") String password, @JsonProperty("owner") String owner) {
+    public Room(@JsonProperty("username") String name, @JsonProperty("password") String password, @JsonProperty("owner") String owner) {
         this.name = name;
         this.password = password;
         this.owner = owner;

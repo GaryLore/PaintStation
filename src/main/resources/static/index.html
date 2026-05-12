@@ -48,8 +48,8 @@
                         </div>
 
 
-                        <form class="roomForm">
-                            
+                        <form class="roomForm" id="createRoom">
+
                             <div class="formGroup">
                                 <label for="roomName">Room Name</label>
                                 <input type="text" id="roomName" name="roomName">
@@ -99,6 +99,41 @@
             
         </aside>
 
+    </div>
+
+    <div class="modal-container" id="model_container">
+        <div class="modal">
+
+            <div class="modalHeader">
+                <div class="sectionHeader">
+                    <h2>Enter Room</h2>
+                    <p class="subtitle">Enter an existing room and paint with others!</p>
+                </div>
+
+                <button class="close-btn" aria-label="Close">
+                    ✕
+                </button>
+            </div>
+
+            <form class="roomForm" id="enterRoom">
+
+                <div class="formGroup">
+                    <label for="username2">Username</label>
+                    <input type="text" id="username2" name="username">
+                </div>
+
+                <div class="formGroup">
+                    <label for="roomPassword2">Room Password (Leave blank if not Required)</label>
+                    <input type="text" id="roomPassword2" name="password" >
+                </div>
+
+                <button type="submit" class="submitBtn">
+                    Enter Room
+                </button>
+
+            </form>
+
+        </div>
     </div>
 
 </body>

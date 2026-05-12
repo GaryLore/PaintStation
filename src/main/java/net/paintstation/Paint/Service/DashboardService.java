@@ -34,7 +34,7 @@ public class DashboardService {
 
     public AccessRoomResult accessRoom(String roomName, JoinRoomRequest request){
 
-        String username = request.name();
+        String username = request.username();
         String password = request.password();
 
         Optional<Room> room = repository.findRoom(roomName);

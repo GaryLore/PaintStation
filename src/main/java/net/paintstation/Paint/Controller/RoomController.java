@@ -29,10 +29,13 @@ public class RoomController {
 
         AccessRoomResult result = roomService.accessRoom(roomName, request);
 
+        System.out.println("ROOMNAME : " + roomName);
+        System.out.println("REQUEST : " + request);
+
         switch (result.status()) {
             case SUCCESS -> {
                 Room room = result.room();
-                String playerID = room.getPlayerID(request.name());
+                String playerID = room.getPlayerID(request.username());
                 RoomResponse roomResponse = new RoomResponse(room.getRoomID(), playerID, room.getOwner(), room.getPlayers(), room.getHistory());
                 return ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
@@ -52,7 +55,7 @@ public class RoomController {
         Optional<Room> room = roomService.createRoom(request);
 
         if (room.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Room name already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Room username already taken");
         }
 
         Room createdRoom = room.get();
