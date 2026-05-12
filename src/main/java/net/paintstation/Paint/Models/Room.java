@@ -2,7 +2,8 @@ package net.paintstation.Paint.Models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Size;
+import net.paintstation.Paint.dto.internal.RoomInfo;
+import net.paintstation.Paint.enums.AccessRoomStatus;
 
 import java.util.HashMap;
 import java.util.List;

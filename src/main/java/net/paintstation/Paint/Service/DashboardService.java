@@ -1,7 +1,12 @@
 package net.paintstation.Paint.Service;
 
 import net.paintstation.Paint.Models.*;
-import net.paintstation.Paint.Repository.DashboardRepository;
+import net.paintstation.Paint.RoomRepository.RoomRepository;
+import net.paintstation.Paint.dto.internal.AccessRoomResult;
+import net.paintstation.Paint.enums.AccessRoomStatus;
+import net.paintstation.Paint.dto.request.CreateRoomRequest;
+import net.paintstation.Paint.dto.request.JoinRoomRequest;
+import net.paintstation.Paint.dto.response.loadAllRoomsResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,9 +15,9 @@ import java.util.UUID;
 @Service
 public class DashboardService {
 
-    private final DashboardRepository repository;
+    private final RoomRepository repository;
 
-    DashboardService(DashboardRepository repository){
+    DashboardService(RoomRepository repository){
         this.repository = repository;
     }
 
@@ -62,9 +67,9 @@ public class DashboardService {
 
     }
 
-    public loadAllRoomsMessage getAllRooms(){
+    public loadAllRoomsResponse getAllRooms(){
 
-        return new loadAllRoomsMessage(repository.getAllRoomsInfo());
+        return new loadAllRoomsResponse(repository.getAllRoomsInfo());
     }
 
 }

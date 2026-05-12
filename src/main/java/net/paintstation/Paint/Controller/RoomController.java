@@ -3,6 +3,13 @@ package net.paintstation.Paint.Controller;
 import jakarta.validation.Valid;
 import net.paintstation.Paint.Models.*;
 import net.paintstation.Paint.Service.DashboardService;
+import net.paintstation.Paint.dto.internal.AccessRoomResult;
+import net.paintstation.Paint.dto.websocket.RoomUpdate;
+import net.paintstation.Paint.enums.RoomAction;
+import net.paintstation.Paint.dto.request.CreateRoomRequest;
+import net.paintstation.Paint.dto.request.JoinRoomRequest;
+import net.paintstation.Paint.dto.response.RoomResponse;
+import net.paintstation.Paint.dto.response.loadAllRoomsResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -16,7 +23,7 @@ import java.util.Optional;
 public class RoomController {
 
     private final DashboardService roomService;
-    private SimpMessagingTemplate template;
+    private final SimpMessagingTemplate template;
 
     public RoomController(DashboardService roomService, SimpMessagingTemplate template){
         this.roomService = roomService;
@@ -78,7 +85,7 @@ public class RoomController {
     @GetMapping("/load")
     ResponseEntity<?> loadAllRooms(){
 
-        loadAllRoomsMessage allRooms = roomService.getAllRooms();
+        loadAllRoomsResponse allRooms = roomService.getAllRooms();
         return ResponseEntity.status(HttpStatus.OK).body(allRooms);
     }
 

@@ -1,4 +1,4 @@
-package net.paintstation.Paint.Models;
+package net.paintstation.Paint.enums;
 
 public enum AccessRoomStatus {
     SUCCESS,

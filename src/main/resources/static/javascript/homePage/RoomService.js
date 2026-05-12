@@ -41,6 +41,13 @@ stompClient.onStompError = (frame) => {
 //activates connection
 stompClient.activate();
 
+function PrintData(roomID, playerID, owner, players) {
+    console.log("ROOM ID : ", roomID);
+    console.log("PLAYER ID : ", playerID);
+    console.log("OWNER : ", owner);
+    console.log("PLAYERS : ", players);
+}
+
 async function submitCreateForm(event) {
     event.preventDefault();
     const formData = new FormData(createFormElement);
@@ -63,10 +70,7 @@ async function submitCreateForm(event) {
     sessionStorage.setItem('USER_ID', playerID);
     sessionStorage.setItem('ROOM_ID', roomID);
 
-    console.log("ROOM ID : ", roomID);
-    console.log("PLAYER ID : ", playerID);
-    console.log("OWNER : ", owner);
-    console.log("PLAYERS : ", players);
+    PrintData(roomID, playerID, owner, players);
 
     setTimeout(() => {
         window.location.href = "/room.html";
@@ -107,11 +111,7 @@ async function submitEnterForm(event) {
 
     sessionStorage.setItem('USER_ID', playerID);
     sessionStorage.setItem('ROOM_ID', roomID);
-
-    console.log("ROOM ID : ", roomID);
-    console.log("PLAYER ID : ", playerID);
-    console.log("OWNER : ", owner);
-    console.log("PLAYERS : ", players);
+    PrintData(roomID, playerID, owner, players);
 
     // enter room
 

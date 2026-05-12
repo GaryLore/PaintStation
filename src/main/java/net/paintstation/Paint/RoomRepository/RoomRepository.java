@@ -1,17 +1,16 @@
-package net.paintstation.Paint.Repository;
+package net.paintstation.Paint.RoomRepository;
 
 import net.paintstation.Paint.Models.Room;
-import net.paintstation.Paint.Models.RoomInfo;
-import org.springframework.stereotype.Repository;
+import net.paintstation.Paint.dto.internal.RoomInfo;
+import org.springframework.stereotype.Component;
 
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
-@Repository
-public class DashboardRepository {
+@Component
+public class RoomRepository {
 
 
     ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
