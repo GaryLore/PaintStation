@@ -12,13 +12,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Room {
 
-    private final String roomID;
+    private final UUID roomID;
     private final String name;
     private final String password;
     private final String owner;
-    private final String ownerID;
+    private final UUID ownerID;
     private int numOfPlayers = 1;
-    private final HashMap<String, String> players = new HashMap<>();
+    private final HashMap<String, UUID> players = new HashMap<>();
     private final ConcurrentLinkedQueue<Integer> history = new ConcurrentLinkedQueue<>();
 
     @JsonCreator
@@ -26,9 +26,9 @@ public class Room {
         this.name = name;
         this.password = password;
         this.owner = owner;
-        this.ownerID = UUID.randomUUID().toString();
-        this.players.put(ownerID, owner);
-        this.roomID = UUID.randomUUID().toString();
+        this.ownerID = UUID.randomUUID();
+        this.players.put(owner, ownerID);
+        this.roomID = UUID.randomUUID();
     }
 
     public String getName() {
@@ -43,11 +43,11 @@ public class Room {
         return owner;
     }
 
-    public String getOwnerID(){
+    public UUID getOwnerID(){
         return ownerID;
     }
 
-    public String getRoomID() {
+    public UUID getRoomID() {
         return roomID;
     }
 
@@ -56,26 +56,26 @@ public class Room {
     }
 
     public String[] getPlayers(){
-        return players.values().toArray(new String[4]);
+        return players.keySet().toArray(new String[0]);
     }
 
     private boolean isNameTaken(String name){
-        return players.containsValue(name);
+        return players.containsKey(name);
     }
 
     private boolean isFull(){
         return numOfPlayers == 4;
     }
 
-    public synchronized AccessRoomStatus addPlayer(String playerId, String playerName) {
+    public synchronized AccessRoomStatus addPlayer(UUID playerId, String playerName) {
         if (isFull()) return AccessRoomStatus.ROOM_FULL;
         if (isNameTaken(playerName)) return AccessRoomStatus.NAME_TAKEN;
-        players.put(playerId, playerName);
+        players.put(playerName, playerId);
         numOfPlayers++;
         return AccessRoomStatus.SUCCESS;
     }
 
-    public synchronized String getPlayerID(String name){
+    public synchronized UUID getPlayerID(String name){
         System.out.println(players.get(name));
         return players.get(name);
     }

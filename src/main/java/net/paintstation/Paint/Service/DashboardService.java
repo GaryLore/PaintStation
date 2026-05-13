@@ -29,9 +29,9 @@ public class DashboardService {
                 request.ownerName()
         );
 
-        System.out.println("Room Name : " + request.roomName());
-        System.out.println("Password : " + request.password());
-        System.out.println("Owner Name : " + request.ownerName());
+        System.out.println("[DashboardService.java] Room Name : " + request.roomName());
+        System.out.println("[DashboardService.java] Password : " + request.password());
+        System.out.println("[DashboardService.java] Owner Name : " + request.ownerName());
 
         boolean success = repository.InsertRoom(room);
         return success ? Optional.of(room) : Optional.empty();
@@ -57,14 +57,12 @@ public class DashboardService {
 
         AccessRoomStatus status = insertPlayerIntoRoom(username, accessedRoom);
         return status == AccessRoomStatus.SUCCESS ? AccessRoomResult.success(accessedRoom) : AccessRoomResult.failure(status);
-
     }
 
     private AccessRoomStatus insertPlayerIntoRoom(String username, Room room){
 
-        String userID = UUID.randomUUID().toString();
+        UUID userID = UUID.randomUUID();
         return room.addPlayer(userID, username);
-
     }
 
     public loadAllRoomsResponse getAllRooms(){

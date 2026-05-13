@@ -16,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.UUID;
 
 
 @RestController
@@ -36,13 +37,13 @@ public class RoomController {
 
         AccessRoomResult result = roomService.accessRoom(roomName, request);
 
-        System.out.println("ROOMNAME : " + roomName);
-        System.out.println("REQUEST : " + request);
+        //.out.println("ROOMNAME : " + roomName);
+        //System.out.println("REQUEST : " + request);
 
         switch (result.status()) {
             case SUCCESS -> {
                 Room room = result.room();
-                String playerID = room.getPlayerID(request.username());
+                UUID playerID = room.getPlayerID(request.username());
                 RoomResponse roomResponse = new RoomResponse(room.getRoomID(), playerID, room.getOwner(), room.getPlayers(), room.getHistory());
                 return ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
