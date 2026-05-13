@@ -19,7 +19,6 @@ public class RoomRepository {
 
         Room previousRoom = rooms.putIfAbsent(room.getName(), room);
         return previousRoom == null;
-
     }
 
     public Optional<Room> findRoom(String roomName){
