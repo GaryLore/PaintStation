@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link rel="stylesheet" href="/css/index.css">
+    <script type="module" src="/javascript/homePage/RoomService.js" defer></script>
+    <script src="/javascript/homePage/http_cdn.jsdelivr.net_npm_@stomp_stompjs@7.0.0_bundles_stomp.umd.js"></script>
 </head>
 <body>
 
@@ -31,16 +33,7 @@
                     
 
                     <div class="roomsList">
-                        <div class="roomCard">Room A</div>
-                        <div class="roomCard">Room B</div>
-                        <div class="roomCard">Room C</div>
-                        <div class="roomCard">Room D</div>
-                        <div class="roomCard">Room E</div>
-                        <div class="roomCard">Room F</div>
-                        <div class="roomCard">Room G</div>
-                        <div class="roomCard">Room H</div>
-                        <div class="roomCard">Room I</div>
-                        <div class="roomCard">Room J</div>
+
                     </div>
 
                 </section>
@@ -55,21 +48,21 @@
                         </div>
 
 
-                        <form action="" class="roomForm">
-                            
+                        <form class="roomForm" id="createRoom">
+
                             <div class="formGroup">
                                 <label for="roomName">Room Name</label>
-                                <input type="text" id="roomName">
+                                <input type="text" id="roomName" name="roomName">
                             </div>
 
                             <div class="formGroup">
                                 <label for="roomPassword">Room Password (Optional)</label>
-                                <input type="text" id="roomPassword">
+                                <input type="text" id="roomPassword" name="password" >
                             </div>
 
                             <div class="formGroup">
                                 <label for="username">Username</label>
-                                <input type="text" id="username">
+                                <input type="text" id="username" name="ownerName">
                             </div>
 
                             <button type="submit" class="submitBtn">
@@ -106,6 +99,41 @@
             
         </aside>
 
+    </div>
+
+    <div class="modal-container" id="model_container">
+        <div class="modal">
+
+            <div class="modalHeader">
+                <div class="sectionHeader">
+                    <h2>Enter Room</h2>
+                    <p class="subtitle">Enter an existing room and paint with others!</p>
+                </div>
+
+                <button class="close-btn" aria-label="Close">
+                    ✕
+                </button>
+            </div>
+
+            <form class="roomForm" id="enterRoom">
+
+                <div class="formGroup">
+                    <label for="username2">Username</label>
+                    <input type="text" id="username2" name="username">
+                </div>
+
+                <div class="formGroup">
+                    <label for="roomPassword2">Room Password (Leave blank if not Required)</label>
+                    <input type="text" id="roomPassword2" name="password" >
+                </div>
+
+                <button type="submit" class="submitBtn">
+                    Enter Room
+                </button>
+
+            </form>
+
+        </div>
     </div>
 
 </body>

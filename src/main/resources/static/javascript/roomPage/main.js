@@ -1,4 +1,4 @@
-import "./userInterface.js";
+import "./UserInterface.js";
 import {canvasState, Tool, canvas, ctx, rect} from "./canvasState.js"
 import Stroke from "./stroke.js";
 import Dot from "./dot.js";

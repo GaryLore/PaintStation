@@ -72,7 +72,7 @@ body{
     gap: 12px;
     max-height: 600px;
     overflow-y: auto;
-    padding: 0 20px;
+    padding: 20px;
 }
 
 .roomCard{
@@ -81,6 +81,13 @@ body{
     border-radius: 16px;
     border: 2px solid rgba(0, 0, 0, 0.2);
     font-weight: 550;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.roomCard:hover{
+    box-shadow: 0 0 10px black;
+    transform: translateX(-4px);
+    cursor: pointer;
 }
 
 .rightColumn{
@@ -96,7 +103,7 @@ body{
 .createRoomPanel{
 
     border-radius: 28px;
-    box-shadow: 0 0px 30px rgba(0,0,0,.08);
+    box-shadow: 0 0 30px rgba(0,0,0,.08);
     padding: 24px;
 
     display: flex;
@@ -121,7 +128,6 @@ body{
     border-radius: 28px;
     box-shadow: 0 0px 30px rgba(0,0,0,.08);
     padding: 24px;
-
 }
 
 .aboutContent{
@@ -156,6 +162,8 @@ body{
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
+
+    transition: box-shadow 0.2s
 }
 
 .submitBtn:hover{
@@ -176,5 +184,68 @@ body{
 
 .footer{
     color: #6b7280;
-    
+}
+
+.modal-container{
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    pointer-events: none;
+    /*visibility: hidden;   */       /* removes from accessibility tree */
+    transition: opacity 0.3s ease;/*, visibility 0.3s ease;*/
+}
+
+.modal-container.show{
+    opacity: 1;
+    pointer-events: auto;
+    /*visibility: visible;*/
+}
+
+.modal{
+    background-color: #fafafa;
+    border-radius: 28px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    padding: 40px;
+    width: 60vw;
+}
+
+.modalHeader{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.close-btn{
+    height: 50px;
+    font-size: 30px;
+    font-weight: 900;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    border: none;
+    background-color: darkred;
+    color: white;
+
+    line-height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.close-btn:hover{
+    box-shadow: 0 0 10px black;
+    transform: rotate(90deg) scale(1.1);
+    cursor: pointer;
 }
