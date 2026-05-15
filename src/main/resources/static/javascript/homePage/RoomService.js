@@ -57,7 +57,6 @@ async function submitCreateForm(event) {
     event.preventDefault();
     const formData = new FormData(createFormElement);
     const data = Object.fromEntries(Array.from(formData).map(([k,v]) => [k, v.trim()]));
-    console.log(data);
 
     //validate data here client side and if wrong return a string why its wrong so user understands
     let clientValidation = createRoomClientValidation(data.roomName, data.ownerName, data.password);
