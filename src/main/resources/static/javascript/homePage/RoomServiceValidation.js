@@ -66,6 +66,7 @@ function serverValidation(){
 }
 
 function is_alphanumeric_and_spaces(name){
+
     return /^[a-zA-Z0-9 ]+$/.test(name);
 }
 

@@ -23,7 +23,6 @@ const socketURL = `${protocol}//${window.location.host}/load-rooms`;
 const stompClient = new StompJs.Client({brokerURL: socketURL});
 
 stompClient.onConnect = (frame) => {
-    //setConnected(true);
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/update', (updateRoomData) => {
         console.log("SOCKET DATA : ")
@@ -46,6 +45,7 @@ stompClient.onStompError = (frame) => {
 stompClient.activate();
 
 function PrintData(roomID, playerID, owner, players) {
+
     console.log("ROOM ID : ", roomID);
     console.log("PLAYER ID : ", playerID);
     console.log("OWNER : ", owner);
@@ -53,6 +53,7 @@ function PrintData(roomID, playerID, owner, players) {
 }
 
 async function submitCreateForm(event) {
+
     event.preventDefault();
     const formData = new FormData(createFormElement);
     const data = Object.fromEntries(Array.from(formData).map(([k,v]) => [k, v.trim()]));
@@ -97,6 +98,7 @@ function showEnterForm(event){
 
 
 async function submitEnterForm(event) {
+
     event.preventDefault();
     const formData = new FormData(enterFormElement);
 
@@ -163,6 +165,7 @@ function updateRooms(roomData){
 }
 
 function addRoom(roomName){
+
     const newRoomDiv = document.createElement("div")
     newRoomDiv.classList.add("roomCard");
     console.log(roomName);
@@ -178,7 +181,6 @@ function deleteRoom(roomName) {
     //tempRoom.remove();
     //for internet explorer support
     tempRoom.parentNode.removeChild(tempRoom);
-
 }
 
 function clearRooms(){
