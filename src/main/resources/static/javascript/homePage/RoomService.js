@@ -1,3 +1,4 @@
+import {enterRoomClientValidation, createRoomClientValidation} from "./RoomServiceValidation.js";
 
 const createFormElement = document.querySelector("#createRoom");
 createFormElement.addEventListener("submit", submitCreateForm)
@@ -10,6 +11,9 @@ document.addEventListener("DOMContentLoaded", loadRooms);
 document.addEventListener("click", showEnterForm);
 
 document.querySelector('.close-btn').addEventListener('click', closeModal);
+function closeModal(){
+    modalElement.classList.remove("show")
+}
 
 const modalElement =document.getElementById("model_container");
 let roomSelectedName = "";
@@ -19,7 +23,6 @@ const socketURL = `${protocol}//${window.location.host}/load-rooms`;
 const stompClient = new StompJs.Client({brokerURL: socketURL});
 
 stompClient.onConnect = (frame) => {
-    //setConnected(true);
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/update', (updateRoomData) => {
         console.log("SOCKET DATA : ")
@@ -42,6 +45,7 @@ stompClient.onStompError = (frame) => {
 stompClient.activate();
 
 function PrintData(roomID, playerID, owner, players) {
+
     console.log("ROOM ID : ", roomID);
     console.log("PLAYER ID : ", playerID);
     console.log("OWNER : ", owner);
@@ -49,12 +53,17 @@ function PrintData(roomID, playerID, owner, players) {
 }
 
 async function submitCreateForm(event) {
+
     event.preventDefault();
     const formData = new FormData(createFormElement);
-    const data = Object.fromEntries(formData);
-    console.log(data);
+    const data = Object.fromEntries(Array.from(formData).map(([k,v]) => [k, v.trim()]));
 
     //validate data here client side and if wrong return a string why its wrong so user understands
+    let clientValidation = createRoomClientValidation(data.roomName, data.ownerName, data.password);
+
+    if(!clientValidation){
+        return;
+    }
 
     const response = await fetch("/api/room/create", {
         method: "POST",
@@ -85,11 +94,10 @@ function showEnterForm(event){
     }
 }
 
-function closeModal(){
-    modalElement.classList.remove("show")
-}
+
 
 async function submitEnterForm(event) {
+
     event.preventDefault();
     const formData = new FormData(enterFormElement);
 
@@ -98,8 +106,13 @@ async function submitEnterForm(event) {
     const password = formData.get('password').trim();
 
     //validate data here client side and if wrong return a string why its wrong so user understands
+    let clientValidation = enterRoomClientValidation(username, password);
 
-    const response = await fetch(`/api/room/${roomName}/join`, {
+    if(!clientValidation){
+        return;
+    }
+
+    const response = await fetch(`/api/room/${encodeURI(roomName)}/join`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -151,6 +164,7 @@ function updateRooms(roomData){
 }
 
 function addRoom(roomName){
+
     const newRoomDiv = document.createElement("div")
     newRoomDiv.classList.add("roomCard");
     console.log(roomName);
@@ -166,7 +180,6 @@ function deleteRoom(roomName) {
     //tempRoom.remove();
     //for internet explorer support
     tempRoom.parentNode.removeChild(tempRoom);
-
 }
 
 function clearRooms(){
