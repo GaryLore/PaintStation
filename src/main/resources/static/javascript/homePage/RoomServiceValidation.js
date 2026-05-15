@@ -35,10 +35,6 @@ function createRoomClientValidation(roomName, ownerName, password){
     create_username_div_error.classList.add("hidden");
     create_password_div_error.classList.add("hidden");
 
-    console.log("ROOMNAME : ", roomName);
-    console.log("USERNAME : ", ownerName);
-    console.log("PASSWORD : ", password);
-
     if(roomName.length < 5 || roomName.length > 25){
         create_roomName_div_error.classList.remove("hidden");
         create_roomName_div_error.textContent = "length must be at least 5 character and at most 25 characters";
@@ -70,8 +66,6 @@ function serverValidation(){
 }
 
 function is_alphanumeric_and_spaces(name){
-    console.log("TESTINGGGGGGG : ", name);
-    console.log(/^[a-zA-Z0-9 ]+$/.test(name));
     return /^[a-zA-Z0-9 ]+$/.test(name);
 }
 
