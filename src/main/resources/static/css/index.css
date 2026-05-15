@@ -232,7 +232,7 @@ body{
     aspect-ratio: 1/1;
     border-radius: 50%;
     border: none;
-    background-color: darkred;
+    background-color: #733635;
     color: white;
 
     line-height: 50px;
@@ -248,4 +248,12 @@ body{
     box-shadow: 0 0 10px black;
     transform: rotate(90deg) scale(1.1);
     cursor: pointer;
+}
+
+.error.hidden{
+    display: none;
+}
+.error{
+    font-size: 14px;
+    color : darkred;
 }

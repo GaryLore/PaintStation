@@ -53,16 +53,19 @@
                             <div class="formGroup">
                                 <label for="roomName">Room Name</label>
                                 <input type="text" id="roomName" name="roomName">
+                                <div class="error hidden" id="create_roomname_error"></div>
                             </div>
 
                             <div class="formGroup">
                                 <label for="roomPassword">Room Password (Optional)</label>
                                 <input type="text" id="roomPassword" name="password" >
+                                <div class="error hidden" id="create_password_error"></div>
                             </div>
 
                             <div class="formGroup">
                                 <label for="username">Username</label>
                                 <input type="text" id="username" name="ownerName">
+                                <div class="error hidden" id="create_username_error"></div>
                             </div>
 
                             <button type="submit" class="submitBtn">
@@ -120,11 +123,13 @@
                 <div class="formGroup">
                     <label for="username2">Username</label>
                     <input type="text" id="username2" name="username">
+                    <div class="error hidden" id="enter_username_error"></div>
                 </div>
 
                 <div class="formGroup">
                     <label for="roomPassword2">Room Password (Leave blank if not Required)</label>
                     <input type="text" id="roomPassword2" name="password" >
+                    <div class="error hidden" id="enter_password_error"></div>
                 </div>
 
                 <button type="submit" class="submitBtn">

@@ -1,3 +1,4 @@
+import {enterRoomClientValidation, createRoomClientValidation} from "./RoomServiceValidation.js";
 
 const createFormElement = document.querySelector("#createRoom");
 createFormElement.addEventListener("submit", submitCreateForm)
@@ -10,6 +11,9 @@ document.addEventListener("DOMContentLoaded", loadRooms);
 document.addEventListener("click", showEnterForm);
 
 document.querySelector('.close-btn').addEventListener('click', closeModal);
+function closeModal(){
+    modalElement.classList.remove("show")
+}
 
 const modalElement =document.getElementById("model_container");
 let roomSelectedName = "";
@@ -51,10 +55,15 @@ function PrintData(roomID, playerID, owner, players) {
 async function submitCreateForm(event) {
     event.preventDefault();
     const formData = new FormData(createFormElement);
-    const data = Object.fromEntries(formData);
+    const data = Object.fromEntries(Array.from(formData).map(([k,v]) => [k, v.trim()]));
     console.log(data);
 
     //validate data here client side and if wrong return a string why its wrong so user understands
+    let clientValidation = createRoomClientValidation(data.roomName, data.ownerName, data.password);
+
+    if(!clientValidation){
+        return;
+    }
 
     const response = await fetch("/api/room/create", {
         method: "POST",
@@ -85,9 +94,7 @@ function showEnterForm(event){
     }
 }
 
-function closeModal(){
-    modalElement.classList.remove("show")
-}
+
 
 async function submitEnterForm(event) {
     event.preventDefault();
@@ -98,8 +105,13 @@ async function submitEnterForm(event) {
     const password = formData.get('password').trim();
 
     //validate data here client side and if wrong return a string why its wrong so user understands
+    let clientValidation = enterRoomClientValidation(username, password);
 
-    const response = await fetch(`/api/room/${roomName}/join`, {
+    if(!clientValidation){
+        return;
+    }
+
+    const response = await fetch(`/api/room/${encodeURI(roomName)}/join`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
