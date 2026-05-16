@@ -40,20 +40,22 @@ public class RoomController {
         //.out.println("ROOMNAME : " + roomName);
         //System.out.println("REQUEST : " + request);
 
-        switch (result.status()) {
+        System.out.println("IMPORTANT");
+        System.out.println(result);
+        System.out.println(result.status());
+
+        return switch (result.status()) {
             case SUCCESS -> {
                 Room room = result.room();
                 UUID playerID = room.getPlayerID(request.username());
                 RoomResponse roomResponse = new RoomResponse(room.getRoomID(), playerID, room.getOwner(), room.getPlayers(), room.getHistory());
-                return ResponseEntity.status(HttpStatus.OK).body(roomResponse);
+                yield ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
             case NAME_TAKEN -> ResponseEntity.status(HttpStatus.CONFLICT).body("Name already taken");
             case ROOM_FULL -> ResponseEntity.status(HttpStatus.FORBIDDEN).body("Room is full");
             case INCORRECT_PASSWORD -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password");
-            case ROOM_NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        //highly unlikely to ever occur
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            case ROOM_NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Room not found");
+        };
     }
 
 
