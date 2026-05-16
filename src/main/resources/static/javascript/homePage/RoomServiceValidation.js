@@ -90,7 +90,6 @@ async function handleEnterRoomServerErrors(response) {
         if (errors.password) {
             showError(enter_password_div_error, errors.password);
         }
-
         return;
     }
 

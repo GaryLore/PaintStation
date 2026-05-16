@@ -58,14 +58,12 @@ async function submitCreateForm(event) {
     const formData = new FormData(createFormElement);
     const data = Object.fromEntries(Array.from(formData).map(([k,v]) => [k, v.trim()]));
 
-    resetCreateRoomErrors()
-    //validate data here client side and if wrong return a string why its wrong so user understands
-    /*
+    resetCreateRoomErrors();
     let clientValidation = createRoomClientValidation(data.roomName, data.ownerName, data.password);
 
     if(!clientValidation){
         return;
-    }*/
+    }
 
     try {
 
@@ -92,10 +90,10 @@ async function submitCreateForm(event) {
 
         window.location.href = "/room.html";
     }
-
     catch (exception) {
         console.error(exception);
     }
+
 }
 
 function showEnterForm(event){
@@ -116,13 +114,11 @@ async function submitEnterForm(event) {
     const password = formData.get('password').trim();
 
     resetEnterRoomErrors();
-    //validate data here client side and if wrong return a string why its wrong so user understands
-    /*
     let clientValidation = enterRoomClientValidation(username, password);
 
     if(!clientValidation){
         return;
-    }*/
+    }
 
     try {
         const response = await fetch(`/api/room/${encodeURI(roomName)}/join`, {
@@ -165,8 +161,6 @@ async function loadRooms(){
     for(let room of rooms){
         addRoom(room.name)
     }
-
-    console.log(data);
 }
 
 function updateRooms(roomData){

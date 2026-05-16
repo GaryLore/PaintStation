@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+This class will most likely barely run because the client provides validation, however in the case where a user were to change the JS code and bypass the validation
+this class will return the errors cause by incorrect validation on the Server
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
