@@ -186,8 +186,7 @@ canvas.addEventListener('mouseleave', function (event) {
 });
 
 canvas.addEventListener('mouseenter', function (event) {
-  console.log(canvasState.mouseDown);
-  if(canvasState.mouseDown && canvasState.tool == Tool.BRUSH){
+  if(canvasState.mouseDown && canvasState.tool === Tool.BRUSH){
       startBrushStroke(event);
   }
   
@@ -243,7 +242,7 @@ function recordStroke() {
 
 function hasStrokeBeenDrawn() {
   //length of one is always recorded just in case mouse starts to move, we only record if its an actual stroke
-  return canvasState.tempStroke != null && canvasState.tempStroke.points.length != 1;
+  return canvasState.tempStroke != null && canvasState.tempStroke.points.length !== 1;
 }
 
 //hasStrokeBeenDrawn may be able to be replaced by hasDrawn however the code might need to be changed a bit, just a reminder for future Me

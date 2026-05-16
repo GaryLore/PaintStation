@@ -1,4 +1,4 @@
-import {enterRoomClientValidation, createRoomClientValidation} from "./RoomServiceValidation.js";
+import {enterRoomClientValidation, createRoomClientValidation, handleCreateRoomServerErrors, handleEnterRoomServerErrors, resetCreateRoomErrors, resetEnterRoomErrors} from "./RoomServiceValidation.js";
 
 const createFormElement = document.querySelector("#createRoom");
 createFormElement.addEventListener("submit", submitCreateForm)
@@ -58,32 +58,42 @@ async function submitCreateForm(event) {
     const formData = new FormData(createFormElement);
     const data = Object.fromEntries(Array.from(formData).map(([k,v]) => [k, v.trim()]));
 
-    //validate data here client side and if wrong return a string why its wrong so user understands
+    resetCreateRoomErrors();
     let clientValidation = createRoomClientValidation(data.roomName, data.ownerName, data.password);
 
     if(!clientValidation){
         return;
     }
 
-    const response = await fetch("/api/room/create", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    });
+    try {
 
-    const {roomID, playerID, owner, players} = await response.json();
+        const response = await fetch("/api/room/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
 
-    //storing session so second js file can access this
-    sessionStorage.setItem('USER_ID', playerID);
-    sessionStorage.setItem('ROOM_ID', roomID);
+        if(!response.ok){
+            await handleCreateRoomServerErrors(response);
+            return;
+        }
 
-    PrintData(roomID, playerID, owner, players);
+        const {roomID, playerID, owner, players} = await response.json();
 
-    setTimeout(() => {
+        //storing session so second js file can access this
+        sessionStorage.setItem('USER_ID', playerID);
+        sessionStorage.setItem('ROOM_ID', roomID);
+
+        PrintData(roomID, playerID, owner, players);
+
         window.location.href = "/room.html";
-    }, 5000);
+    }
+    catch (exception) {
+        console.error(exception);
+    }
+
 }
 
 function showEnterForm(event){
@@ -94,8 +104,6 @@ function showEnterForm(event){
     }
 }
 
-
-
 async function submitEnterForm(event) {
 
     event.preventDefault();
@@ -105,32 +113,39 @@ async function submitEnterForm(event) {
     const username = formData.get('username').trim();
     const password = formData.get('password').trim();
 
-    //validate data here client side and if wrong return a string why its wrong so user understands
+    resetEnterRoomErrors();
     let clientValidation = enterRoomClientValidation(username, password);
 
     if(!clientValidation){
         return;
     }
 
-    const response = await fetch(`/api/room/${encodeURI(roomName)}/join`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({username, password})
-    });
+    try {
+        const response = await fetch(`/api/room/${encodeURI(roomName)}/join`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({username, password})
+        });
 
-    const {roomID, playerID, owner, players} = await response.json();
+        if(!response.ok){
+            await handleEnterRoomServerErrors(response);
+            return;
+        }
 
-    sessionStorage.setItem('USER_ID', playerID);
-    sessionStorage.setItem('ROOM_ID', roomID);
-    PrintData(roomID, playerID, owner, players);
+        const {roomID, playerID, owner, players} = await response.json();
 
-    // enter room
+        sessionStorage.setItem('USER_ID', playerID);
+        sessionStorage.setItem('ROOM_ID', roomID);
+        PrintData(roomID, playerID, owner, players);
 
-    setTimeout(() => {
+        // enter room
         window.location.href = "/room.html";
-    }, 5000);
+    }
+    catch (exception) {
+        console.error(exception);
+    }
 }
 
 
@@ -146,8 +161,6 @@ async function loadRooms(){
     for(let room of rooms){
         addRoom(room.name)
     }
-
-    console.log(data);
 }
 
 function updateRooms(roomData){
