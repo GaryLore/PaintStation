@@ -19,7 +19,7 @@ const modalElement =document.getElementById("model_container");
 let roomSelectedName = "";
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-const socketURL = `${protocol}//${window.location.host}/load-rooms`;
+const socketURL = `${protocol}//${window.location.host}/paint`;
 const stompClient = new StompJs.Client({brokerURL: socketURL});
 
 stompClient.onConnect = (frame) => {

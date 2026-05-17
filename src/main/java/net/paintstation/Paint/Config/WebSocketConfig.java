@@ -18,8 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/load-rooms");
-        registry.addEndpoint("/room");
+        registry.addEndpoint("/paint");
     }
 
 }

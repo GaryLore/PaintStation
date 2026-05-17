@@ -6,5 +6,5 @@ public record Stroke(
         int width,
         Point[] points,
         boolean fill
-) {
+) implements PaintObject {
 }
