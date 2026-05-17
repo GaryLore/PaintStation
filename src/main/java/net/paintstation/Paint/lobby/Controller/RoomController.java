@@ -1,15 +1,15 @@
-package net.paintstation.Paint.Controller;
+package net.paintstation.Paint.lobby.Controller;
 
 import jakarta.validation.Valid;
 import net.paintstation.Paint.Models.*;
-import net.paintstation.Paint.Service.DashboardService;
-import net.paintstation.Paint.dto.internal.AccessRoomResult;
-import net.paintstation.Paint.dto.websocket.RoomUpdate;
-import net.paintstation.Paint.enums.RoomAction;
-import net.paintstation.Paint.dto.request.CreateRoomRequest;
-import net.paintstation.Paint.dto.request.JoinRoomRequest;
-import net.paintstation.Paint.dto.response.RoomResponse;
-import net.paintstation.Paint.dto.response.loadAllRoomsResponse;
+import net.paintstation.Paint.lobby.Service.DashboardService;
+import net.paintstation.Paint.lobby.dto.internal.AccessRoomResult;
+import net.paintstation.Paint.lobby.dto.websocket.RoomUpdate;
+import net.paintstation.Paint.lobby.enums.RoomAction;
+import net.paintstation.Paint.lobby.dto.request.CreateRoomRequest;
+import net.paintstation.Paint.lobby.dto.request.JoinRoomRequest;
+import net.paintstation.Paint.lobby.dto.response.RoomResponse;
+import net.paintstation.Paint.lobby.dto.response.loadAllRoomsResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -48,7 +48,7 @@ public class RoomController {
             case SUCCESS -> {
                 Room room = result.room();
                 UUID playerID = room.getPlayerID(request.username());
-                RoomResponse roomResponse = new RoomResponse(room.getRoomID(), playerID, room.getOwner(), room.getPlayers(), room.getHistory());
+                RoomResponse roomResponse = new RoomResponse(room.getRoomID(), playerID, room.getOwner(), room.getAllPlayerIds(), room.getHistory());
                 yield ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
             case NAME_TAKEN -> ResponseEntity.status(HttpStatus.CONFLICT).body("Name already taken");
@@ -74,7 +74,7 @@ public class RoomController {
                 createdRoom.getRoomID(),
                 createdRoom.getOwnerID(), //player in this case is owner
                 createdRoom.getOwner(),
-                createdRoom.getPlayers(),
+                createdRoom.getAllPlayerIds(),
                 createdRoom.getHistory()
         );
 

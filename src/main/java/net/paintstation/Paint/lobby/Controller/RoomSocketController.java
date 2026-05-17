@@ -1,4 +1,4 @@
-package net.paintstation.Paint.Controller;
+package net.paintstation.Paint.lobby.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

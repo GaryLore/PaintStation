@@ -1,4 +1,4 @@
-package net.paintstation.Paint.dto.response;
+package net.paintstation.Paint.lobby.dto.response;
 
 import java.util.List;
 import java.util.UUID;

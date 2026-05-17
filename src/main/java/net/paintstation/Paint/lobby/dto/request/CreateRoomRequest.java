@@ -1,4 +1,4 @@
-package net.paintstation.Paint.dto.request;
+package net.paintstation.Paint.lobby.dto.request;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

@@ -1,4 +1,4 @@
-package net.paintstation.Paint.livepaint;
+package net.paintstation.Paint.livepaint.Models;
 
 public record Stroke(
         String brushColor,
