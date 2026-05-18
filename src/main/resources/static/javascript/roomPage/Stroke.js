@@ -4,13 +4,15 @@ import Point from "./Point.js";
 export default class Stroke{
 
     type = "STROKE";
+    phase;
     brushColor;
     bucketColor;
     width;
     points = [];
     fill;
 
-    constructor(brushColor, bucketColor, width, fill){
+    constructor(phase, brushColor, bucketColor, width, fill){
+        this.phase = phase;
         this.brushColor = brushColor;
         this.bucketColor = bucketColor;
         this.width = width;
@@ -19,7 +21,7 @@ export default class Stroke{
 
     static fromJson(data) {
         const points = data.points.map(p => new Point(p.x, p.y));
-        const stroke = new Stroke(data.brushColor, data.bucketColor, data.width, data.fill);
+        const stroke = new Stroke(data.phase, data.brushColor, data.bucketColor, data.width, data.fill);
         stroke.points = points
         return stroke;
     }
@@ -42,7 +44,7 @@ export default class Stroke{
             ctx.lineTo(point.x, point.y);
         }
 
-        if(this.fill){
+        if(this.phase === "COMPLETE" && this.fill){
             ctx.fillStyle = this.bucketColor;
             ctx.fill();
             ctx.closePath();

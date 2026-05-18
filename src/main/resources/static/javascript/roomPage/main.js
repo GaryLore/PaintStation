@@ -81,7 +81,7 @@ function updateZooming(event){
     viewportTransform.y = offsetY;
     ctx.lineWidth = canvasState.brush.paintWidth * viewportTransform.scale;
 
-    console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
+    //console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
   }
 }
 
@@ -107,7 +107,6 @@ canvas.addEventListener("mousedown", function (event) {
 canvas.addEventListener("mousemove", function (event) {
 
   if(canvasState.isPanning()){
-    console.log("IF has entered");
     updatePanning(event);
     canvasState.render();
   }
@@ -130,7 +129,7 @@ canvas.addEventListener("mousemove", function (event) {
 
       //actual x and y may be different due to transformations
       const point = new Point(worldX,worldY);
-      canvasState.tempStroke.addPoint(point);
+      canvasState.tempStroke.addPoint(point);//tempstroke may be null because of canvas enter once it is left check this later
 
       if(canvasState.buffer != null) {
 
@@ -145,10 +144,10 @@ canvas.addEventListener("mousemove", function (event) {
         const fill = canvasState.brush.fill;
 
         if(fill) {
-          canvasState.buffer = new Stroke(color, bucketColor, width, fill);
+          canvasState.buffer = new Stroke("MIDDLE", color, bucketColor, width, fill);
         }
         else{
-          canvasState.buffer = new Stroke(color, "", width, fill);
+          canvasState.buffer = new Stroke("MIDDLE", color, "", width, fill);
         }
         /*
         may result in glitch but coneptually to connect lines
@@ -214,9 +213,10 @@ function drawDot(event){
 
 canvas.addEventListener('mouseleave', function (event) {  
   recordStroke();
+  /*
   console.log("BEGIN PAINT HISTORY")
   canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
-  console.log("END")
+  console.log("END")*/
 });
 
 canvas.addEventListener('mouseenter', function (event) {
@@ -247,19 +247,18 @@ function startBrushStroke(event) {
 
     if (canvasState.brush.fill) {
       const fill = true;
-      canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
-      canvasState.buffer = new Stroke(color, bucketColor, width, fill);
+      canvasState.tempStroke = new Stroke("COMPLETE", color, bucketColor, width, fill);
+      canvasState.buffer = new Stroke("START", color, bucketColor, width, fill);
     }
     else {
       const fill = false;
-      canvasState.tempStroke = new Stroke(color, "", width, fill);
-      canvasState.buffer = new Stroke(color, "", width, fill);
+      canvasState.tempStroke = new Stroke("COMPLETE" ,color, "", width, fill);
+      canvasState.buffer = new Stroke("START" ,color, "", width, fill);
     }
 
     const point = new Point(worldX,worldY);
     canvasState.tempStroke.addPoint(point);
     canvasState.buffer.addPoint(point);
-
   }
 }
 
@@ -268,8 +267,15 @@ function recordStroke() {
   canvasState.canDraw = false;
   
   if(hasStrokeBeenDrawn()){
-    canvasState.paintHistory.push(canvasState.tempStroke);
-    flushBuffer();
+    /*
+
+    check change used to be canvasState.tempStroke but we want history to be correct with overlaps
+
+    ussually history appends a complete stroke in history so the previous stroke is completly overlapped by the second stroke
+    however with this a single stroke is sent by parts to the history so the same stroke can be overlap by Stroke3 and and the same time, stroke3 can be
+    overlapped by this stroke.
+     */
+    flushBuffer(true);
 
     if(canvasState.brush.fill){
       canvasState.render();
@@ -286,9 +292,41 @@ function hasStrokeBeenDrawn() {
 
 //hasStrokeBeenDrawn may be able to be replaced by hasDrawn however the code might need to be changed a bit, just a reminder for future Me
 
-function flushBuffer() {
-  if (canvasState.buffer == null || canvasState.buffer.points.length < 2) return;
+function flushBuffer(end = false) {
+  //console.log("Entered FLUSH");
+  /*
+  if(end && canvasState.buffer == null){
+    console.log("Buffer is null");
+    console.log(end);
+  }
+  if(canvasState.buffer != null && canvasState.buffer.points.length < 2){
+    console.log("Buffer is less than 2 points length");
+    console.log(end);
+  }*/
+
+  if(end && canvasState.tempStroke.fill) {
+    //console.log("IF ENTERED FILL SHOULD HAPPEN 2");
+    canvasState.tempStroke.draw();
+    sendPaintObjects("STROKE",{...canvasState.tempStroke});//dont want to accidently change when set to null
+    canvasState.paintHistory.push(canvasState.tempStroke);
+    canvasState.buffer = null;
+    return;
+  }
+
+  //there seemed to be a small edge case where buffer is null and end is called
+  //which prevents filling a shape from happening, this could happen since buffer is called before
+  //which makes it null, and then called again with record stroke
+  if (canvasState.buffer == null || canvasState.buffer.points.length < 2){
+    return;
+  }
+
+  if(end){
+    canvasState.buffer.phase = "END";
+  }
+
   sendPaintObjects("STROKE",{...canvasState.buffer});
+  canvasState.paintHistory.push(canvasState.buffer)
+  //console.log("SET TO NULL BUFFER");
   canvasState.buffer = null;
 }
 

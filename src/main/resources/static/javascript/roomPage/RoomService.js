@@ -1,6 +1,7 @@
 import PaintRequest from "./PaintRequest.js";
 import Stroke from "./Stroke.js";
 import Dot from "./Dot.js";
+import {canvasState} from "./canvasState.js"
 
 const userID = sessionStorage.getItem("USER_ID");
 const roomID = sessionStorage.getItem("ROOM_ID");
@@ -26,6 +27,10 @@ stompClient.onStompError = (frame) => {
     console.error('Additional details: ' + frame.body);
 };
 
+stompClient.onWebSocketClose = (event) => {
+    console.error("WebSocket closed", event);
+};
+
 //activates connection
 stompClient.activate();
 
@@ -34,8 +39,8 @@ function loadPaintObjects(responseData) {
     const data = JSON.parse(responseData.body)
     const username = data.user;
 
-    console.log("username : ", username);
-    console.log("USERNAME : ", USERNAME);
+    //console.log("username : ", username);
+    //console.log("USERNAME : ", USERNAME);
 
     if(username !== USERNAME) {
 
@@ -47,15 +52,23 @@ function loadPaintObjects(responseData) {
         } else if (type === "DOT") {
             paintObject = Dot.fromJson(data.object);
         }
-        console.log(paintObject);
+        canvasState.paintHistory.push(paintObject);
+        //console.log(paintObject);
         paintObject.draw();
     }
 }
 
 function sendPaintObjects(paintType, paintObject){
 
+
     const paintRequest = new PaintRequest(userID, paintType, paintObject);
     console.log(paintRequest);
+
+    const payload = JSON.stringify(paintRequest);
+    const bytes = new TextEncoder().encode(payload).length;
+
+    console.log("PAINT REQUEST KB : ", bytes/1024);
+
     stompClient.publish({
         destination: `/app/paint/${roomID}`,
         body: JSON.stringify(paintRequest)
