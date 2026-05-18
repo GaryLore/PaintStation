@@ -1,7 +1,9 @@
 import {ctx} from "./canvasState.js"
+import Point from "./Point.js";
 
 export default class Stroke{
 
+    type = "STROKE";
     brushColor;
     bucketColor;
     width;
@@ -15,22 +17,29 @@ export default class Stroke{
         this.fill = fill;
     }
 
-    addPoint(x,y){
-        let point = [x,y];
+    static fromJson(data) {
+        const points = data.points.map(p => new Point(p.x, p.y));
+        const stroke = new Stroke(data.brushColor, data.bucketColor, data.width, data.fill);
+        stroke.points = points
+        return stroke;
+    }
+
+    addPoint(point){
         this.points.push(point);
     }
 
     draw(){
 
+        ctx.save();
         ctx.strokeStyle = this.brushColor;
         ctx.lineWidth = this.width;
 
         const points = this.points;
         ctx.beginPath();
-        ctx.moveTo(points[0][0],points[0][1]);
+        ctx.moveTo(points[0].x,points[0].y);
         for(let i = 1; i < points.length; i++){
-            const coord = points[i];
-            ctx.lineTo(coord[0], coord[1]);
+            const point = points[i];
+            ctx.lineTo(point.x, point.y);
         }
 
         if(this.fill){
@@ -39,7 +48,7 @@ export default class Stroke{
             ctx.closePath();
         }
         ctx.stroke();
-
+        ctx.restore();
     }
 
 }

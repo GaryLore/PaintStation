@@ -1,7 +1,9 @@
 import "./UserInterface.js";
 import {canvasState, Tool, canvas, ctx, rect} from "./canvasState.js"
-import Stroke from "./stroke.js";
-import Dot from "./dot.js";
+import {sendPaintObjects} from "./RoomService.js";
+import Stroke from "./Stroke.js";
+import Dot from "./Dot.js";
+import Point from "./Point.js";
 
 function withinPanZoomLimit(x,y, scale){
 
@@ -83,6 +85,25 @@ function updateZooming(event){
   }
 }
 
+canvas.addEventListener("wheel", function(event){
+  if(canvasState.tool === Tool.PANZOOM){
+    updateZooming(event);
+    canvasState.render();
+  }
+});
+
+canvas.addEventListener("mousedown", function (event) {
+  canvasState.mouseDown = true;
+  if(canvasState.tool === Tool.PANZOOM){
+    canvasState.panZoom.previousX = event.offsetX
+    canvasState.panZoom.previousY = event.offsetY
+  }
+  else if(canvasState.tool === Tool.BRUSH){
+    startBrushStroke(event);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
+  }
+
+});
+
 canvas.addEventListener("mousemove", function (event) {
 
   if(canvasState.isPanning()){
@@ -108,30 +129,41 @@ canvas.addEventListener("mousemove", function (event) {
       canvasState.reloadJustBorder();
 
       //actual x and y may be different due to transformations
-      canvasState.tempStroke.addPoint(worldX,worldY);
+      const point = new Point(worldX,worldY);
+      canvasState.tempStroke.addPoint(point);
+
+      if(canvasState.buffer != null) {
+
+        canvasState.buffer.addPoint(point);
+        canvasState.bufferPreviousPoint = point;
+      }
+      else{
+
+        const color = canvasState.brush.color;
+        const bucketColor = canvasState.brush.bucketColor;
+        const width = canvasState.brush.paintWidth;
+        const fill = canvasState.brush.fill;
+
+        if(fill) {
+          canvasState.buffer = new Stroke(color, bucketColor, width, fill);
+        }
+        else{
+          canvasState.buffer = new Stroke(color, "", width, fill);
+        }
+        /*
+        may result in glitch but coneptually to connect lines
+         for example p1 p2 p3 p4 p5 all these are connected in one line
+          p6 p7 p8 p9 all these are connected as well but p5 and p6 arnt so there is a gap this fixes the problem
+
+          by now the second line containing p5 p6 p8 p9
+        */
+        canvasState.buffer.addPoint(canvasState.bufferPreviousPoint);
+        canvasState.buffer.addPoint(point);
+      }
     }
     else{
       recordStroke();
     }
-  }
-
-});
-
-canvas.addEventListener("wheel", function(event){
-  if(canvasState.tool == Tool.PANZOOM){
-    updateZooming(event);
-    canvasState.render();
-  }
-});
-
-canvas.addEventListener("mousedown", function (event) {
-  canvasState.mouseDown = true;
-  if(canvasState.tool == Tool.PANZOOM){
-    canvasState.panZoom.previousX = event.offsetX
-    canvasState.panZoom.previousY = event.offsetY
-  }
-  else if(canvasState.tool == Tool.BRUSH){
-    startBrushStroke(event);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
 
 });
@@ -157,7 +189,7 @@ function drawDot(event){
   const worldX = (x - viewportTransform.x) / viewportTransform.scale; 
   const worldY = (y - viewportTransform.y) / viewportTransform.scale;
 
-  if(canvasState.tool == Tool.BRUSH && !canvasState.hasDrawn && drawingAllowedHere(worldX, worldY)){    
+  if(canvasState.tool === Tool.BRUSH && !canvasState.hasDrawn && drawingAllowedHere(worldX, worldY)){
 
     ctx.beginPath();
     ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
@@ -170,7 +202,9 @@ function drawDot(event){
     const colorBrush = canvasState.brush.color;
     const paintWidth = canvasState.brush.paintWidth;
 
-    let record = new Dot(colorBrush, paintWidth, worldX, worldY);
+    const point = new Point(worldX,worldY);
+    let record = new Dot(colorBrush, paintWidth, point);
+    sendPaintObjects("DOT", {...record});
     canvasState.paintHistory.push(record);
 
   }
@@ -214,13 +248,17 @@ function startBrushStroke(event) {
     if (canvasState.brush.fill) {
       const fill = true;
       canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
+      canvasState.buffer = new Stroke(color, bucketColor, width, fill);
     }
     else {
       const fill = false;
       canvasState.tempStroke = new Stroke(color, "", width, fill);
+      canvasState.buffer = new Stroke(color, "", width, fill);
     }
 
-    canvasState.tempStroke.addPoint(worldX, worldY);
+    const point = new Point(worldX,worldY);
+    canvasState.tempStroke.addPoint(point);
+    canvasState.buffer.addPoint(point);
 
   }
 }
@@ -231,6 +269,7 @@ function recordStroke() {
   
   if(hasStrokeBeenDrawn()){
     canvasState.paintHistory.push(canvasState.tempStroke);
+    flushBuffer();
 
     if(canvasState.brush.fill){
       canvasState.render();
@@ -247,7 +286,12 @@ function hasStrokeBeenDrawn() {
 
 //hasStrokeBeenDrawn may be able to be replaced by hasDrawn however the code might need to be changed a bit, just a reminder for future Me
 
+function flushBuffer() {
+  if (canvasState.buffer == null || canvasState.buffer.points.length < 2) return;
+  sendPaintObjects("STROKE",{...canvasState.buffer});
+  canvasState.buffer = null;
+}
 
-
+setInterval(flushBuffer, 50);
 
 

@@ -54,6 +54,10 @@ const canvasState = {
   viewportTransform : viewport,
   worldBounds : WORLD_BOUNDS,
   drawBounds : DRAW_Bounds,
+
+  //online socket
+  buffer: undefined,
+  bufferPreviousPoint: undefined,
   
   //handles history
   paintHistory : [],
@@ -75,10 +79,12 @@ const canvasState = {
   },
 
   isPanning(){
-     return this.tool == Tool.PANZOOM && this.mouseDown;
+     return this.tool === Tool.PANZOOM && this.mouseDown;
   },
 
   drawTo(x2,y2){
+    ctx.beginPath()
+    ctx.moveTo(this.x1, this.y1);
     ctx.lineTo(x2,y2);
     ctx.stroke();
   },

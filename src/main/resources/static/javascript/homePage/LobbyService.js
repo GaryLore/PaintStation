@@ -1,4 +1,4 @@
-import {enterRoomClientValidation, createRoomClientValidation, handleCreateRoomServerErrors, handleEnterRoomServerErrors, resetCreateRoomErrors, resetEnterRoomErrors} from "./RoomServiceValidation.js";
+import {enterRoomClientValidation, createRoomClientValidation, handleCreateRoomServerErrors, handleEnterRoomServerErrors, resetCreateRoomErrors, resetEnterRoomErrors} from "./LobbyServiceValidation.js";
 
 const createFormElement = document.querySelector("#createRoom");
 createFormElement.addEventListener("submit", submitCreateForm)

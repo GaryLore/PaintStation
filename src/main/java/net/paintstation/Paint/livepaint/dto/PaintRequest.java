@@ -6,7 +6,6 @@ import java.util.UUID;
 
 public record PaintRequest(
         UUID userID,
-        String type,
         PaintObject object
 ) {
 }
