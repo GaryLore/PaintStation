@@ -1,7 +1,7 @@
 import PaintRequest from "./PaintRequest.js";
 import Stroke from "./Stroke.js";
 import Dot from "./Dot.js";
-import {canvasState} from "./canvasState.js"
+import {canvasState, ctx} from "./canvasState.js"
 
 const userID = sessionStorage.getItem("USER_ID");
 const roomID = sessionStorage.getItem("ROOM_ID");
@@ -54,8 +54,15 @@ function loadPaintObjects(responseData) {
         }
         canvasState.paintHistory.push(paintObject);
         //console.log(paintObject);
-        paintObject.draw();
+        drawObject(paintObject);
     }
+}
+
+function drawObject(object){
+    ctx.save()
+    canvasState.setTransformCanvas();
+    object.draw();
+    ctx.restore()
 }
 
 function sendPaintObjects(paintType, paintObject){

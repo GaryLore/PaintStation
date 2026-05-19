@@ -107,21 +107,26 @@ const canvasState = {
 
     //https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/restore
     ctx.save();
-    ctx.resetTransform();
+
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.setTransform(
-      this.viewportTransform.scale,
-      this.viewportTransform.skewingX,
-      this.viewportTransform.skewingY,
-      this.viewportTransform.scale,
-      this.viewportTransform.x,
-      this.viewportTransform.y
-    );
+    this.setTransformCanvas();
     
     canvasState.paintHistory.forEach((paintObject) => paintObject.draw());
     this.drawBorder();
     ctx.restore();
+  },
+
+  setTransformCanvas(){
+    ctx.resetTransform();
+    ctx.setTransform(
+        this.viewportTransform.scale,
+        this.viewportTransform.skewingX,
+        this.viewportTransform.skewingY,
+        this.viewportTransform.scale,
+        this.viewportTransform.x,
+        this.viewportTransform.y
+    );
   },
 
   drawBorder(){
