@@ -48,7 +48,11 @@ function loadPaintObjects(responseData) {
         const type = data.type;
 
         if (type === "STROKE") {
+
             paintObject = Stroke.fromJson(data.object);
+            if(paintObject.phase === "END"){
+
+            }
         } else if (type === "DOT") {
             paintObject = Dot.fromJson(data.object);
         }
@@ -65,8 +69,11 @@ function drawObject(object){
     ctx.restore()
 }
 
-function sendPaintObjects(paintType, paintObject){
+function optimizePaintHistory(){
 
+}
+
+function sendPaintObjects(paintType, paintObject){
 
     const paintRequest = new PaintRequest(userID, paintType, paintObject);
     console.log(paintRequest);

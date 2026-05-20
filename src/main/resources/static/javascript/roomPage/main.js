@@ -275,11 +275,18 @@ function recordStroke() {
     however with this a single stroke is sent by parts to the history so the same stroke can be overlap by Stroke3 and and the same time, stroke3 can be
     overlapped by this stroke.
      */
-    flushBuffer(true);
+    flushBuffer();
 
-    if(canvasState.brush.fill){
-      canvasState.render();
-  }
+    if(canvasState.tempStroke.fill){
+      ctx.save()
+      canvasState.setTransformCanvas()
+      canvasState.tempStroke.draw();
+      ctx.restore();
+      canvasState.paintHistory.push(canvasState.tempStroke);
+    }
+
+    const endStroke = new Stroke("END", null, null, null, null)
+    sendPaintObjects("STROKE", endStroke);
   }
   
   canvasState.tempStroke = null;
@@ -292,41 +299,14 @@ function hasStrokeBeenDrawn() {
 
 //hasStrokeBeenDrawn may be able to be replaced by hasDrawn however the code might need to be changed a bit, just a reminder for future Me
 
-function flushBuffer(end = false) {
-  //console.log("Entered FLUSH");
-  /*
-  if(end && canvasState.buffer == null){
-    console.log("Buffer is null");
-    console.log(end);
-  }
-  if(canvasState.buffer != null && canvasState.buffer.points.length < 2){
-    console.log("Buffer is less than 2 points length");
-    console.log(end);
-  }*/
+function flushBuffer() {
 
-  if(end && canvasState.tempStroke.fill) {
-    //console.log("IF ENTERED FILL SHOULD HAPPEN 2");
-    canvasState.tempStroke.draw();
-    sendPaintObjects("STROKE",{...canvasState.tempStroke});//dont want to accidently change when set to null
-    canvasState.paintHistory.push(canvasState.tempStroke);
-    canvasState.buffer = null;
-    return;
-  }
-
-  //there seemed to be a small edge case where buffer is null and end is called
-  //which prevents filling a shape from happening, this could happen since buffer is called before
-  //which makes it null, and then called again with record stroke
   if (canvasState.buffer == null || canvasState.buffer.points.length < 2){
     return;
   }
 
-  if(end){
-    canvasState.buffer.phase = "END";
-  }
-
-  sendPaintObjects("STROKE",{...canvasState.buffer});
-  canvasState.paintHistory.push(canvasState.buffer)
-  //console.log("SET TO NULL BUFFER");
+  sendPaintObjects("STROKE", canvasState.buffer);
+  canvasState.paintHistory.push(canvasState.buffer);
   canvasState.buffer = null;
 }
 
