@@ -144,10 +144,10 @@ canvas.addEventListener("mousemove", function (event) {
         const fill = canvasState.brush.fill;
 
         if(fill) {
-          canvasState.buffer = new Stroke("MIDDLE", color, bucketColor, width, fill);
+          canvasState.buffer = new Stroke("MIDDLE", canvasState.tempStroke.uuid, color, bucketColor, width, fill);
         }
         else{
-          canvasState.buffer = new Stroke("MIDDLE", color, "", width, fill);
+          canvasState.buffer = new Stroke("MIDDLE", canvasState.tempStroke.uuid, color, "", width, fill);
         }
         /*
         may result in glitch but coneptually to connect lines
@@ -247,13 +247,13 @@ function startBrushStroke(event) {
 
     if (canvasState.brush.fill) {
       const fill = true;
-      canvasState.tempStroke = new Stroke("COMPLETE", color, bucketColor, width, fill);
-      canvasState.buffer = new Stroke("START", color, bucketColor, width, fill);
+      canvasState.tempStroke = new Stroke("COMPLETE", self.crypto.randomUUID(), color, bucketColor, width, fill);
+      canvasState.buffer = new Stroke("START", canvasState.tempStroke.uuid, color, bucketColor, width, fill);
     }
     else {
       const fill = false;
-      canvasState.tempStroke = new Stroke("COMPLETE" ,color, "", width, fill);
-      canvasState.buffer = new Stroke("START" ,color, "", width, fill);
+      canvasState.tempStroke = new Stroke("COMPLETE", self.crypto.randomUUID(), color, "", width, fill);
+      canvasState.buffer = new Stroke("START", canvasState.tempStroke.uuid, color, "", width, fill);
     }
 
     const point = new Point(worldX,worldY);
@@ -285,7 +285,14 @@ function recordStroke() {
       canvasState.paintHistory.push(canvasState.tempStroke);
     }
 
-    const endStroke = new Stroke("END", null, null, null, null)
+    const endStroke = new Stroke(
+        "END",
+        canvasState.tempStroke.uuid,
+        canvasState.tempStroke.brushColor,
+        canvasState.tempStroke.bucketColor,
+        0,
+        canvasState.tempStroke.fill
+    );
     sendPaintObjects("STROKE", endStroke);
   }
   
@@ -306,7 +313,9 @@ function flushBuffer() {
   }
 
   sendPaintObjects("STROKE", canvasState.buffer);
-  canvasState.paintHistory.push(canvasState.buffer);
+  if(!canvasState.buffer.fill) {
+    canvasState.paintHistory.push(canvasState.buffer);
+  }
   canvasState.buffer = null;
 }
 

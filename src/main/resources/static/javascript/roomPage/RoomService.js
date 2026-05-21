@@ -37,6 +37,7 @@ stompClient.activate();
 function loadPaintObjects(responseData) {
 
     const data = JSON.parse(responseData.body)
+    console.log(data);
     const username = data.user;
 
     //console.log("username : ", username);
@@ -50,13 +51,23 @@ function loadPaintObjects(responseData) {
         if (type === "STROKE") {
 
             paintObject = Stroke.fromJson(data.object);
-            if(paintObject.phase === "END"){
+            //console.log(data.object.phase);
+            //console.log(paintObject);
+            if(paintObject.phase === "END" && paintObject.fill){
+                console.log("BEGIN PAINT HISTORY");
+                canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
+                console.log("END");
+                paintObject = optimizePaintHistory(paintObject);
 
             }
         } else if (type === "DOT") {
             paintObject = Dot.fromJson(data.object);
         }
         canvasState.paintHistory.push(paintObject);
+
+        console.log("BEGIN PAINT HISTORY");
+        canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
+        console.log("END");
         //console.log(paintObject);
         drawObject(paintObject);
     }
@@ -69,8 +80,51 @@ function drawObject(object){
     ctx.restore()
 }
 
-function optimizePaintHistory(){
+function optimizePaintHistory(paintObject){
 
+    const completeFillStroke = new Stroke(
+        "COMPLETE",
+        paintObject.uuid,
+        paintObject.brushColor,
+        paintObject.bucketColor,
+        paintObject.width,
+        paintObject.fill
+    );
+
+    const UUID = completeFillStroke.uuid;
+
+    let paintList = canvasState.paintHistory;
+    let indexOfFirstStroke = undefined;
+    for (let i = paintList.length - 1; i >= 0; i--) {
+
+        let paintObjectInQuestion = paintList[i];
+        if(UUID === paintObject.uuid && paintObjectInQuestion.phase === "START"){
+            indexOfFirstStroke = i;
+            break;
+        }
+    }
+
+    if(indexOfFirstStroke === undefined){
+        console.log("ERROR finding beginning stroke for fill stroke that has reached its end");
+    }
+
+    for(let i = indexOfFirstStroke; i !== paintList.length; ++i){
+
+        let strokeToAppend = paintList[i];
+        if(UUID === strokeToAppend.uuid){
+
+            strokeToAppend.points.forEach(p => completeFillStroke.addPoint(p));
+            paintList.splice(i,1);
+            --i; //necessary account for array shift to not skip elements
+        }
+    }
+
+    return completeFillStroke;
+}
+
+function conditionToDelete(stroke, uuid) {
+
+    return stroke.uuid === uuid;
 }
 
 function sendPaintObjects(paintType, paintObject){
