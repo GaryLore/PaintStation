@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+#cert server stuff
+application-cert.properties
+keystore.p12

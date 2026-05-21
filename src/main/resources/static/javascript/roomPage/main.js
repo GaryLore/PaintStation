@@ -290,7 +290,7 @@ function recordStroke() {
         canvasState.tempStroke.uuid,
         canvasState.tempStroke.brushColor,
         canvasState.tempStroke.bucketColor,
-        0,
+        canvasState.tempStroke.width,
         canvasState.tempStroke.fill
     );
     sendPaintObjects("STROKE", endStroke);
