@@ -180,7 +180,7 @@ window.addEventListener("mouseup", function (event) {
 canvas.addEventListener("click", drawDot);
 function drawDot(event){
 
-  console.log(`(${canvasState.scaleX(event.offsetX)},${canvasState.scaleY(event.offsetY)})`);
+  //console.log(`(${canvasState.scaleX(event.offsetX)},${canvasState.scaleY(event.offsetY)})`);
 
   const viewportTransform = canvasState.viewportTransform;
   let x = canvasState.scaleX(event.offsetX);
@@ -213,10 +213,7 @@ function drawDot(event){
 
 canvas.addEventListener('mouseleave', function (event) {  
   recordStroke();
-  /*
-  console.log("BEGIN PAINT HISTORY")
-  canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
-  console.log("END")*/
+
 });
 
 canvas.addEventListener('mouseenter', function (event) {
@@ -267,14 +264,7 @@ function recordStroke() {
   canvasState.canDraw = false;
   
   if(hasStrokeBeenDrawn()){
-    /*
 
-    check change used to be canvasState.tempStroke but we want history to be correct with overlaps
-
-    ussually history appends a complete stroke in history so the previous stroke is completly overlapped by the second stroke
-    however with this a single stroke is sent by parts to the history so the same stroke can be overlap by Stroke3 and and the same time, stroke3 can be
-    overlapped by this stroke.
-     */
     flushBuffer();
 
     if(canvasState.tempStroke.fill){
@@ -313,9 +303,11 @@ function flushBuffer() {
   }
 
   sendPaintObjects("STROKE", canvasState.buffer);
+
   if(!canvasState.buffer.fill) {
     canvasState.paintHistory.push(canvasState.buffer);
   }
+
   canvasState.buffer = null;
 }
 

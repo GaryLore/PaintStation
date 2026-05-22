@@ -37,7 +37,7 @@ stompClient.activate();
 function loadPaintObjects(responseData) {
 
     const data = JSON.parse(responseData.body)
-    console.log(data);
+    //console.log(data);
     const username = data.user;
 
     //console.log("username : ", username);
@@ -51,25 +51,19 @@ function loadPaintObjects(responseData) {
         if (type === "STROKE") {
 
             paintObject = Stroke.fromJson(data.object);
-            //console.log(data.object.phase);
-            //console.log(paintObject);
+
             if(paintObject.phase === "END" && paintObject.fill){
-                console.log("BEGIN PAINT HISTORY");
-                canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
-                console.log("END");
                 paintObject = optimizePaintHistory(paintObject);
 
             }
         } else if (type === "DOT") {
             paintObject = Dot.fromJson(data.object);
         }
-        canvasState.paintHistory.push(paintObject);
 
-        console.log("BEGIN PAINT HISTORY");
-        canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
-        console.log("END");
-        //console.log(paintObject);
-        drawObject(paintObject);
+        if(paintObject != null) {
+            canvasState.paintHistory.push(paintObject);
+            drawObject(paintObject);
+        }
     }
 }
 
@@ -98,14 +92,16 @@ function optimizePaintHistory(paintObject){
     for (let i = paintList.length - 1; i >= 0; i--) {
 
         let paintObjectInQuestion = paintList[i];
-        if(UUID === paintObject.uuid && paintObjectInQuestion.phase === "START"){
+        if(UUID === paintObjectInQuestion.uuid && paintObjectInQuestion.phase === "START"){
             indexOfFirstStroke = i;
             break;
         }
     }
 
+    //needed because sometimes end stroke arrives before start stroke, so we dont create a stroke thatt will have no points
+    //which will generate an error
     if(indexOfFirstStroke === undefined){
-        console.log("ERROR finding beginning stroke for fill stroke that has reached its end");
+        return null;
     }
 
     for(let i = indexOfFirstStroke; i !== paintList.length; ++i){
@@ -113,7 +109,10 @@ function optimizePaintHistory(paintObject){
         let strokeToAppend = paintList[i];
         if(UUID === strokeToAppend.uuid){
 
-            strokeToAppend.points.forEach(p => completeFillStroke.addPoint(p));
+            for (let j = 0; j < strokeToAppend.points.length; j++) {
+                completeFillStroke.addPoint(strokeToAppend.points[j]);
+            }
+
             paintList.splice(i,1);
             --i; //necessary account for array shift to not skip elements
         }
@@ -122,20 +121,14 @@ function optimizePaintHistory(paintObject){
     return completeFillStroke;
 }
 
-function conditionToDelete(stroke, uuid) {
-
-    return stroke.uuid === uuid;
-}
-
 function sendPaintObjects(paintType, paintObject){
 
     const paintRequest = new PaintRequest(userID, paintType, paintObject);
-    console.log(paintRequest);
-
     const payload = JSON.stringify(paintRequest);
     const bytes = new TextEncoder().encode(payload).length;
 
-    console.log("PAINT REQUEST KB : ", bytes/1024);
+    //console.log(paintRequest);
+    //console.log("PAINT REQUEST KB : ", bytes/1024);
 
     stompClient.publish({
         destination: `/app/paint/${roomID}`,

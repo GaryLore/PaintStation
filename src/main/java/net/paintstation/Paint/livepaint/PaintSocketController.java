@@ -50,8 +50,7 @@ public class PaintSocketController {
     @ResponseBody
     public String getUserName(@RequestBody UsernameRequest request){
 
-        String username = paintService.getUsernameOfRoom(request.userID(), request.roomID());
-        return username;
+        return paintService.getUsernameOfRoom(request.userID(), request.roomID());
     }
 
 }

@@ -44,7 +44,8 @@ export default class Stroke{
 
         const points = this.points;
         ctx.beginPath();
-        ctx.moveTo(points[0].x,points[0].y);
+
+        ctx.moveTo(points[0].x, points[0].y);
         for(let i = 1; i < points.length; i++){
             const point = points[i];
             ctx.lineTo(point.x, point.y);

@@ -177,6 +177,12 @@ const canvasState = {
 
     ctx.beginPath();
     ctx.moveTo(canvasState.x1, canvasState.y1);
+  },
+
+  writeHistory(){
+    console.log("BEGIN PAINT HISTORY");
+    this.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
+    console.log("END");
   }
 
 };
