@@ -61,7 +61,6 @@ public class RoomController {
 
     @PostMapping("/create")
     ResponseEntity<?> startRoom(@Valid @RequestBody CreateRoomRequest request){
-
         Optional<Room> room = roomService.createRoom(request);
 
         if (room.isEmpty()) {
@@ -82,12 +81,10 @@ public class RoomController {
         System.out.println(update);
         template.convertAndSend("/topic/update", update);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
     }
 
     @GetMapping("/load")
     ResponseEntity<?> loadAllRooms(){
-
         loadAllRoomsResponse allRooms = roomService.getAllRooms();
         return ResponseEntity.status(HttpStatus.OK).body(allRooms);
     }

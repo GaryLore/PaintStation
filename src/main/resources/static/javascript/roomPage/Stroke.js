@@ -33,7 +33,6 @@ export default class Stroke{
     }
 
     draw(){
-
         if(this.phase === "END"){
             return;
         }

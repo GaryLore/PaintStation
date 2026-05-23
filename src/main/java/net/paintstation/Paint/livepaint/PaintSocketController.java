@@ -26,7 +26,6 @@ public class PaintSocketController {
     @MessageMapping("/paint/{roomID}")
     @SendTo("/topic/paint/{roomID}")
     public PaintResponse broadcastStroke(@DestinationVariable UUID roomID, PaintRequest request){
-
         String username = paintService.getUsernameOfRoom(request.userID(), roomID);
 
         PaintObject paintObject = request.object();
@@ -45,7 +44,6 @@ public class PaintSocketController {
     @PostMapping("/api/username")
     @ResponseBody
     public String getUserName(@RequestBody UsernameRequest request){
-
         return paintService.getUsernameOfRoom(request.userID(), request.roomID());
     }
 
