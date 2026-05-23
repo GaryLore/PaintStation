@@ -4,17 +4,17 @@ import Point from "./Point.js";
 export default class Stroke{
 
     type = "STROKE";
-    phase;
     uuid;
+    phase;
     brushColor;
     bucketColor;
     width;
     points = [];
     fill;
 
-    constructor(phase, uuid, brushColor, bucketColor, width, fill){
-        this.phase = phase;
+    constructor(uuid, phase, brushColor, bucketColor, width, fill){
         this.uuid = uuid;
+        this.phase = phase;
         this.brushColor = brushColor;
         this.bucketColor = bucketColor;
         this.width = width;
@@ -23,7 +23,7 @@ export default class Stroke{
 
     static fromJson(data) {
         const points = data.points.map(p => new Point(p.x, p.y));
-        const stroke = new Stroke(data.phase, data.uuid, data.brushColor, data.bucketColor, data.width, data.fill);
+        const stroke = new Stroke(data.uuid, data.phase, data.brushColor, data.bucketColor, data.width, data.fill);
         stroke.points = points
         return stroke;
     }

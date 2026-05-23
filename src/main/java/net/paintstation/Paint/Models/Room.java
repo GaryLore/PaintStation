@@ -70,6 +70,7 @@ public class Room {
     }
 
     public synchronized AccessRoomStatus addPlayer(UUID playerId, String playerName) {
+
         if (isFull()) return AccessRoomStatus.ROOM_FULL;
         if (isNameTaken(playerName)) return AccessRoomStatus.NAME_TAKEN;
         playerToID.put(playerName, playerId);
@@ -79,7 +80,6 @@ public class Room {
     }
 
     public synchronized UUID getPlayerID(String name){
-        System.out.println(playerToID.get(name));
         return playerToID.get(name);
     }
 

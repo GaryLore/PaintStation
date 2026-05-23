@@ -144,10 +144,10 @@ canvas.addEventListener("mousemove", function (event) {
         const fill = canvasState.brush.fill;
 
         if(fill) {
-          canvasState.buffer = new Stroke("MIDDLE", canvasState.tempStroke.uuid, color, bucketColor, width, fill);
+          canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "MIDDLE", color, bucketColor, width, fill);
         }
         else{
-          canvasState.buffer = new Stroke("MIDDLE", canvasState.tempStroke.uuid, color, "", width, fill);
+          canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "MIDDLE",  color, "", width, fill);
         }
         /*
         may result in glitch but coneptually to connect lines
@@ -244,13 +244,13 @@ function startBrushStroke(event) {
 
     if (canvasState.brush.fill) {
       const fill = true;
-      canvasState.tempStroke = new Stroke("COMPLETE", self.crypto.randomUUID(), color, bucketColor, width, fill);
-      canvasState.buffer = new Stroke("START", canvasState.tempStroke.uuid, color, bucketColor, width, fill);
+      canvasState.tempStroke = new Stroke(self.crypto.randomUUID(), "COMPLETE", color, bucketColor, width, fill);
+      canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "START", color, bucketColor, width, fill);
     }
     else {
       const fill = false;
-      canvasState.tempStroke = new Stroke("COMPLETE", self.crypto.randomUUID(), color, "", width, fill);
-      canvasState.buffer = new Stroke("START", canvasState.tempStroke.uuid, color, "", width, fill);
+      canvasState.tempStroke = new Stroke(self.crypto.randomUUID(), "COMPLETE", color, "", width, fill);
+      canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "START", color, "", width, fill);
     }
 
     const point = new Point(worldX,worldY);
@@ -276,8 +276,8 @@ function recordStroke() {
     }
 
     const endStroke = new Stroke(
-        "END",
         canvasState.tempStroke.uuid,
+        "END",
         canvasState.tempStroke.brushColor,
         canvasState.tempStroke.bucketColor,
         canvasState.tempStroke.width,

@@ -77,8 +77,8 @@ function drawObject(object){
 function optimizePaintHistory(paintObject){
 
     const completeFillStroke = new Stroke(
-        "COMPLETE",
         paintObject.uuid,
+        "COMPLETE",
         paintObject.brushColor,
         paintObject.bucketColor,
         paintObject.width,

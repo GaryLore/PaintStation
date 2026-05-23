@@ -27,9 +27,6 @@ public class PaintSocketController {
     @SendTo("/topic/paint/{roomID}")
     public PaintResponse broadcastStroke(@DestinationVariable UUID roomID, PaintRequest request){
 
-        System.out.println("REQUEST");
-        System.out.println(request);
-        System.out.println("END REQUEST");
         String username = paintService.getUsernameOfRoom(request.userID(), roomID);
 
         PaintObject paintObject = request.object();
@@ -42,7 +39,6 @@ public class PaintSocketController {
         }
 
         PaintResponse response = new PaintResponse(type, username, paintObject);
-        System.out.println(response);
         return response;
     }
 
@@ -51,6 +47,18 @@ public class PaintSocketController {
     public String getUserName(@RequestBody UsernameRequest request){
 
         return paintService.getUsernameOfRoom(request.userID(), request.roomID());
+    }
+
+    private static void debugRequest(PaintRequest request) {
+        System.out.println("REQUEST");
+        System.out.println(request);
+        System.out.println("END REQUEST");
+    }
+
+    private static void debugResponse(PaintResponse response){
+        System.out.println("RESPONSE");
+        System.out.println(response);
+        System.out.println("END RESPONSE");
     }
 
 }
