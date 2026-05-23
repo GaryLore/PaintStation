@@ -111,7 +111,6 @@ canvas.addEventListener("mousemove", function (event) {
     canvasState.render();
   }
   else if(canvasState.canDraw){
-
     const viewportTransform = canvasState.viewportTransform;
     const x2 = canvasState.scaleX(event.offsetX);
     const y2 = canvasState.scaleY(event.offsetY);
@@ -119,7 +118,6 @@ canvas.addEventListener("mousemove", function (event) {
     const worldY = (y2 - viewportTransform.y) / viewportTransform.scale;
 
     if(drawingAllowedHere(worldX, worldY)){
-
       canvasState.hasDrawn = true;
 
       canvasState.drawTo(x2,y2);
@@ -132,12 +130,10 @@ canvas.addEventListener("mousemove", function (event) {
       canvasState.tempStroke.addPoint(point);//tempstroke may be null because of canvas enter once it is left check this later
 
       if(canvasState.buffer != null) {
-
         canvasState.buffer.addPoint(point);
         canvasState.bufferPreviousPoint = point;
       }
       else{
-
         const color = canvasState.brush.color;
         const bucketColor = canvasState.brush.bucketColor;
         const width = canvasState.brush.paintWidth;
@@ -150,10 +146,9 @@ canvas.addEventListener("mousemove", function (event) {
           canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "MIDDLE",  color, "", width, fill);
         }
         /*
-        may result in glitch but coneptually to connect lines
-         for example p1 p2 p3 p4 p5 all these are connected in one line
+          may result in glitch but coneptually to connect lines
+          for example p1 p2 p3 p4 p5 all these are connected in one line
           p6 p7 p8 p9 all these are connected as well but p5 and p6 arnt so there is a gap this fixes the problem
-
           by now the second line containing p5 p6 p8 p9
         */
         canvasState.buffer.addPoint(canvasState.bufferPreviousPoint);

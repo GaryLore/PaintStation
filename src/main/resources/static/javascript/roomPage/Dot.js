@@ -20,7 +20,6 @@ export default class Dot{
     }
 
     draw(){
-
         ctx.save();
         ctx.strokeStyle = this.color;
         ctx.fillStyle = this.color;

@@ -35,7 +35,6 @@ stompClient.onWebSocketClose = (event) => {
 stompClient.activate();
 
 function loadPaintObjects(responseData) {
-
     const data = JSON.parse(responseData.body)
     //console.log(data);
     const username = data.user;
@@ -44,19 +43,17 @@ function loadPaintObjects(responseData) {
     //console.log("USERNAME : ", USERNAME);
 
     if(username !== USERNAME) {
-
         let paintObject;
         const type = data.type;
 
         if (type === "STROKE") {
-
             paintObject = Stroke.fromJson(data.object);
 
             if(paintObject.phase === "END" && paintObject.fill){
                 paintObject = optimizePaintHistory(paintObject);
-
             }
-        } else if (type === "DOT") {
+        }
+        else if (type === "DOT") {
             paintObject = Dot.fromJson(data.object);
         }
 
@@ -75,7 +72,6 @@ function drawObject(object){
 }
 
 function optimizePaintHistory(paintObject){
-
     const completeFillStroke = new Stroke(
         paintObject.uuid,
         "COMPLETE",
@@ -108,7 +104,6 @@ function optimizePaintHistory(paintObject){
 
         let strokeToAppend = paintList[i];
         if(UUID === strokeToAppend.uuid){
-
             for (let j = 0; j < strokeToAppend.points.length; j++) {
                 completeFillStroke.addPoint(strokeToAppend.points[j]);
             }

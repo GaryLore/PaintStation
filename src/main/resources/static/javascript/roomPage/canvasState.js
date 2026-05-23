@@ -43,7 +43,6 @@ const DRAW_Bounds = {
 };
 
 const canvasState = {
-
   //allows drawing
   x1 : undefined,
   y1 : undefined,
@@ -55,7 +54,7 @@ const canvasState = {
   worldBounds : WORLD_BOUNDS,
   drawBounds : DRAW_Bounds,
 
-  //online socket
+  //socket settings
   buffer: undefined,
   bufferPreviousPoint: undefined,
   
@@ -88,7 +87,6 @@ const canvasState = {
     ctx.lineTo(x2,y2);
     ctx.stroke();
   },
-
   /*
     we use scale functions instead of reassigning the width and height of the canvas according to the css 
     because we will be importing this to a server so we want the canvas height and width to be constant and not changing to the css which
@@ -104,14 +102,10 @@ const canvasState = {
 
   render(){
     const viewportTransform = canvasState.viewportTransform;
-
-    //https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/restore
     ctx.save();
-
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     this.setTransformCanvas();
-    
     canvasState.paintHistory.forEach((paintObject) => paintObject.draw());
     this.drawBorder();
     ctx.restore();
@@ -130,7 +124,6 @@ const canvasState = {
   },
 
   drawBorder(){
-
     ctx.fillStyle = "dimgray";
 
     const {
@@ -159,7 +152,6 @@ const canvasState = {
     ctx.lineTo(innerX + innerWidth, innerY);
 
     ctx.fill();
-
   },
 
   reloadJustBorder(){
