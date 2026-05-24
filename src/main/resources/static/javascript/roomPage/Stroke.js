@@ -12,7 +12,7 @@ export default class Stroke{
     points = [];
     fill;
 
-    constructor(uuid, phase, brushColor, bucketColor, width, fill){
+    constructor({uuid, phase, brushColor, bucketColor, width, fill}){
         this.uuid = uuid;
         this.phase = phase;
         this.brushColor = brushColor;
@@ -23,7 +23,15 @@ export default class Stroke{
 
     static fromJson(data) {
         const points = data.points.map(p => new Point(p.x, p.y));
-        const stroke = new Stroke(data.uuid, data.phase, data.brushColor, data.bucketColor, data.width, data.fill);
+        const stroke = new Stroke({
+            uuid: data.uuid,
+            phase: data.phase,
+            brushColor : data.brushColor,
+            bucketColor : data.bucketColor,
+            width : data.width,
+            fill : data.fill
+        });
+
         stroke.points = points
         return stroke;
     }

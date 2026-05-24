@@ -6,7 +6,6 @@ import Dot from "./Dot.js";
 import Point from "./Point.js";
 
 function withinPanZoomLimit(x,y, scale){
-
   const leftBorder = (0 - x) / scale; 
   const topBorder = (0 - y) / scale; 
   const rightBorder = (canvas.width - x) / scale; 
@@ -21,7 +20,6 @@ function withinPanZoomLimit(x,y, scale){
 }
 
 function drawingAllowedHere(x,y){
-
   const topBorder = canvasState.drawBounds.y;
   const bottomBorder = canvasState.drawBounds.y + canvasState.drawBounds.height;
   const leftBorder = canvasState.drawBounds.x;
@@ -31,7 +29,6 @@ function drawingAllowedHere(x,y){
 }
 
 function updatePanning(event){
-
   const viewportTransform = canvasState.viewportTransform;
 
   const localX = event.offsetX;
@@ -49,7 +46,6 @@ function updatePanning(event){
   const tempY = viewportTransform.y + scaledDIFFY;
 
   if(withinPanZoomLimit(tempX, tempY, viewportTransform.scale)){
-    
     viewportTransform.x = tempX;
     viewportTransform.y = tempY;
 
@@ -60,7 +56,6 @@ function updatePanning(event){
 
     canvasState.panZoom.previousX = localX;
     canvasState.panZoom.previousY = localY;
-
   }
 }
 
@@ -134,17 +129,16 @@ canvas.addEventListener("mousemove", function (event) {
         canvasState.bufferPreviousPoint = point;
       }
       else{
-        const color = canvasState.brush.color;
-        const bucketColor = canvasState.brush.bucketColor;
-        const width = canvasState.brush.paintWidth;
-        const fill = canvasState.brush.fill;
+        const StrokeParameters = {
+          uuid : canvasState.tempStroke.uuid,
+          phase : "MIDDLE",
+          brushColor : canvasState.brush.color,
+          bucketColor: canvasState.brush.fill ? canvasState.brush.bucketColor : "",
+          width : canvasState.brush.paintWidth,
+          fill : canvasState.brush.fill
+        };
 
-        if(fill) {
-          canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "MIDDLE", color, bucketColor, width, fill);
-        }
-        else{
-          canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "MIDDLE",  color, "", width, fill);
-        }
+        canvasState.buffer = new Stroke(StrokeParameters);
         /*
           may result in glitch but coneptually to connect lines
           for example p1 p2 p3 p4 p5 all these are connected in one line
@@ -184,23 +178,20 @@ function drawDot(event){
   const worldY = (y - viewportTransform.y) / viewportTransform.scale;
 
   if(canvasState.tool === Tool.BRUSH && !canvasState.hasDrawn && drawingAllowedHere(worldX, worldY)){
-
     ctx.beginPath();
     ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
     ctx.fillStyle = canvasState.brush.color;//neccessary because fill i used to implement dot
     ctx.fill();
     ctx.fillStyle = canvasState.brush.bucketColor;
-
     canvasState.reloadJustBorder();
 
-    const colorBrush = canvasState.brush.color;
-    const paintWidth = canvasState.brush.paintWidth;
-
-    const point = new Point(worldX,worldY);
-    let record = new Dot(colorBrush, paintWidth, point);
-    sendPaintObjects("DOT", {...record});
+    let record = new Dot({
+      color : canvasState.brush.color,
+      width : canvasState.brush.paintWidth,
+      point : new Point(worldX,worldY)
+    });
+    sendPaintObjects("DOT", record);
     canvasState.paintHistory.push(record);
-
   }
   canvasState.hasDrawn = false;
 
@@ -208,18 +199,15 @@ function drawDot(event){
 
 canvas.addEventListener('mouseleave', function (event) {  
   recordStroke();
-
 });
 
 canvas.addEventListener('mouseenter', function (event) {
   if(canvasState.mouseDown && canvasState.tool === Tool.BRUSH){
       startBrushStroke(event);
   }
-  
 });
 
 function startBrushStroke(event) {
-
   const viewportTransform = canvasState.viewportTransform;
 
   canvasState.x1 = canvasState.scaleX(event.offsetX);
@@ -233,27 +221,24 @@ function startBrushStroke(event) {
     ctx.beginPath();
     ctx.moveTo(canvasState.x1, canvasState.y1);
 
-    const color = canvasState.brush.color;
-    const bucketColor = canvasState.brush.bucketColor;
-    const width = canvasState.brush.paintWidth;
+    const StrokeParameters = {
+      uuid : self.crypto.randomUUID(),
+      phase : "COMPLETE",
+      brushColor : canvasState.brush.color,
+      bucketColor: canvasState.brush.fill ? canvasState.brush.bucketColor : "",
+      width : canvasState.brush.paintWidth,
+      fill : canvasState.brush.fill
+    };
 
-    if (canvasState.brush.fill) {
-      const fill = true;
-      canvasState.tempStroke = new Stroke(self.crypto.randomUUID(), "COMPLETE", color, bucketColor, width, fill);
-      canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "START", color, bucketColor, width, fill);
-    }
-    else {
-      const fill = false;
-      canvasState.tempStroke = new Stroke(self.crypto.randomUUID(), "COMPLETE", color, "", width, fill);
-      canvasState.buffer = new Stroke(canvasState.tempStroke.uuid, "START", color, "", width, fill);
-    }
+    canvasState.tempStroke = new Stroke(StrokeParameters);
+    StrokeParameters.phase = "START";
+    canvasState.buffer = new Stroke(StrokeParameters);
 
     const point = new Point(worldX,worldY);
     canvasState.tempStroke.addPoint(point);
     canvasState.buffer.addPoint(point);
   }
 }
-
 
 function recordStroke() {
   canvasState.canDraw = false;
@@ -270,14 +255,14 @@ function recordStroke() {
       canvasState.paintHistory.push(canvasState.tempStroke);
     }
 
-    const endStroke = new Stroke(
-        canvasState.tempStroke.uuid,
-        "END",
-        canvasState.tempStroke.brushColor,
-        canvasState.tempStroke.bucketColor,
-        canvasState.tempStroke.width,
-        canvasState.tempStroke.fill
-    );
+    const endStroke = new Stroke({
+      uuid : canvasState.tempStroke.uuid,
+      phase : "END",
+      brushColor : canvasState.tempStroke.brushColor,
+      bucketColor : canvasState.tempStroke.bucketColor,
+      width : canvasState.tempStroke.width,
+      fill : canvasState.tempStroke.fill
+    });
     sendPaintObjects("STROKE", endStroke);
   }
   
@@ -292,7 +277,6 @@ function hasStrokeBeenDrawn() {
 //hasStrokeBeenDrawn may be able to be replaced by hasDrawn however the code might need to be changed a bit, just a reminder for future Me
 
 function flushBuffer() {
-
   if (canvasState.buffer == null || canvasState.buffer.points.length < 2){
     return;
   }

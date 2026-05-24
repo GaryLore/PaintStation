@@ -8,15 +8,18 @@ export default class Dot{
     width;
     point;
 
-    constructor(color, width, point){
+    constructor({color, width, point}){
         this.color = color;
         this.width = width;
         this.point = point;
     }
 
     static fromJson(data) {
-        let point = new Point(data.point.x, data.point.y);
-        return new Dot(data.color, data.width, point);
+        return new Dot({
+            color : data.color,
+            width : data.width,
+            point : new Point(data.point.x, data.point.y)
+        });
     }
 
     draw(){
