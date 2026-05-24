@@ -81,7 +81,7 @@ public class Room {
 
     public UUID getPlayerID(String name){
         for (Map.Entry<UUID, String> entry : idToPlayer.entrySet()) {
-            if(Objects.equals(name, entry.getValue())){
+            if(Objects.equals(name, entry.getValue() )){
                 return entry.getKey();
             }
         }

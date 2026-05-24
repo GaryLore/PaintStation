@@ -81,14 +81,14 @@ function optimizePaintHistory(paintObject){
         paintObject.fill
     );
 
-    const UUID = completeFillStroke.uuid;
+    const completeStrokeUUID = completeFillStroke.uuid;
 
     let paintList = canvasState.paintHistory;
     let indexOfFirstStroke = undefined;
     for (let i = paintList.length - 1; i >= 0; i--) {
 
         let paintObjectInQuestion = paintList[i];
-        if(UUID === paintObjectInQuestion.uuid && paintObjectInQuestion.phase === "START"){
+        if(completeStrokeUUID === paintObjectInQuestion.uuid && paintObjectInQuestion.phase === "START"){
             indexOfFirstStroke = i;
             break;
         }
@@ -103,7 +103,7 @@ function optimizePaintHistory(paintObject){
     for(let i = indexOfFirstStroke; i !== paintList.length; ++i){
 
         let strokeToAppend = paintList[i];
-        if(UUID === strokeToAppend.uuid){
+        if(completeStrokeUUID === strokeToAppend.uuid){
             for (let j = 0; j < strokeToAppend.points.length; j++) {
                 completeFillStroke.addPoint(strokeToAppend.points[j]);
             }
