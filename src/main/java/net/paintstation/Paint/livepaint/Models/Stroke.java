@@ -11,4 +11,8 @@ public record Stroke(
         Point[] points,
         boolean fill
 ) implements PaintObject {
+    @Override
+    public String getType() {
+        return "STROKE";
+    }
 }

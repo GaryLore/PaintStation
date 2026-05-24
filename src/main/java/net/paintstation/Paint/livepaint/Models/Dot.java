@@ -5,4 +5,8 @@ public record Dot(
     int width,
     Point point
 ) implements PaintObject {
+    @Override
+    public String getType() {
+        return "DOT";
+    }
 }

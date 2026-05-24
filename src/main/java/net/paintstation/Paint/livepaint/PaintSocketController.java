@@ -27,17 +27,8 @@ public class PaintSocketController {
     @SendTo("/topic/paint/{roomID}")
     public PaintResponse broadcastStroke(@DestinationVariable UUID roomID, PaintRequest request){
         String username = paintService.getUsernameOfRoom(request.userID(), roomID);
-
         PaintObject paintObject = request.object();
-        String type = "";
-        if(paintObject instanceof Stroke){
-            type = "STROKE";
-        }
-        else if(paintObject instanceof Dot) {
-            type = "DOT";
-        }
-
-        PaintResponse response = new PaintResponse(type, username, paintObject);
+        PaintResponse response = new PaintResponse(paintObject.getType(), username, paintObject);
         return response;
     }
 

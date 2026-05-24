@@ -14,4 +14,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public sealed interface PaintObject permits Stroke, Dot {
 
+    public String getType();
 }
