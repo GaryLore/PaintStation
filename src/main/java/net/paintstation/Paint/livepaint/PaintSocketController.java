@@ -1,8 +1,6 @@
 package net.paintstation.Paint.livepaint;
 
-import net.paintstation.Paint.livepaint.Models.Dot;
 import net.paintstation.Paint.livepaint.Models.PaintObject;
-import net.paintstation.Paint.livepaint.Models.Stroke;
 import net.paintstation.Paint.livepaint.dto.PaintRequest;
 import net.paintstation.Paint.livepaint.dto.PaintResponse;
 import net.paintstation.Paint.livepaint.dto.UsernameRequest;
@@ -10,7 +8,9 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.UUID;
 
