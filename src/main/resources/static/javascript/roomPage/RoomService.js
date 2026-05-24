@@ -50,7 +50,7 @@ function loadPaintObjects(responseData) {
             paintObject = Stroke.fromJson(data.object);
 
             if(paintObject.phase === "END" && paintObject.fill){
-                paintObject = optimizePaintHistory(paintObject);
+                paintObject = optimizePaintHistory(paintObject);//could return null
             }
         }
         else if (type === "DOT") {
@@ -117,7 +117,6 @@ function optimizePaintHistory(paintObject){
 }
 
 function sendPaintObjects(paintType, paintObject){
-
     const paintRequest = new PaintRequest(userID, paintType, paintObject);
     const payload = JSON.stringify(paintRequest);
     const bytes = new TextEncoder().encode(payload).length;
