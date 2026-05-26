@@ -41,7 +41,7 @@ export default class Stroke{
     }
 
     draw(){
-        if(this.phase === "END"){
+        if(this.points.length === 0){
             return;
         }
 

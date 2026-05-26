@@ -27,6 +27,9 @@ public class PaintSocketController {
     @SendTo("/topic/paint/{roomID}")
     public PaintResponse broadcastStroke(@DestinationVariable UUID roomID, PaintRequest request){
         String username = paintService.getUsernameOfRoom(request.userID(), roomID);
+        if(username.isEmpty()){
+            System.out.println("ILLEGAL USER ID REQUEST");
+        }
         PaintObject paintObject = request.object();
         PaintResponse response = new PaintResponse(paintObject.getType(), username, paintObject);
         return response;

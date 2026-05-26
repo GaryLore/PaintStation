@@ -250,11 +250,13 @@ function recordStroke() {
       ctx.restore();
       canvasState.paintHistory.push(canvasState.tempStroke);
     }
-    //before i was sending two packets at the same time, but now i just combined it into one
-    //originanly a middle packet and right after a end packet with no points inside
-    //no if its a middle packet with points inside we convert it to an end packet and we only
-    //send one packet, so now we dont have problems with packets arriving in wrong order causing a glitch.
-    //possible flush buffer was called from timer right before so we just send a endstroke to indicate its done
+    /*
+      before i was sending two packets at the same time, but now i just combined it into one
+      originanly a middle packet and right after a end packet with no points inside
+      no if its a middle packet with points inside we convert it to an end packet and we only
+      send one packet, so now we dont have problems with packets arriving in wrong order causing a glitch.
+      possible flush buffer was called from timer right before so we just send a endstroke to indicate its done
+     */
     if(canvasState.buffer == null) {
       const endStroke = new Stroke({
         uuid: canvasState.tempStroke.uuid,
@@ -264,6 +266,7 @@ function recordStroke() {
         width: canvasState.tempStroke.width,
         fill: canvasState.tempStroke.fill
       });
+      canvasState.paintHistory.push(endStroke);
       sendPaintObjects("STROKE", endStroke);
     }
     else{
@@ -279,7 +282,6 @@ function hasStrokeBeenDrawn() {
   //length of one is always recorded just in case mouse starts to move, we only record if its an actual stroke
   return canvasState.tempStroke != null && canvasState.tempStroke.points.length !== 1;
 }
-
 //hasStrokeBeenDrawn may be able to be replaced by hasDrawn however the code might need to be changed a bit, just a reminder for future Me
 
 function flushBuffer() {

@@ -53,7 +53,7 @@ bucket.addEventListener("click", function(){
 
 const title = document.getElementsByClassName("title")[0];
 title.addEventListener("click", function(){
-  //canvasState.render();
+  canvasState.render();
   canvasState.writeHistory();
 });
 

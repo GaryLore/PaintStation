@@ -31,7 +31,6 @@ public class RoomController {
         this.template = template;
     }
 
-
     @PostMapping("/{roomName}/join")
     ResponseEntity<?> enterRoom(@PathVariable String roomName, @Valid @RequestBody JoinRoomRequest request){
 
@@ -58,7 +57,6 @@ public class RoomController {
         };
     }
 
-
     @PostMapping("/create")
     ResponseEntity<?> startRoom(@Valid @RequestBody CreateRoomRequest request){
         Optional<Room> room = roomService.createRoom(request);
@@ -68,7 +66,6 @@ public class RoomController {
         }
 
         Room createdRoom = room.get();
-        System.out.println("OWNER ID : " + createdRoom.getOwnerID());
         RoomResponse response = new RoomResponse(
                 createdRoom.getRoomID(),
                 createdRoom.getOwnerID(), //player in this case is owner
@@ -78,8 +75,8 @@ public class RoomController {
         );
 
         RoomUpdate update = new RoomUpdate(RoomAction.INSERT, createdRoom.getName() );
-        System.out.println(update);
         template.convertAndSend("/topic/update", update);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -88,6 +85,4 @@ public class RoomController {
         loadAllRoomsResponse allRooms = roomService.getAllRooms();
         return ResponseEntity.status(HttpStatus.OK).body(allRooms);
     }
-
-
 }
