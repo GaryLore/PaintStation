@@ -1,5 +1,5 @@
 import "./UserInterface.js";
-import {canvasState, Tool, canvas, ctx, rect} from "./canvasState.js"
+import {canvas, canvasState, ctx, Tool} from "./canvasState.js"
 import {sendPaintObjects} from "./RoomService.js";
 import Stroke from "./Stroke.js";
 import Dot from "./Dot.js";
@@ -243,9 +243,6 @@ function recordStroke() {
   canvasState.canDraw = false;
   
   if(hasStrokeBeenDrawn()){
-
-    flushBuffer();
-
     if(canvasState.tempStroke.fill){
       ctx.save()
       canvasState.setTransformCanvas()
@@ -253,16 +250,26 @@ function recordStroke() {
       ctx.restore();
       canvasState.paintHistory.push(canvasState.tempStroke);
     }
-
-    const endStroke = new Stroke({
-      uuid : canvasState.tempStroke.uuid,
-      phase : "END",
-      brushColor : canvasState.tempStroke.brushColor,
-      bucketColor : canvasState.tempStroke.bucketColor,
-      width : canvasState.tempStroke.width,
-      fill : canvasState.tempStroke.fill
-    });
-    sendPaintObjects("STROKE", {...endStroke});
+    //before i was sending two packets at the same time, but now i just combined it into one
+    //originanly a middle packet and right after a end packet with no points inside
+    //no if its a middle packet with points inside we convert it to an end packet and we only
+    //send one packet, so now we dont have problems with packets arriving in wrong order causing a glitch.
+    //possible flush buffer was called from timer right before so we just send a endstroke to indicate its done
+    if(canvasState.buffer == null) {
+      const endStroke = new Stroke({
+        uuid: canvasState.tempStroke.uuid,
+        phase: "END",
+        brushColor: canvasState.tempStroke.brushColor,
+        bucketColor: canvasState.tempStroke.bucketColor,
+        width: canvasState.tempStroke.width,
+        fill: canvasState.tempStroke.fill
+      });
+      sendPaintObjects("STROKE", endStroke);
+    }
+    else{
+      canvasState.buffer.phase = "END";
+      flushBuffer();
+    }
   }
   
   canvasState.tempStroke = null;

@@ -50,6 +50,8 @@ function loadPaintObjects(responseData) {
             paintObject = Stroke.fromJson(data.object);
 
             if(paintObject.phase === "END" && paintObject.fill){
+                console.log("PAINT OBJECT WITH END : ", paintObject);
+                canvasState.paintHistory.push(paintObject);
                 paintObject = optimizePaintHistory(paintObject);//could return null
             }
         }
@@ -72,6 +74,8 @@ function drawObject(object){
 }
 
 function optimizePaintHistory(paintObject){
+
+    canvasState.writeHistory();
     const completeFillStroke = new Stroke({
         uuid : paintObject.uuid,
         phase : "COMPLETE",
@@ -93,10 +97,10 @@ function optimizePaintHistory(paintObject){
             break;
         }
     }
-
     //needed because sometimes end stroke arrives before start stroke, so we dont create a stroke thatt will have no points
     //which will generate an error
     if(indexOfFirstStroke === undefined){
+        //console.log("COULDNT find first stroke");
         return null;
     }
 
@@ -104,7 +108,9 @@ function optimizePaintHistory(paintObject){
 
         let strokeToAppend = paintList[i];
         if(completeStrokeUUID === strokeToAppend.uuid){
+            //console.log("equal stroke");
             for (let j = 0; j < strokeToAppend.points.length; j++) {
+                //console.log("Point beign added");
                 completeFillStroke.addPoint(strokeToAppend.points[j]);
             }
 
