@@ -39,7 +39,7 @@ brush.addEventListener("click", function(){
 const bucket = document.getElementsByClassName("bucket")[0];
 bucket.addEventListener("click", function(){
 
-  if(canvasState.tool == Tool.BRUSH)
+  if(canvasState.tool === Tool.BRUSH)
     canvasState.brush.fill = !canvasState.brush.fill;
 
   if(canvasState.brush.fill){
@@ -54,6 +54,7 @@ bucket.addEventListener("click", function(){
 const title = document.getElementsByClassName("title")[0];
 title.addEventListener("click", function(){
   canvasState.render();
+  canvasState.writeHistory();
 });
 
 slider.addEventListener("change", function (){
@@ -140,12 +141,12 @@ colorOptions.addEventListener("click", setBrushColors);
 function setBrushColors(e){
   if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
 
-      if(selectedColorTarget == ColorTarget.BRUSH){
+      if(selectedColorTarget === ColorTarget.BRUSH){
         canvasState.brush.color = e.target.id;
         innerBrushSquare.style.backgroundColor = canvasState.brush.color;
         ctx.strokeStyle = canvasState.brush.color;
       }
-      else if(selectedColorTarget == ColorTarget.BUCKET){
+      else if(selectedColorTarget === ColorTarget.BUCKET){
         canvasState.brush.bucketColor = e.target.id;
         innerBucketSquare.style.backgroundColor = canvasState.brush.bucketColor;
         ctx.fillStyle = canvasState.brush.bucketColor;

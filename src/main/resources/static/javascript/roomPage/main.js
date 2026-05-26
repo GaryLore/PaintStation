@@ -1,10 +1,11 @@
 import "./UserInterface.js";
-import {canvasState, Tool, canvas, ctx, rect} from "./canvasState.js"
-import Stroke from "./stroke.js";
-import Dot from "./dot.js";
+import {canvas, canvasState, ctx, Tool} from "./canvasState.js"
+import {sendPaintObjects} from "./RoomService.js";
+import Stroke from "./Stroke.js";
+import Dot from "./Dot.js";
+import Point from "./Point.js";
 
 function withinPanZoomLimit(x,y, scale){
-
   const leftBorder = (0 - x) / scale; 
   const topBorder = (0 - y) / scale; 
   const rightBorder = (canvas.width - x) / scale; 
@@ -19,7 +20,6 @@ function withinPanZoomLimit(x,y, scale){
 }
 
 function drawingAllowedHere(x,y){
-
   const topBorder = canvasState.drawBounds.y;
   const bottomBorder = canvasState.drawBounds.y + canvasState.drawBounds.height;
   const leftBorder = canvasState.drawBounds.x;
@@ -29,7 +29,6 @@ function drawingAllowedHere(x,y){
 }
 
 function updatePanning(event){
-
   const viewportTransform = canvasState.viewportTransform;
 
   const localX = event.offsetX;
@@ -47,7 +46,6 @@ function updatePanning(event){
   const tempY = viewportTransform.y + scaledDIFFY;
 
   if(withinPanZoomLimit(tempX, tempY, viewportTransform.scale)){
-    
     viewportTransform.x = tempX;
     viewportTransform.y = tempY;
 
@@ -58,7 +56,6 @@ function updatePanning(event){
 
     canvasState.panZoom.previousX = localX;
     canvasState.panZoom.previousY = localY;
-
   }
 }
 
@@ -79,19 +76,35 @@ function updateZooming(event){
     viewportTransform.y = offsetY;
     ctx.lineWidth = canvasState.brush.paintWidth * viewportTransform.scale;
 
-    console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
+    //console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
   }
 }
+
+canvas.addEventListener("wheel", function(event){
+  if(canvasState.tool === Tool.PANZOOM){
+    updateZooming(event);
+    canvasState.render();
+  }
+});
+
+canvas.addEventListener("mousedown", function (event) {
+  canvasState.mouseDown = true;
+  if(canvasState.tool === Tool.PANZOOM){
+    canvasState.panZoom.previousX = event.offsetX
+    canvasState.panZoom.previousY = event.offsetY
+  }
+  else if(canvasState.tool === Tool.BRUSH){
+    startBrushStroke(event);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
+  }
+});
 
 canvas.addEventListener("mousemove", function (event) {
 
   if(canvasState.isPanning()){
-    console.log("IF has entered");
     updatePanning(event);
     canvasState.render();
   }
   else if(canvasState.canDraw){
-
     const viewportTransform = canvasState.viewportTransform;
     const x2 = canvasState.scaleX(event.offsetX);
     const y2 = canvasState.scaleY(event.offsetY);
@@ -99,7 +112,6 @@ canvas.addEventListener("mousemove", function (event) {
     const worldY = (y2 - viewportTransform.y) / viewportTransform.scale;
 
     if(drawingAllowedHere(worldX, worldY)){
-
       canvasState.hasDrawn = true;
 
       canvasState.drawTo(x2,y2);
@@ -108,30 +120,37 @@ canvas.addEventListener("mousemove", function (event) {
       canvasState.reloadJustBorder();
 
       //actual x and y may be different due to transformations
-      canvasState.tempStroke.addPoint(worldX,worldY);
+      const point = new Point(worldX,worldY);
+      canvasState.tempStroke.addPoint(point);//tempstroke may be null because of canvas enter once it is left check this later
+
+      if(canvasState.buffer != null) {
+        canvasState.buffer.addPoint(point);
+        canvasState.bufferPreviousPoint = point;
+      }
+      else{
+        const StrokeParameters = {
+          uuid : canvasState.tempStroke.uuid,
+          phase : "MIDDLE",
+          brushColor : canvasState.brush.color,
+          bucketColor: canvasState.brush.fill ? canvasState.brush.bucketColor : "",
+          width : canvasState.brush.paintWidth,
+          fill : canvasState.brush.fill
+        };
+
+        canvasState.buffer = new Stroke(StrokeParameters);
+        /*
+          may result in glitch but coneptually to connect lines
+          for example p1 p2 p3 p4 p5 all these are connected in one line
+          p6 p7 p8 p9 all these are connected as well but p5 and p6 arnt so there is a gap this fixes the problem
+          by now the second line containing p5 p6 p8 p9
+        */
+        canvasState.buffer.addPoint(canvasState.bufferPreviousPoint);
+        canvasState.buffer.addPoint(point);
+      }
     }
     else{
       recordStroke();
     }
-  }
-
-});
-
-canvas.addEventListener("wheel", function(event){
-  if(canvasState.tool == Tool.PANZOOM){
-    updateZooming(event);
-    canvasState.render();
-  }
-});
-
-canvas.addEventListener("mousedown", function (event) {
-  canvasState.mouseDown = true;
-  if(canvasState.tool == Tool.PANZOOM){
-    canvasState.panZoom.previousX = event.offsetX
-    canvasState.panZoom.previousY = event.offsetY
-  }
-  else if(canvasState.tool == Tool.BRUSH){
-    startBrushStroke(event);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
 
 });
@@ -149,7 +168,7 @@ window.addEventListener("mouseup", function (event) {
 canvas.addEventListener("click", drawDot);
 function drawDot(event){
 
-  console.log(`(${canvasState.scaleX(event.offsetX)},${canvasState.scaleY(event.offsetY)})`);
+  //console.log(`(${canvasState.scaleX(event.offsetX)},${canvasState.scaleY(event.offsetY)})`);
 
   const viewportTransform = canvasState.viewportTransform;
   let x = canvasState.scaleX(event.offsetX);
@@ -157,22 +176,21 @@ function drawDot(event){
   const worldX = (x - viewportTransform.x) / viewportTransform.scale; 
   const worldY = (y - viewportTransform.y) / viewportTransform.scale;
 
-  if(canvasState.tool == Tool.BRUSH && !canvasState.hasDrawn && drawingAllowedHere(worldX, worldY)){    
-
+  if(canvasState.tool === Tool.BRUSH && !canvasState.hasDrawn && drawingAllowedHere(worldX, worldY)){
     ctx.beginPath();
     ctx.arc(x, y, ctx.lineWidth/2, 0, 2 * Math.PI);
     ctx.fillStyle = canvasState.brush.color;//neccessary because fill i used to implement dot
     ctx.fill();
     ctx.fillStyle = canvasState.brush.bucketColor;
-
     canvasState.reloadJustBorder();
 
-    const colorBrush = canvasState.brush.color;
-    const paintWidth = canvasState.brush.paintWidth;
-
-    let record = new Dot(colorBrush, paintWidth, worldX, worldY);
+    let record = new Dot({
+      color : canvasState.brush.color,
+      width : canvasState.brush.paintWidth,
+      point : new Point(worldX,worldY)
+    });
+    sendPaintObjects("DOT", record);
     canvasState.paintHistory.push(record);
-
   }
   canvasState.hasDrawn = false;
 
@@ -180,20 +198,15 @@ function drawDot(event){
 
 canvas.addEventListener('mouseleave', function (event) {  
   recordStroke();
-  console.log("BEGIN PAINT HISTORY")
-  canvasState.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
-  console.log("END")
 });
 
 canvas.addEventListener('mouseenter', function (event) {
   if(canvasState.mouseDown && canvasState.tool === Tool.BRUSH){
       startBrushStroke(event);
   }
-  
 });
 
 function startBrushStroke(event) {
-
   const viewportTransform = canvasState.viewportTransform;
 
   canvasState.x1 = canvasState.scaleX(event.offsetX);
@@ -207,34 +220,59 @@ function startBrushStroke(event) {
     ctx.beginPath();
     ctx.moveTo(canvasState.x1, canvasState.y1);
 
-    const color = canvasState.brush.color;
-    const bucketColor = canvasState.brush.bucketColor;
-    const width = canvasState.brush.paintWidth;
+    const StrokeParameters = {
+      uuid : self.crypto.randomUUID(),
+      phase : "COMPLETE",
+      brushColor : canvasState.brush.color,
+      bucketColor: canvasState.brush.fill ? canvasState.brush.bucketColor : "",
+      width : canvasState.brush.paintWidth,
+      fill : canvasState.brush.fill
+    };
 
-    if (canvasState.brush.fill) {
-      const fill = true;
-      canvasState.tempStroke = new Stroke(color, bucketColor, width, fill);
-    }
-    else {
-      const fill = false;
-      canvasState.tempStroke = new Stroke(color, "", width, fill);
-    }
+    canvasState.tempStroke = new Stroke(StrokeParameters);
+    StrokeParameters.phase = "START";
+    canvasState.buffer = new Stroke(StrokeParameters);
 
-    canvasState.tempStroke.addPoint(worldX, worldY);
-
+    const point = new Point(worldX,worldY);
+    canvasState.tempStroke.addPoint(point);
+    canvasState.buffer.addPoint(point);
   }
 }
-
 
 function recordStroke() {
   canvasState.canDraw = false;
   
   if(hasStrokeBeenDrawn()){
-    canvasState.paintHistory.push(canvasState.tempStroke);
-
-    if(canvasState.brush.fill){
-      canvasState.render();
-  }
+    if(canvasState.tempStroke.fill){
+      ctx.save()
+      canvasState.setTransformCanvas()
+      canvasState.tempStroke.draw();
+      ctx.restore();
+      canvasState.paintHistory.push(canvasState.tempStroke);
+    }
+    /*
+      before i was sending two packets at the same time, but now i just combined it into one
+      originanly a middle packet and right after a end packet with no points inside
+      no if its a middle packet with points inside we convert it to an end packet and we only
+      send one packet, so now we dont have problems with packets arriving in wrong order causing a glitch.
+      possible flush buffer was called from timer right before so we just send a endstroke to indicate its done
+     */
+    if(canvasState.buffer == null) {
+      const endStroke = new Stroke({
+        uuid: canvasState.tempStroke.uuid,
+        phase: "END",
+        brushColor: canvasState.tempStroke.brushColor,
+        bucketColor: canvasState.tempStroke.bucketColor,
+        width: canvasState.tempStroke.width,
+        fill: canvasState.tempStroke.fill
+      });
+      canvasState.paintHistory.push(endStroke);
+      sendPaintObjects("STROKE", endStroke);
+    }
+    else{
+      canvasState.buffer.phase = "END";
+      flushBuffer();
+    }
   }
   
   canvasState.tempStroke = null;
@@ -244,10 +282,22 @@ function hasStrokeBeenDrawn() {
   //length of one is always recorded just in case mouse starts to move, we only record if its an actual stroke
   return canvasState.tempStroke != null && canvasState.tempStroke.points.length !== 1;
 }
-
 //hasStrokeBeenDrawn may be able to be replaced by hasDrawn however the code might need to be changed a bit, just a reminder for future Me
 
+function flushBuffer() {
+  if (canvasState.buffer == null || canvasState.buffer.points.length < 2){
+    return;
+  }
 
+  sendPaintObjects("STROKE", canvasState.buffer);
 
+  if(!canvasState.buffer.fill) {
+    canvasState.paintHistory.push(canvasState.buffer);
+  }
+
+  canvasState.buffer = null;
+}
+
+setInterval(flushBuffer, 50);
 
 

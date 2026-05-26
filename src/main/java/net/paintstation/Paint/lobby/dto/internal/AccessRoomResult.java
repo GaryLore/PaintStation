@@ -1,7 +1,7 @@
-package net.paintstation.Paint.dto.internal;
+package net.paintstation.Paint.lobby.dto.internal;
 
-import net.paintstation.Paint.enums.AccessRoomStatus;
 import net.paintstation.Paint.Models.Room;
+import net.paintstation.Paint.lobby.enums.AccessRoomStatus;
 
 public record AccessRoomResult(AccessRoomStatus status, Room room) {
 

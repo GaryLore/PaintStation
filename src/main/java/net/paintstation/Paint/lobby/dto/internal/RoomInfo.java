@@ -1,4 +1,4 @@
-package net.paintstation.Paint.dto.internal;
+package net.paintstation.Paint.lobby.dto.internal;
 
 public record RoomInfo(
         String name,
