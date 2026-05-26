@@ -8,7 +8,7 @@ const roomID = sessionStorage.getItem("ROOM_ID");
 const USERNAME = await getName();
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-const socketURL = `${protocol}//${window.location.host}/paint`;
+const socketURL = `${protocol}//${window.location.host}/ws`;
 const stompClient = new StompJs.Client({brokerURL: socketURL});
 
 stompClient.onConnect = (frame) => {
@@ -72,14 +72,14 @@ function drawObject(object){
 }
 
 function optimizePaintHistory(paintObject){
-    const completeFillStroke = new Stroke(
-        paintObject.uuid,
-        "COMPLETE",
-        paintObject.brushColor,
-        paintObject.bucketColor,
-        paintObject.width,
-        paintObject.fill
-    );
+    const completeFillStroke = new Stroke({
+        uuid : paintObject.uuid,
+        phase : "COMPLETE",
+        brushColor : paintObject.brushColor,
+        bucketColor : paintObject.bucketColor,
+        width : paintObject.width,
+        fill : paintObject.fill
+    });
 
     const completeStrokeUUID = completeFillStroke.uuid;
 

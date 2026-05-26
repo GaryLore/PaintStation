@@ -96,7 +96,6 @@ canvas.addEventListener("mousedown", function (event) {
   else if(canvasState.tool === Tool.BRUSH){
     startBrushStroke(event);//always creates stroke just in case, but this stroke may not be stored if its just a clik we do that by checcking length of points in tempStroke
   }
-
 });
 
 canvas.addEventListener("mousemove", function (event) {
@@ -263,7 +262,7 @@ function recordStroke() {
       width : canvasState.tempStroke.width,
       fill : canvasState.tempStroke.fill
     });
-    sendPaintObjects("STROKE", endStroke);
+    sendPaintObjects("STROKE", {...endStroke});
   }
   
   canvasState.tempStroke = null;
