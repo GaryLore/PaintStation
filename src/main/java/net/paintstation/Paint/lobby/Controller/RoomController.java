@@ -10,6 +10,7 @@ import net.paintstation.Paint.lobby.dto.response.RoomResponse;
 import net.paintstation.Paint.lobby.dto.response.loadAllRoomsResponse;
 import net.paintstation.Paint.lobby.dto.websocket.RoomUpdate;
 import net.paintstation.Paint.lobby.enums.RoomAction;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -83,6 +84,6 @@ public class RoomController {
     @GetMapping("/load")
     ResponseEntity<?> loadAllRooms(){
         loadAllRoomsResponse allRooms = roomService.getAllRooms();
-        return ResponseEntity.status(HttpStatus.OK).body(allRooms);
+        return ResponseEntity.status(HttpStatus.OK).cacheControl(CacheControl.noStore()).body(allRooms);
     }
 }

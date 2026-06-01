@@ -9,7 +9,10 @@ const USERNAME = await getName();
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const socketURL = `${protocol}//${window.location.host}/ws`;
-const stompClient = new StompJs.Client({brokerURL: socketURL});
+const stompClient = new StompJs.Client({
+    brokerURL: socketURL,
+    debug: console.log
+});
 
 stompClient.onConnect = (frame) => {
     console.log("PLEASE WORK");
