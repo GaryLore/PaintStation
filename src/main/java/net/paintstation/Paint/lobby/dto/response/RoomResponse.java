@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record RoomResponse(
-        UUID roomID,
+        String roomName,
         UUID playerID,
         String owner,
         String[] players,

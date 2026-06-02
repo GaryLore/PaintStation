@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Room {
 
-    private final UUID roomID;
     private final String name;
     private final String password;
     private final String owner;
@@ -26,7 +25,6 @@ public class Room {
         this.owner = owner;
         this.ownerID = UUID.randomUUID();
         this.idToPlayer.put(ownerID, owner);
-        this.roomID = UUID.randomUUID();
     }
 
     public String getName() {
@@ -43,10 +41,6 @@ public class Room {
 
     public UUID getOwnerID(){
         return ownerID;
-    }
-
-    public UUID getRoomID() {
-        return roomID;
     }
 
     public List<Integer> getHistory(){

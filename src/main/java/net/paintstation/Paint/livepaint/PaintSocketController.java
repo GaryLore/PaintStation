@@ -23,10 +23,10 @@ public class PaintSocketController {
         this.paintService = paintService;
     }
 
-    @MessageMapping("/paint/{roomID}")
-    @SendTo("/topic/paint/{roomID}")
-    public PaintResponse broadcastStroke(@DestinationVariable UUID roomID, PaintRequest request){
-        String username = paintService.getUsernameOfRoom(request.userID(), roomID);
+    @MessageMapping("/room/{roomName}")
+    @SendTo("/topic/room/{roomName}")
+    public PaintResponse broadcastStroke(@DestinationVariable String roomName, PaintRequest request){
+        String username = paintService.getUsernameOfRoom(request.userID(), roomName);
         if(username.isEmpty()){
             System.out.println("ILLEGAL USER ID REQUEST");
         }
@@ -38,7 +38,7 @@ public class PaintSocketController {
     @PostMapping("/api/username")
     @ResponseBody
     public String getUserName(@RequestBody UsernameRequest request){
-        return paintService.getUsernameOfRoom(request.userID(), request.roomID());
+        return paintService.getUsernameOfRoom(request.userID(), request.roomName());
     }
 
     private static void debugRequest(PaintRequest request) {

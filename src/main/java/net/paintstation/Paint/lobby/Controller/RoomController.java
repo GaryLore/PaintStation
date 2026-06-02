@@ -48,7 +48,7 @@ public class RoomController {
             case SUCCESS -> {
                 Room room = result.room();
                 UUID playerID = room.getPlayerID(request.username());
-                RoomResponse roomResponse = new RoomResponse(room.getRoomID(), playerID, room.getOwner(), room.getAllPlayerNames(), room.getHistory());
+                RoomResponse roomResponse = new RoomResponse(room.getName(), playerID, room.getOwner(), room.getAllPlayerNames(), room.getHistory());
                 yield ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
             case NAME_TAKEN -> ResponseEntity.status(HttpStatus.CONFLICT).body("Name already taken");
@@ -68,7 +68,7 @@ public class RoomController {
 
         Room createdRoom = room.get();
         RoomResponse response = new RoomResponse(
-                createdRoom.getRoomID(),
+                createdRoom.getName(),
                 createdRoom.getOwnerID(), //player in this case is owner
                 createdRoom.getOwner(),
                 createdRoom.getAllPlayerNames(),

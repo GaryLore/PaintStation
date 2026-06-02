@@ -44,9 +44,9 @@ stompClient.onStompError = (frame) => {
 //activates connection
 stompClient.activate();
 
-function PrintData(roomID, playerID, owner, players) {
+function PrintData(roomName, playerID, owner, players) {
 
-    console.log("ROOM ID : ", roomID);
+    console.log("ROOM NAME : ", roomName);
     console.log("PLAYER ID : ", playerID);
     console.log("OWNER : ", owner);
     console.log("PLAYERS : ", players);
@@ -80,13 +80,13 @@ async function submitCreateForm(event) {
             return;
         }
 
-        const {roomID, playerID, owner, players} = await response.json();
+        const {roomName, playerID, owner, players} = await response.json();
 
         //storing session so second js file can access this
         sessionStorage.setItem('USER_ID', playerID);
-        sessionStorage.setItem('ROOM_ID', roomID);
+        sessionStorage.setItem('ROOM_NAME', roomName);
 
-        PrintData(roomID, playerID, owner, players);
+        PrintData(roomName, playerID, owner, players);
 
         window.location.href = "/room.html";
     }
@@ -109,7 +109,7 @@ async function submitEnterForm(event) {
     event.preventDefault();
     const formData = new FormData(enterFormElement);
 
-    const roomName = roomSelectedName;
+    const room = roomSelectedName;
     const username = formData.get('username').trim();
     const password = formData.get('password').trim();
 
@@ -121,7 +121,7 @@ async function submitEnterForm(event) {
     }
 
     try {
-        const response = await fetch(`/api/room/${encodeURI(roomName)}/join`, {
+        const response = await fetch(`/api/room/${encodeURI(room)}/join`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -134,11 +134,11 @@ async function submitEnterForm(event) {
             return;
         }
 
-        const {roomID, playerID, owner, players} = await response.json();
+        const {roomName, playerID, owner, players} = await response.json();
 
         sessionStorage.setItem('USER_ID', playerID);
-        sessionStorage.setItem('ROOM_ID', roomID);
-        PrintData(roomID, playerID, owner, players);
+        sessionStorage.setItem('ROOM_NAME', roomName);
+        PrintData(roomName, playerID, owner, players);
 
         // enter room
         window.location.href = "/room.html";

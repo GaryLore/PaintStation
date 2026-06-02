@@ -13,22 +13,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class RoomRepository {
 
-    ConcurrentHashMap<UUID, Room> rooms = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, UUID> roomNameToUUID = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
     public synchronized boolean InsertRoom(Room room) {
-        Room previousRoom = rooms.putIfAbsent(room.getRoomID(), room);
-        UUID previousUUID = roomNameToUUID.putIfAbsent(room.getName(), room.getRoomID());
-        return previousRoom == null && previousUUID == null;
+        Room previousRoom = rooms.putIfAbsent(room.getName(), room);
+        return previousRoom == null;
     }
 
     public Optional<Room> findRoomByName(String roomName){
-        Optional<UUID> id = Optional.ofNullable(roomNameToUUID.get(roomName));
-        return id.map(uuid -> rooms.get(uuid));
-    }
-
-    public Optional<Room> findRoomByUUID(UUID id){
-        return Optional.ofNullable(rooms.get(id));
+        return Optional.ofNullable(rooms.get(roomName));
     }
 
     public List<RoomInfo> getAllRoomsInfo(){

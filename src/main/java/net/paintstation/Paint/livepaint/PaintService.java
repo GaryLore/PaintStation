@@ -16,11 +16,7 @@ public class PaintService {
         this.repository = repository;
     }
 
-    private Optional<Room> getRoomByID(UUID id){
-        return repository.findRoomByUUID(id);
-    }
-
-    String getUsernameOfRoom(UUID userID, UUID roomID){
-        return getRoomByID(roomID).map(room -> room.getPlayerName(userID)).orElse("");
+    String getUsernameOfRoom(UUID userID, String roomName){
+        return repository.findRoomByName(roomName).map(room -> room.getPlayerName(userID)).orElse("");
     }
 }

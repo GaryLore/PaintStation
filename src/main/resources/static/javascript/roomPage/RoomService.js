@@ -4,7 +4,7 @@ import Dot from "./Dot.js";
 import {canvasState, ctx} from "./canvasState.js"
 
 const userID = sessionStorage.getItem("USER_ID");
-const roomID = sessionStorage.getItem("ROOM_ID");
+const roomName = sessionStorage.getItem("ROOM_NAME");
 const USERNAME = await getName();
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -17,8 +17,12 @@ const stompClient = new StompJs.Client({
 stompClient.onConnect = (frame) => {
     console.log("PLEASE WORK");
     console.log('Connected: ' + frame);
-    stompClient.subscribe(`/topic/paint/${roomID}`, loadPaintObjects);
-    console.log(`SUBSCRIBED TO : /topic/paint/${roomID}`);
+    stompClient.subscribe(
+        `/topic/room/${roomName}`,
+        loadPaintObjects,
+        {userID : userID}
+    );
+    console.log(`SUBSCRIBED TO : /topic/room/${roomName}`);
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -134,7 +138,7 @@ function sendPaintObjects(paintType, paintObject){
     //console.log("PAINT REQUEST KB : ", bytes/1024);
 
     stompClient.publish({
-        destination: `/app/paint/${roomID}`,
+        destination: `/app/room/${roomName}`,
         body: JSON.stringify(paintRequest)
     });
 }
@@ -145,7 +149,7 @@ async function getName() {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({roomID, userID})
+        body: JSON.stringify({roomName: roomName, userID})
     });
 
     return response.text();
