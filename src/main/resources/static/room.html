@@ -10,36 +10,58 @@
 
 </head>
 <body>
-    <div class="container">
+    <div class="header">
         <div class="left"></div>
         <h1 class="title">Paint Station 🎨</h1>
         <div class="trash">
             <img src="/img/trash.png" alt="trash" >
         </div>
     </div>
-    <canvas id="canvas" class="optionBrush">Paint Canvas</canvas>
 
-    <div class="options">
+    <div class="layout">
+        <div class="paintContainer">
+            <canvas id="canvas" class="optionBrush">Paint Canvas</canvas>
+            <div class="options">
+                <div class="choices">
 
-        <div class="choices">
-           
-        </div>
-        <div id="all_colors" class="colors">
+                </div>
+                <div id="all_colors" class="colors">
 
+                </div>
+                <div class="thickness">
+                    <label for="all_thickness">Paint Thickness</label>
+                    <input type="range" name="thickness" id="all_thickness" min="4" max="50" value="10">
+                </div>
+                <div class="zoom">
+                     <img src="/img/magnify.png" alt="Zoom" >
+                </div>
+                <div class="brush selected">
+                     <img src="/img/paint.png" alt="PaintBrush" >
+                </div>
+                <div class="bucket">
+                     <img src="/img/bucket.png" alt="Bucket" >
+                </div>
+            </div>
         </div>
-        <div class="thickness">
-            <label for="all_thickness">Paint Thickness</label>
-            <input type="range" name="thickness" id="all_thickness" min="4" max="50" value="10">
-        </div>
-        <div class="zoom">
-             <img src="/img/magnify.png" alt="Zoom" >
-        </div>
-        <div class="brush selected">
-             <img src="/img/paint.png" alt="PaintBrush" >
-        </div>
-        <div class="bucket">
-             <img src="/img/bucket.png" alt="Bucket" >
+        <div class="chat">
+
+            <div class="chatHeader">
+                <h2>Players Chat</h2>
+                <p class="subtitle">🟢 Online</p>
+            </div>
+            <div class="players">
+
+            </div>
+            <div class="messages">
+
+            </div>
+            <div class="createMessage">
+                <label for="messageInput"></label>
+                <input type="text" id="messageInput">
+                <button>Send</button>
+            </div>
         </div>
     </div>
+
 </body>
 </html>

@@ -3,7 +3,7 @@ package net.paintstation.Paint.livepaint;
 import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.livepaint.dto.PaintRequest;
 import net.paintstation.Paint.livepaint.dto.PaintResponse;
-import net.paintstation.Paint.livepaint.dto.UsernameRequest;
+import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -11,8 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.UUID;
 
 @Controller
 public class PaintSocketController {
@@ -27,18 +25,9 @@ public class PaintSocketController {
     @SendTo("/topic/room/{roomName}")
     public PaintResponse broadcastStroke(@DestinationVariable String roomName, PaintRequest request){
         String username = paintService.getUsernameOfRoom(request.userID(), roomName);
-        if(username.isEmpty()){
-            System.out.println("ILLEGAL USER ID REQUEST");
-        }
         PaintObject paintObject = request.object();
         PaintResponse response = new PaintResponse(paintObject.getType(), username, paintObject);
         return response;
-    }
-
-    @PostMapping("/api/username")
-    @ResponseBody
-    public String getUserName(@RequestBody UsernameRequest request){
-        return paintService.getUsernameOfRoom(request.userID(), request.roomName());
     }
 
     private static void debugRequest(PaintRequest request) {

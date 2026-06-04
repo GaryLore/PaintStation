@@ -1,5 +1,6 @@
 package net.paintstation.Paint.Config;
 
+import net.paintstation.Paint.Registry.PlayerRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -16,9 +17,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     private TaskScheduler messageBrokerTaskScheduler;
     private final RoomSafetyService service;
+    private final PlayerRegistry registry;
 
-    WebSocketConfiguration(RoomSafetyService service){
+    WebSocketConfiguration(RoomSafetyService service, PlayerRegistry registry){
         this.service = service;
+        this.registry = registry;
     }
 
     @Autowired
@@ -41,7 +44,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new MyChannelInterceptor(service));
+        registration.interceptors(new MyChannelInterceptor(service, registry));
     }
 
 }

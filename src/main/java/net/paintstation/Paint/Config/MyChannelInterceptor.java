@@ -1,5 +1,7 @@
 package net.paintstation.Paint.Config;
 
+import net.paintstation.Paint.Registry.PlayerRegistry;
+import net.paintstation.Paint.Registry.User;
 import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -13,9 +15,11 @@ import java.util.UUID;
 public class MyChannelInterceptor implements ChannelInterceptor {
 
     private final RoomSafetyService service;
+    private final PlayerRegistry registry;
 
-    MyChannelInterceptor(RoomSafetyService service){
+    MyChannelInterceptor(RoomSafetyService service, PlayerRegistry registry){
         this.service = service;
+        this.registry = registry;
     }
 
     @Override
@@ -25,14 +29,21 @@ public class MyChannelInterceptor implements ChannelInterceptor {
 
         switch(command){
             case SEND -> {
+                String destination = accessor.getDestination();
+                if (destination != null && destination.startsWith("/topic/room/")) {
+                    String roomName = extractRoomName(destination);
+                    User user = registry.get(accessor.getSessionId());
+                    UUID userID = user.getUserID();
 
-                //access room
-                //access user
-
-                //check if user has access to the room
+                    if(!service.roomExist(roomName)){
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+                    if(!service.userIDExistsInRoom(userID, roomName)){
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+                }
             }
             case SUBSCRIBE -> {
-                System.out.println("SOMEONE SUBSCRIBED");
                 String destination = accessor.getDestination();
 
                 if (destination != null && destination.startsWith("/topic/room/")) {
@@ -44,28 +55,29 @@ public class MyChannelInterceptor implements ChannelInterceptor {
 
                         //check if room exists
                         if(!service.roomExist(roomName)){
-                            //return some error
+                            throw new RuntimeException("ACCESS DENIED");
                         }
                         //check if userID exists in room
                         if(!service.userIDExistsInRoom(userID, roomName)){
-                            //return some error
+                            throw new RuntimeException("ACCESS DENIED");
                         }
 
-                        //set principal associated with session
+                        //set registry associated with session id
+                        String username = service.getUsername(userID, roomName);
+                        User user = new User(username, userID, roomName);
+                        registry.add(accessor.getSessionId(), user);
                     }
                     catch(Exception ignored){
-                        // return some error;
+                        throw new RuntimeException("ACCESS DENIED");
                     }
                 }
             }
             case DISCONNECT -> {
-
-                System.out.println("SOMEONE DISCONNECTED");
-
+                User user = registry.get(accessor.getSessionId());
+                service.cleanUp(user);
+                registry.remove(accessor.getSessionId());
             }
-            case null -> {
-                System.out.println("STOMP COMMAND was NULL");
-            }
+            case null -> {}
             default -> {}
         }
         return message;

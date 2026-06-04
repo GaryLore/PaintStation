@@ -97,7 +97,6 @@ async function submitCreateForm(event) {
 }
 
 function showEnterForm(event){
-
     if (event.target.matches('.roomCard')){
         roomSelectedName = event.target.getAttribute("name");
         modalElement.classList.add("show")
@@ -105,7 +104,6 @@ function showEnterForm(event){
 }
 
 async function submitEnterForm(event) {
-
     event.preventDefault();
     const formData = new FormData(enterFormElement);
 
@@ -150,7 +148,6 @@ async function submitEnterForm(event) {
 
 
 async function loadRooms(){
-
     const response = await fetch("/api/room/load");
     const data = await response.json();
 
@@ -164,7 +161,6 @@ async function loadRooms(){
 }
 
 function updateRooms(roomData){
-
     const action = roomData.action;
     const roomName = roomData.name;
 
@@ -177,7 +173,6 @@ function updateRooms(roomData){
 }
 
 function addRoom(roomName){
-
     const newRoomDiv = document.createElement("div")
     newRoomDiv.classList.add("roomCard");
     console.log(roomName);
@@ -187,16 +182,13 @@ function addRoom(roomName){
 }
 
 function deleteRoom(roomName) {
-
     const tempRoom = document.querySelector('[${roomName}]');
-
     //tempRoom.remove();
     //for internet explorer support
     tempRoom.parentNode.removeChild(tempRoom);
 }
 
 function clearRooms(){
-
     //internet explorer support
     while (roomsListElement.firstChild) {
         roomsListElement.removeChild(roomsListElement.firstChild);

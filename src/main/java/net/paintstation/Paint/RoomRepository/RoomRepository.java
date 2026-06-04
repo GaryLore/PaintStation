@@ -30,6 +30,14 @@ public class RoomRepository {
                 .map(Room::getRoomInfo)
                 .toList();
     }
+
+    public boolean containsRoom(String name){
+        return rooms.containsKey(name);
+    }
+
+    public boolean userIdExistsinRoom(UUID userID, String roomName){
+        return findRoomByName(roomName).map(room -> room.isUserIdInRoom(userID)).orElse(false);
+    }
 }
 
 

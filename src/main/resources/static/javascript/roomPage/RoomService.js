@@ -5,7 +5,7 @@ import {canvasState, ctx} from "./canvasState.js"
 
 const userID = sessionStorage.getItem("USER_ID");
 const roomName = sessionStorage.getItem("ROOM_NAME");
-const USERNAME = await getName();
+let USERNAME, PLAYERS;
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const socketURL = `${protocol}//${window.location.host}/ws`;
@@ -36,8 +36,10 @@ stompClient.onStompError = (frame) => {
 
 stompClient.onWebSocketClose = (event) => {
     console.error("WebSocket closed", event);
+    window.location.href = "/";
 };
 
+await init();
 //activates connection
 stompClient.activate();
 
@@ -143,16 +145,23 @@ function sendPaintObjects(paintType, paintObject){
     });
 }
 
-async function getName() {
-    const response = await fetch(`/api/username`, {
-        method: "POST",
-        headers: {
+async function init(){
+    const response = await fetch("/api/paint/init", {
+        method : "POST",
+        headers : {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({roomName: roomName, userID})
-    });
+        body: JSON.stringify({roomName, userID})
+    })
 
-    return response.text();
+    if(!response.ok){
+        return;
+    }
+
+    const {username, players} = await response.json();
+    USERNAME = username;
+    PLAYERS = players;
+    console.log(players);
 }
 
 export {sendPaintObjects}

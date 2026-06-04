@@ -60,6 +60,10 @@ public class Room {
         return false;
     }
 
+    public boolean isUserIdInRoom(UUID userID){
+        return idToPlayer.containsKey(userID);
+    }
+
     private boolean isFull(){
         return numOfPlayers == 4;
     }
@@ -71,6 +75,15 @@ public class Room {
         idToPlayer.put(playerId, playerName);
         numOfPlayers++;
         return AccessRoomStatus.SUCCESS;
+    }
+
+    public synchronized boolean removePlayer(UUID playerId){
+        String value = idToPlayer.remove(playerId);
+        if(value == null){
+            return false;
+        }
+        numOfPlayers--;
+        return true;
     }
 
     public UUID getPlayerID(String name){
