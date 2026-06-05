@@ -89,7 +89,6 @@ body{
 }
 
 .rightColumn{
-
     height: 100%;
     display: grid;
     grid-template-rows: 2fr 1fr;
@@ -99,7 +98,6 @@ body{
 }
 
 .createRoomPanel{
-
     border-radius: 28px;
     box-shadow: 0 0 30px rgba(0,0,0,.08);
     padding: 24px;
@@ -107,7 +105,6 @@ body{
     display: flex;
     flex-direction: column;
     gap: 24px;
-
 }
 
 .roomForm{
@@ -118,7 +115,7 @@ body{
 
 .form-group {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 6px;
 }
 

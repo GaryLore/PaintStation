@@ -25,9 +25,7 @@ const stompClient = new StompJs.Client({brokerURL: socketURL});
 stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/update', (updateRoomData) => {
-        console.log("SOCKET DATA : ")
         const updateData = JSON.parse(updateRoomData.body);
-        console.log(updateData);
         updateRooms(updateData);
     });
 };
@@ -45,7 +43,6 @@ stompClient.onStompError = (frame) => {
 stompClient.activate();
 
 function PrintData(roomName, playerID, owner, players) {
-
     console.log("ROOM NAME : ", roomName);
     console.log("PLAYER ID : ", playerID);
     console.log("OWNER : ", owner);
@@ -86,7 +83,7 @@ async function submitCreateForm(event) {
         sessionStorage.setItem('USER_ID', playerID);
         sessionStorage.setItem('ROOM_NAME', roomName);
 
-        PrintData(roomName, playerID, owner, players);
+        //PrintData(roomName, playerID, owner, players);
 
         window.location.href = "/room.html";
     }
@@ -136,7 +133,7 @@ async function submitEnterForm(event) {
 
         sessionStorage.setItem('USER_ID', playerID);
         sessionStorage.setItem('ROOM_NAME', roomName);
-        PrintData(roomName, playerID, owner, players);
+        //PrintData(roomName, playerID, owner, players);
 
         // enter room
         window.location.href = "/room.html";

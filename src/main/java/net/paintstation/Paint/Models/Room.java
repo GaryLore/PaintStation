@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Room {
-
     private final String name;
     private final String password;
     private final String owner;
@@ -82,6 +81,7 @@ public class Room {
         if(value == null){
             return false;
         }
+
         numOfPlayers--;
         return true;
     }

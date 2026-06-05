@@ -5,13 +5,15 @@ import {canvasState, ctx} from "./canvasState.js"
 
 const userID = sessionStorage.getItem("USER_ID");
 const roomName = sessionStorage.getItem("ROOM_NAME");
+const playersListElement = document.querySelector(".players");
+const userCountElement = document.getElementById("userCount");
 let USERNAME, PLAYERS;
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const socketURL = `${protocol}//${window.location.host}/ws`;
 const stompClient = new StompJs.Client({
     brokerURL: socketURL,
-    debug: console.log
+    /*debug: console.log*/
 });
 
 stompClient.onConnect = (frame) => {
@@ -19,7 +21,7 @@ stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
     stompClient.subscribe(
         `/topic/room/${roomName}`,
-        loadPaintObjects,
+        websocketHandling,
         {userID : userID}
     );
     console.log(`SUBSCRIBED TO : /topic/room/${roomName}`);
@@ -43,35 +45,53 @@ await init();
 //activates connection
 stompClient.activate();
 
-function loadPaintObjects(responseData) {
+function websocketHandling(responseData){
+    console.log("WEBSOCKET HANDLING RAN");
     const data = JSON.parse(responseData.body)
-    //console.log(data);
-    const username = data.user;
+    const type = data.type;
 
-    //console.log("username : ", username);
-    //console.log("USERNAME : ", USERNAME);
+    switch (type) {
+        case "PLAYER_UPDATE":
+            const action = data.action;
 
-    if(username !== USERNAME) {
-        let paintObject;
-        const type = data.type;
-
-        if (type === "STROKE") {
-            paintObject = Stroke.fromJson(data.object);
-
-            if(paintObject.phase === "END" && paintObject.fill){
-                console.log("PAINT OBJECT WITH END : ", paintObject);
-                canvasState.paintHistory.push(paintObject);
-                paintObject = optimizePaintHistory(paintObject);//could return null
+            //checking USERNAME isnt yours fixes duplicate data when user subscribes and init() and websocketHandling() both run
+            if(action === "ADD" && USERNAME !== data.user){
+               PLAYERS.push(data.user);
+               addPlayer(data.user);
             }
-        }
-        else if (type === "DOT") {
-            paintObject = Dot.fromJson(data.object);
-        }
+            else if(action === "REMOVE"){
+                const indexToRemove = PLAYERS.indexOf(data.user);
+                PLAYERS.splice(indexToRemove,1);
+                removePlayer(data.user);
+            }
+            userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
+            break;
+        case "MESSAGE":
+            break;
+        default:
+            const username = data.user;
+            if(username !== USERNAME) {
+                let paintObject;
+                const type = data.type;
 
-        if(paintObject != null) {
-            canvasState.paintHistory.push(paintObject);
-            drawObject(paintObject);
-        }
+                if (type === "STROKE") {
+                    paintObject = Stroke.fromJson(data.object);
+
+                    if(paintObject.phase === "END" && paintObject.fill){
+                        //console.log("PAINT OBJECT WITH END : ", paintObject);
+                        canvasState.paintHistory.push(paintObject);
+                        paintObject = optimizePaintHistory(paintObject);//could return null
+                    }
+                }
+                else if (type === "DOT") {
+                    paintObject = Dot.fromJson(data.object);
+                }
+                if(paintObject != null) {
+                    canvasState.paintHistory.push(paintObject);
+                    drawObject(paintObject);
+                    canvasState.reloadJustBorder();
+                }
+            }
     }
 }
 
@@ -161,7 +181,27 @@ async function init(){
     const {username, players} = await response.json();
     USERNAME = username;
     PLAYERS = players;
-    console.log(players);
+
+    for(const player of PLAYERS){
+        addPlayer(player);
+    }
+
+    userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
 }
 
+function addPlayer(player){
+    const playerDiv = document.createElement("div")
+    playerDiv.classList.add("playerCard");
+    if(player === USERNAME){
+        playerDiv.classList.add("you");
+    }
+    playerDiv.textContent = player;
+    playerDiv.setAttribute('name', player);
+    playersListElement.appendChild(playerDiv);
+}
+
+function removePlayer(player){
+    const playerDiv = document.querySelector(`div[name="${player}"]`);
+    playerDiv?.remove();
+}
 export {sendPaintObjects}

@@ -31,13 +31,11 @@ public class RoomSafetyService {
 
     public void cleanUp(User user){
         if(user == null) return;
-        System.out.println("SOMEONE DISCONNECTED 2");
         String roomName = user.getRoomName();
         UUID playerID = user.getUserID();
         Optional<Room> room = repository.findRoomByName(roomName);
         room.ifPresent(value -> {
             value.removePlayer(playerID);
-            System.out.println("PLAYER HAS BEEN REMOVED");
         });
     }
 

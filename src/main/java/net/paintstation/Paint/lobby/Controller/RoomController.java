@@ -34,14 +34,9 @@ public class RoomController {
 
     @PostMapping("/{roomName}/join")
     ResponseEntity<?> enterRoom(@PathVariable String roomName, @Valid @RequestBody JoinRoomRequest request){
-
         AccessRoomResult result = roomService.accessRoom(roomName, request);
 
-        //.out.println("ROOMNAME : " + roomName);
-        //System.out.println("REQUEST : " + request);
-
         System.out.println("IMPORTANT");
-        System.out.println(result);
         System.out.println(result.status());
 
         return switch (result.status()) {
@@ -77,7 +72,6 @@ public class RoomController {
 
         RoomUpdate update = new RoomUpdate(RoomAction.INSERT, createdRoom.getName() );
         template.convertAndSend("/topic/update", update);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

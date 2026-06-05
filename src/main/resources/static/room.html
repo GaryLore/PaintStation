@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paint Room</title>
     <link rel="stylesheet" href="/css/room.css">
-    <script src="/javascript/homePage/http_cdn.jsdelivr.net_npm_@stomp_stompjs@7.0.0_bundles_stomp.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script type="module" src="/javascript/roomPage/main.js" defer></script>
 
 </head>
@@ -47,7 +47,7 @@
 
             <div class="chatHeader">
                 <h2>Players Chat</h2>
-                <p class="subtitle">🟢 Online</p>
+                <p class="subtitle" id="userCount">🟢 Online</p>
             </div>
             <div class="players">
 
@@ -57,7 +57,7 @@
             </div>
             <div class="createMessage">
                 <label for="messageInput"></label>
-                <input type="text" id="messageInput">
+                <input type="text" id="messageInput" placeholder="Type your message...">
                 <button>Send</button>
             </div>
         </div>

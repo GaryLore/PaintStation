@@ -72,11 +72,6 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     }
                 }
             }
-            case DISCONNECT -> {
-                User user = registry.get(accessor.getSessionId());
-                service.cleanUp(user);
-                registry.remove(accessor.getSessionId());
-            }
             case null -> {}
             default -> {}
         }
