@@ -5,8 +5,5 @@ import java.util.UUID;
 
 public record RoomResponse(
         String roomName,
-        UUID playerID,
-        String owner,
-        String[] players,
-        List<Integer> history
+        String username
 ) { }

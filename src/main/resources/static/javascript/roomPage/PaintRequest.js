@@ -1,10 +1,8 @@
 export default class PaintRequest{
-    userID;
     type;
     object;
 
-    constructor(userID, type, object) {
-        this.userID = userID;
+    constructor(type, object) {
         this.type = type;
         this.object = object;
     }

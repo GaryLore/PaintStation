@@ -3,11 +3,11 @@ import Stroke from "./Stroke.js";
 import Dot from "./Dot.js";
 import {canvasState, ctx} from "./canvasState.js"
 
-const userID = sessionStorage.getItem("USER_ID");
 const roomName = sessionStorage.getItem("ROOM_NAME");
+const username = sessionStorage.getItem("USERNAME");
 const playersListElement = document.querySelector(".players");
 const userCountElement = document.getElementById("userCount");
-let USERNAME, PLAYERS;
+let PLAYERS;
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const socketURL = `${protocol}//${window.location.host}/ws`;
@@ -21,10 +21,8 @@ stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
     stompClient.subscribe(
         `/topic/room/${roomName}`,
-        websocketHandling,
-        {userID : userID}
+        websocketHandling
     );
-    console.log(`SUBSCRIBED TO : /topic/room/${roomName}`);
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -38,7 +36,7 @@ stompClient.onStompError = (frame) => {
 
 stompClient.onWebSocketClose = (event) => {
     console.error("WebSocket closed", event);
-    window.location.href = "/";
+    //window.location.href = "/";
 };
 
 await init();
@@ -46,7 +44,6 @@ await init();
 stompClient.activate();
 
 function websocketHandling(responseData){
-    console.log("WEBSOCKET HANDLING RAN");
     const data = JSON.parse(responseData.body)
     const type = data.type;
 
@@ -55,7 +52,7 @@ function websocketHandling(responseData){
             const action = data.action;
 
             //checking USERNAME isnt yours fixes duplicate data when user subscribes and init() and websocketHandling() both run
-            if(action === "ADD" && USERNAME !== data.user){
+            if(action === "ADD"){
                PLAYERS.push(data.user);
                addPlayer(data.user);
             }
@@ -69,7 +66,7 @@ function websocketHandling(responseData){
         case "MESSAGE":
             break;
         default:
-            const username = data.user;
+            const USERNAME = data.user;
             if(username !== USERNAME) {
                 let paintObject;
                 const type = data.type;
@@ -152,7 +149,7 @@ function optimizePaintHistory(paintObject){
 }
 
 function sendPaintObjects(paintType, paintObject){
-    const paintRequest = new PaintRequest(userID, paintType, paintObject);
+    const paintRequest = new PaintRequest(paintType, paintObject);
     const payload = JSON.stringify(paintRequest);
     const bytes = new TextEncoder().encode(payload).length;
 
@@ -171,15 +168,15 @@ async function init(){
         headers : {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({roomName, userID})
+        body: JSON.stringify({roomName, username})
     })
 
     if(!response.ok){
+        console.error(response);
         return;
     }
 
-    const {username, players} = await response.json();
-    USERNAME = username;
+    const {players} = await response.json();
     PLAYERS = players;
 
     for(const player of PLAYERS){
@@ -192,7 +189,7 @@ async function init(){
 function addPlayer(player){
     const playerDiv = document.createElement("div")
     playerDiv.classList.add("playerCard");
-    if(player === USERNAME){
+    if(player === username){
         playerDiv.classList.add("you");
     }
     playerDiv.textContent = player;

@@ -1,6 +1,10 @@
-package net.paintstation.Paint.Config;
+package net.paintstation.Paint.websocket.config;
 
 import net.paintstation.Paint.Registry.PlayerRegistry;
+import net.paintstation.Paint.jwt.JwtUtil;
+import net.paintstation.Paint.websocket.JwtHandshakeInterceptor;
+import net.paintstation.Paint.websocket.MyChannelInterceptor;
+import net.paintstation.Paint.websocket.RoomSafetyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -16,12 +20,12 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
     private TaskScheduler messageBrokerTaskScheduler;
-    private final RoomSafetyService service;
-    private final PlayerRegistry registry;
+    private final MyChannelInterceptor channelInterceptor;
+    private final JwtHandshakeInterceptor handshakeInterceptor;
 
-    WebSocketConfiguration(RoomSafetyService service, PlayerRegistry registry){
-        this.service = service;
-        this.registry = registry;
+    WebSocketConfiguration(MyChannelInterceptor channelInterceptor, JwtHandshakeInterceptor handshakeInterceptor){
+        this.channelInterceptor = channelInterceptor;
+        this.handshakeInterceptor = handshakeInterceptor;
     }
 
     @Autowired
@@ -39,12 +43,13 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws");
+        registry.addEndpoint("/ws")
+                .addInterceptors(handshakeInterceptor);
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new MyChannelInterceptor(service, registry));
+        registration.interceptors(channelInterceptor);
     }
 
 }

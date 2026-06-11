@@ -1,6 +1,6 @@
 package net.paintstation.Paint.livepaint;
 
-import net.paintstation.Paint.Models.Room;
+import net.paintstation.Paint.RoomRepository.Room;
 import net.paintstation.Paint.RoomRepository.RoomRepository;
 import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
 import net.paintstation.Paint.livepaint.dto.PaintSetupResponse;
@@ -18,20 +18,14 @@ public class PaintService {
         this.repository = repository;
     }
 
-    String getUsernameOfRoom(UUID userID, String roomName){
-        return repository.findRoomByName(roomName).map(room -> room.getPlayerName(userID)).orElse("");
-    }
-
     PaintSetupResponse setup(PaintSetupRequest request){
         Optional<Room> room = repository.findRoomByName(request.roomName());
 
         if(room.isPresent()){
             Room accessedRoom = room.get();
-            String username = accessedRoom.getPlayerName(request.userID());
-            String roomName = accessedRoom.getName();
             String[] players = accessedRoom.getAllPlayerNames();
 
-            return new PaintSetupResponse(username, roomName, players);
+            return new PaintSetupResponse(request.username(), request.roomName(), players);
         }
         return null;
     }

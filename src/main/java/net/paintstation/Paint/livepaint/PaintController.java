@@ -1,5 +1,6 @@
 package net.paintstation.Paint.livepaint;
 
+import jakarta.validation.Valid;
 import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
 import net.paintstation.Paint.livepaint.dto.PaintSetupResponse;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class PaintController {
     }
 
     @PostMapping("/init")
-    ResponseEntity<?> setup(@RequestBody PaintSetupRequest request){
+    ResponseEntity<?> setup(@Valid @RequestBody PaintSetupRequest request){
         PaintSetupResponse response = service.setup(request);
         if(response != null){
             return ResponseEntity.ok().body(response);

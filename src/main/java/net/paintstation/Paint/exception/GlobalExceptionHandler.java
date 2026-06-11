@@ -1,4 +1,4 @@
-package net.paintstation.Paint.lobby.Controller;
+package net.paintstation.Paint.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;

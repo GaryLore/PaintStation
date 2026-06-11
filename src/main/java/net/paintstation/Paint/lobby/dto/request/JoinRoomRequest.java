@@ -9,7 +9,6 @@ public record JoinRoomRequest(
         String password
 ) {
     public JoinRoomRequest {
-        System.out.println(username + " [" + password + "]");
         username = username != null ? username.trim() : null;
         password = password != null ? password.trim() : null;
     }

@@ -77,11 +77,11 @@ async function submitCreateForm(event) {
             return;
         }
 
-        const {roomName, playerID, owner, players} = await response.json();
+        const {roomName, username} = await response.json();
 
         //storing session so second js file can access this
-        sessionStorage.setItem('USER_ID', playerID);
         sessionStorage.setItem('ROOM_NAME', roomName);
+        sessionStorage.setItem("USERNAME", username);
 
         //PrintData(roomName, playerID, owner, players);
 
@@ -105,7 +105,7 @@ async function submitEnterForm(event) {
     const formData = new FormData(enterFormElement);
 
     const room = roomSelectedName;
-    const username = formData.get('username').trim();
+    const user = formData.get('username').trim();
     const password = formData.get('password').trim();
 
     resetEnterRoomErrors();
@@ -121,7 +121,7 @@ async function submitEnterForm(event) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({username, password})
+            body: JSON.stringify({username : user, password})
         });
 
         if(!response.ok){
@@ -129,10 +129,10 @@ async function submitEnterForm(event) {
             return;
         }
 
-        const {roomName, playerID, owner, players} = await response.json();
+        const {roomName, username} = await response.json();
 
-        sessionStorage.setItem('USER_ID', playerID);
         sessionStorage.setItem('ROOM_NAME', roomName);
+        sessionStorage.setItem("USERNAME", username);
         //PrintData(roomName, playerID, owner, players);
 
         // enter room
@@ -179,7 +179,8 @@ function addRoom(roomName){
 }
 
 function deleteRoom(roomName) {
-    const tempRoom = document.querySelector('[${roomName}]');
+    console.log("ROOM SHOULD BE DELTED : ", roomName)
+    const tempRoom = document.querySelector(`[name="${roomName}"]`);
     //tempRoom.remove();
     //for internet explorer support
     tempRoom.parentNode.removeChild(tempRoom);

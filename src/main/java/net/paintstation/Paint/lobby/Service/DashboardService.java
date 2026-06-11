@@ -1,6 +1,6 @@
 package net.paintstation.Paint.lobby.Service;
 
-import net.paintstation.Paint.Models.Room;
+import net.paintstation.Paint.RoomRepository.Room;
 import net.paintstation.Paint.RoomRepository.RoomRepository;
 import net.paintstation.Paint.lobby.dto.internal.AccessRoomResult;
 import net.paintstation.Paint.lobby.dto.request.CreateRoomRequest;
@@ -22,16 +22,15 @@ public class DashboardService {
     }
 
     public Optional<Room> createRoom(CreateRoomRequest request) {
-
         Room room = new Room(
                 request.roomName(),
                 request.password(),
                 request.ownerName()
         );
 
-        System.out.println("[DashboardService.java] Room Name : " + request.roomName());
-        System.out.println("[DashboardService.java] Password : " + request.password());
-        System.out.println("[DashboardService.java] Owner Name : " + request.ownerName());
+        System.out.println("[DashboardService.java] Room Name : \"" + request.roomName() + "\"");
+        System.out.println("[DashboardService.java] Password : \"" + request.password() + "\"");
+        System.out.println("[DashboardService.java] Owner Name : \"" + request.ownerName() + "\"");
 
         boolean success = repository.InsertRoom(room);
         return success ? Optional.of(room) : Optional.empty();
@@ -55,14 +54,15 @@ public class DashboardService {
             return AccessRoomResult.failure(AccessRoomStatus.INCORRECT_PASSWORD);
         }
 
-        AccessRoomStatus status = insertPlayerIntoRoom(username, accessedRoom);
-        return status == AccessRoomStatus.SUCCESS ? AccessRoomResult.success(accessedRoom) : AccessRoomResult.failure(status);
-    }
+        if(accessedRoom.isFull()){
+            return AccessRoomResult.failure(AccessRoomStatus.ROOM_FULL);
+        }
 
-    private AccessRoomStatus insertPlayerIntoRoom(String username, Room room){
+        if(accessedRoom.isNameTaken(username)){
+            return AccessRoomResult.failure(AccessRoomStatus.NAME_TAKEN);
+        }
 
-        UUID userID = UUID.randomUUID();
-        return room.addPlayer(userID, username);
+        return AccessRoomResult.success(accessedRoom);
     }
 
     public loadAllRoomsResponse getAllRooms(){
