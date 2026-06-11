@@ -36,7 +36,7 @@ stompClient.onStompError = (frame) => {
 
 stompClient.onWebSocketClose = (event) => {
     console.error("WebSocket closed", event);
-    //window.location.href = "/";
+    window.location.href = "/";
 };
 
 await init();
