@@ -70,7 +70,6 @@ public class Room {
         }
 
         numOfPlayers--;
-        System.out.println("NUMBER OF PLAYERS: " + numOfPlayers);
         return true;
     }
 
