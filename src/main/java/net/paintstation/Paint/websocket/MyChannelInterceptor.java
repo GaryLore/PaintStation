@@ -65,6 +65,11 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
+                    //not allowing user with same name
+                    if(service.userExistsInRoom(username, roomName)){
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+
                     //set registry associated with session id
                     User user = new User(username, roomName);
                     registry.add(accessor.getSessionId(), user);
