@@ -47,7 +47,8 @@ git clone https://github.com/GaryLore/PaintStation.git PaintStation
 
 
 3. Create a new file called application-extra.properties and put all the properties 
-from that certificate video in this file
+from that certificate video in this file. Make sure to add actual keystore.p12 key in 
+the resources folder.
 
 
 4. Add JWT properties to that file as well
