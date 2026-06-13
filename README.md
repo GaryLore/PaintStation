@@ -78,8 +78,11 @@ ipconfig
 ```
 Under IP config there should be something that looks like this
 
+```
 Wireless LAN adapter Wi-Fi:
+
 IPv4 Address. . . . . . . . . . . : [IP ADDRESS]
+```
 
 Type this in your browser https://[IP ADDRESS]
 
