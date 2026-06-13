@@ -8,6 +8,11 @@ This is a live collaborative paint app which allows users to create a room that 
 and with a chat on the size. The canvas allows the selection of a variety of colors, with a custom width, and allows you to draw a stroke with
 whatever stroke you draw getting filled inside by a color of your choice. There is also pan and zoom allowed.
 
+### HomePage :
+![](/assets/images/Homepage.jpg)
+### Room :
+![](/assets/images/Room.jpg)
+
 ## Tech Stack
 
 - Java
@@ -31,27 +36,63 @@ whatever stroke you draw getting filled inside by a color of your choice. There 
 
 ## Installation
 
-Clone from Github
-Create a Certificate
-Add custom properties from Certificate
-Activate extra properties profile
-Add JWT extra properties
-Activate cert profile in intelij
-Download all dependencies using Maven
-Run Intelij Springboot App
-Open with local host, or if you want to connect on other computers pull up your cmd on windows and run ipconfig
+This tutorial teaches you how to run this application using intelij. Requires JDK 21
 
+1. Clone Repository
+```
+git clone https://github.com/GaryLore/PaintStation.git PaintStation
+```
+
+2. Create Certificate using this link https://www.youtube.com/watch?v=emhAf7srIeg
+
+
+3. Create a new file called application-extra.properties and put all the properties 
+from that certificate video in this file
+
+
+4. Add JWT properties to that file as well
+```
+# JWT configuration
+jwt.secret=please-change-this-secret-key-in-production-environment-32chars
+jwt.expiration=15000
+```
+
+
+5. Using Intelij Activate the application-extra.properties profile by specifying extra
+Activate cert profile in intelij
+
+
+6. Use Maven to download all the dependencies
+
+
+7. Run Spring boot App
+
+
+8. Open with local host, or if you want to connect on other computers type https://[IP Address of computer running application]
+
+Here is how to figure out your IP address
+
+Open your cmd and type 
+```
+ipconfig
+```
 Under IP config there should be something that looks like this
 
 Wireless LAN adapter Wi-Fi:
 IPv4 Address. . . . . . . . . . . : [IP ADDRESS]
 
-If you want to connect on other computers and not just your computer that is running 
-type this in your browser https://[IP ADDRESS]
-With this you can have multiple computers connecting to this Paint App
+Type this in your browser https://[IP ADDRESS]
 
 
 ## Attributions
+
+Here are the attributions that are required for some of the free icons I used in my paint application
+
+- <a href="https://www.flaticon.com/free-icons/paint-bucket" title="paint bucket icons">Paint bucket icons created by mynamepong - Flaticon</a>
+- <a href="https://www.flaticon.com/free-icons/paint-brush" title="paint brush icons">Paint brush icons created by Freepik - Flaticon</a>
+- <a href="https://www.flaticon.com/free-icons/magnify-glass" title="magnify glass icons">Magnify glass icons created by graphicmall - Flaticon</a>
+- <a href="https://www.flaticon.com/free-icons/dustbin" title="dustbin icons">Dustbin icons created by Prosymbols Premium - Flaticon</a>
+
 ## Sources that helped me
 
 ### These first 3 links really helped jump start my project
@@ -66,9 +107,12 @@ With this you can have multiple computers connecting to this Paint App
 - https://stackoverflow.com/questions/77854959/is-signature-in-jwt-base64-encoded
 - https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
 - https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
+- https://www.youtube.com/watch?v=emhAf7srIeg
 
 ### Other Sources
 - I used MDN as documentation for various CSS and Javascript things I needed to know, MDN is one of the best documentations I have read and easy to understand
 - Using Claude and Chatgpt as documentation really helped as well and discussing my ideas with it as well to see if the architecture I had in mine was correct or not.
 
 ## License
+
+This project is licensed under the MIT License see [LICENSE](/LICENSE.txt) for more details.
