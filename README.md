@@ -58,8 +58,8 @@ jwt.expiration=15000
 ```
 
 
-5. Using Intelij Activate the application-extra.properties profile by specifying extra
-Activate cert profile in intelij
+5. Using Intelij Activate the application-extra.properties profile by specifying Active Profiles to extra.
+This is in configuration settings.
 
 
 6. Use Maven to download all the dependencies
