@@ -107,6 +107,7 @@ Here are the attributions that are required for some of the free icons I used in
 ### These links helped more with the Backend
 - https://www.youtube.com/watch?v=31KTdfRH6nY
 - https://docs.spring.io/spring-framework/reference/web/websocket/stomp.html
+- https://docs.spring.io/spring-integration/reference/channel/interceptors.html
 - https://www.youtube.com/watch?v=iB__rLXGsas
 - https://stackoverflow.com/questions/77854959/is-signature-in-jwt-base64-encoded
 - https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac

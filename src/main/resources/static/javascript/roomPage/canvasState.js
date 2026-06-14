@@ -101,7 +101,6 @@ const canvasState = {
   },
 
   render(){
-    const viewportTransform = canvasState.viewportTransform;
     ctx.save();
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);

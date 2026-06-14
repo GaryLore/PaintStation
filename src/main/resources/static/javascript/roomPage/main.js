@@ -242,6 +242,7 @@ function recordStroke() {
       ctx.save()
       canvasState.setTransformCanvas()
       canvasState.tempStroke.draw();
+      canvasState.reloadJustBorder();
       ctx.restore();
       canvasState.paintHistory.push(canvasState.tempStroke);
     }
