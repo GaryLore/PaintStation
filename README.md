@@ -65,7 +65,7 @@ jwt.expiration=15000
 5. Using Intelij Activate the **application-extra.properties** profile by specifying Active Profiles to extra.
 This is in configuration settings.
 ![](/assets/images/ActiveProfiles.jpg)
-Or an alternative you can do to active this extra profile is by going
+Or an alternative you can do to activate this extra profile is by going
 in your **application.properties** file and inserting this line 
 ```
 spring.profiles.active=dev
