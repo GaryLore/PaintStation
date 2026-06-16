@@ -1,4 +1,4 @@
-package net.paintstation.Paint.Models;
+package net.paintstation.Paint.RoomRepository;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,14 +9,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Room {
-
-    private final UUID roomID;
     private final String name;
     private final String password;
     private final String owner;
-    private final UUID ownerID;
-    private int numOfPlayers = 1;
+    private int numOfPlayers = 0;
     private final HashMap<UUID, String> idToPlayer = new HashMap<>();
+    private final Set<String> players = new HashSet<>();
     private final ConcurrentLinkedQueue<Integer> history = new ConcurrentLinkedQueue<>();
 
     @JsonCreator
@@ -24,9 +22,6 @@ public class Room {
         this.name = name;
         this.password = password;
         this.owner = owner;
-        this.ownerID = UUID.randomUUID();
-        this.idToPlayer.put(ownerID, owner);
-        this.roomID = UUID.randomUUID();
     }
 
     public String getName() {
@@ -41,55 +36,41 @@ public class Room {
         return owner;
     }
 
-    public UUID getOwnerID(){
-        return ownerID;
-    }
-
-    public UUID getRoomID() {
-        return roomID;
-    }
-
     public List<Integer> getHistory(){
         return List.copyOf(history);
     }
 
     public String[] getAllPlayerNames(){
-        return idToPlayer.values().toArray(new String[0]);
+        return players.toArray(String[]::new);
     }
 
-    private synchronized boolean isNameTaken(String name){
-        for (String player : idToPlayer.values()) {
-            if(Objects.equals(name, player)){
-                return true;
-            }
-        }
-        return false;
+    public boolean isNameTaken(String name){
+        return players.contains(name);
     }
 
-    private boolean isFull(){
+    public boolean isFull(){
         return numOfPlayers == 4;
     }
 
-    public synchronized AccessRoomStatus addPlayer(UUID playerId, String playerName) {
+    public boolean isEmpty() {return numOfPlayers == 0;}
+
+    public synchronized AccessRoomStatus addPlayer(String playerName) {
 
         if (isFull()) return AccessRoomStatus.ROOM_FULL;
         if (isNameTaken(playerName)) return AccessRoomStatus.NAME_TAKEN;
-        idToPlayer.put(playerId, playerName);
+        players.add(playerName);
         numOfPlayers++;
         return AccessRoomStatus.SUCCESS;
     }
 
-    public UUID getPlayerID(String name){
-        for (Map.Entry<UUID, String> entry : idToPlayer.entrySet()) {
-            if(Objects.equals(name, entry.getValue() )){
-                return entry.getKey();
-            }
+    public synchronized boolean removePlayer(String username){
+        boolean removed = players.remove(username);
+        if(!removed){
+            return false;
         }
-        return null;
-    }
 
-    public String getPlayerName(UUID id){
-        return idToPlayer.get(id);
+        numOfPlayers--;
+        return true;
     }
 
     public RoomInfo getRoomInfo(){

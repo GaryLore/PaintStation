@@ -101,7 +101,6 @@ const canvasState = {
   },
 
   render(){
-    const viewportTransform = canvasState.viewportTransform;
     ctx.save();
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -154,6 +153,7 @@ const canvasState = {
     ctx.fill();
   },
 
+
   reloadJustBorder(){
     ctx.save();
     ctx.setTransform(
@@ -167,8 +167,9 @@ const canvasState = {
     this.drawBorder();
     ctx.restore();
 
+    /*
     ctx.beginPath();
-    ctx.moveTo(canvasState.x1, canvasState.y1);
+    ctx.moveTo(canvasState.x1, canvasState.y1);*/
   },
 
   writeHistory(){

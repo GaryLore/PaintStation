@@ -167,7 +167,6 @@ window.addEventListener("mouseup", function (event) {
 
 canvas.addEventListener("click", drawDot);
 function drawDot(event){
-
   //console.log(`(${canvasState.scaleX(event.offsetX)},${canvasState.scaleY(event.offsetY)})`);
 
   const viewportTransform = canvasState.viewportTransform;
@@ -193,7 +192,6 @@ function drawDot(event){
     canvasState.paintHistory.push(record);
   }
   canvasState.hasDrawn = false;
-
 }
 
 canvas.addEventListener('mouseleave', function (event) {  
@@ -216,9 +214,6 @@ function startBrushStroke(event) {
 
   if(drawingAllowedHere(worldX,worldY)){
     canvasState.canDraw = true;
-
-    ctx.beginPath();
-    ctx.moveTo(canvasState.x1, canvasState.y1);
 
     const StrokeParameters = {
       uuid : self.crypto.randomUUID(),
@@ -247,6 +242,7 @@ function recordStroke() {
       ctx.save()
       canvasState.setTransformCanvas()
       canvasState.tempStroke.draw();
+      canvasState.reloadJustBorder();
       ctx.restore();
       canvasState.paintHistory.push(canvasState.tempStroke);
     }
@@ -274,7 +270,6 @@ function recordStroke() {
       flushBuffer();
     }
   }
-  
   canvasState.tempStroke = null;
 }
 

@@ -1,44 +1,46 @@
 package net.paintstation.Paint.livepaint;
 
+import jakarta.validation.Valid;
+import net.paintstation.Paint.Registry.PlayerRegistry;
 import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.livepaint.dto.PaintRequest;
 import net.paintstation.Paint.livepaint.dto.PaintResponse;
-import net.paintstation.Paint.livepaint.dto.UsernameRequest;
+import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.UUID;
-
+/**
+ * Handles the websocket requests and responses for live paint
+ */
 @Controller
 public class PaintSocketController {
 
-    private final PaintService paintService;
+    private final PlayerRegistry registry;
 
-    public PaintSocketController(PaintService paintService) {
-        this.paintService = paintService;
+    public PaintSocketController(PlayerRegistry registry) {
+        this.registry = registry;
     }
 
-    @MessageMapping("/paint/{roomID}")
-    @SendTo("/topic/paint/{roomID}")
-    public PaintResponse broadcastStroke(@DestinationVariable UUID roomID, PaintRequest request){
-        String username = paintService.getUsernameOfRoom(request.userID(), roomID);
-        if(username.isEmpty()){
-            System.out.println("ILLEGAL USER ID REQUEST");
-        }
+    /**
+     *
+     * @param roomName The name of the room you are entering
+     * @param request The paint object you are sending to other users to load on the canvas
+     * @param accessor Used to extract session id from a specific web socket connection
+     * @return returns the PaintResponse containing the paint object to be drawn on the other users canvases
+     */
+    @MessageMapping("/room/{roomName}")
+    @SendTo("/topic/room/{roomName}")
+    public PaintResponse broadcastStroke(@DestinationVariable String roomName, @Valid PaintRequest request, SimpMessageHeaderAccessor accessor){
         PaintObject paintObject = request.object();
+        String username = registry.get(accessor.getSessionId()).getName();
         PaintResponse response = new PaintResponse(paintObject.getType(), username, paintObject);
         return response;
-    }
-
-    @PostMapping("/api/username")
-    @ResponseBody
-    public String getUserName(@RequestBody UsernameRequest request){
-        return paintService.getUsernameOfRoom(request.userID(), request.roomID());
     }
 
     private static void debugRequest(PaintRequest request) {

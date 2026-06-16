@@ -33,5 +33,5 @@ build/
 .vscode/
 
 #cert server stuff
-application-cert.properties
+application-extra.properties
 keystore.p12

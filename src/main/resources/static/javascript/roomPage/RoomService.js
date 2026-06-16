@@ -3,19 +3,26 @@ import Stroke from "./Stroke.js";
 import Dot from "./Dot.js";
 import {canvasState, ctx} from "./canvasState.js"
 
-const userID = sessionStorage.getItem("USER_ID");
-const roomID = sessionStorage.getItem("ROOM_ID");
-const USERNAME = await getName();
+const roomName = sessionStorage.getItem("ROOM_NAME");
+const username = sessionStorage.getItem("USERNAME");
+const playersListElement = document.querySelector(".players");
+const userCountElement = document.getElementById("userCount");
+let PLAYERS;
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const socketURL = `${protocol}//${window.location.host}/ws`;
-const stompClient = new StompJs.Client({brokerURL: socketURL});
+const stompClient = new StompJs.Client({
+    brokerURL: socketURL,
+    /*debug: console.log*/
+});
 
 stompClient.onConnect = (frame) => {
     console.log("PLEASE WORK");
     console.log('Connected: ' + frame);
-    stompClient.subscribe(`/topic/paint/${roomID}`, loadPaintObjects);
-    console.log(`SUBSCRIBED TO : /topic/paint/${roomID}`);
+    stompClient.subscribe(
+        `/topic/room/${roomName}`,
+        websocketHandling
+    );
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -29,40 +36,59 @@ stompClient.onStompError = (frame) => {
 
 stompClient.onWebSocketClose = (event) => {
     console.error("WebSocket closed", event);
+    window.location.href = "/";
 };
 
+await init();
 //activates connection
 stompClient.activate();
 
-function loadPaintObjects(responseData) {
+function websocketHandling(responseData){
     const data = JSON.parse(responseData.body)
-    //console.log(data);
-    const username = data.user;
+    const type = data.type;
 
-    //console.log("username : ", username);
-    //console.log("USERNAME : ", USERNAME);
+    switch (type) {
+        case "PLAYER_UPDATE":
+            const action = data.action;
 
-    if(username !== USERNAME) {
-        let paintObject;
-        const type = data.type;
-
-        if (type === "STROKE") {
-            paintObject = Stroke.fromJson(data.object);
-
-            if(paintObject.phase === "END" && paintObject.fill){
-                console.log("PAINT OBJECT WITH END : ", paintObject);
-                canvasState.paintHistory.push(paintObject);
-                paintObject = optimizePaintHistory(paintObject);//could return null
+            //checking USERNAME isnt yours fixes duplicate data when user subscribes and init() and websocketHandling() both run
+            if(action === "ADD"){
+               PLAYERS.push(data.user);
+               addPlayer(data.user);
             }
-        }
-        else if (type === "DOT") {
-            paintObject = Dot.fromJson(data.object);
-        }
+            else if(action === "REMOVE"){
+                const indexToRemove = PLAYERS.indexOf(data.user);
+                PLAYERS.splice(indexToRemove,1);
+                removePlayer(data.user);
+            }
+            userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
+            break;
+        case "MESSAGE":
+            break;
+        default:
+            const USERNAME = data.user;
+            if(username !== USERNAME) {
+                let paintObject;
+                const type = data.type;
 
-        if(paintObject != null) {
-            canvasState.paintHistory.push(paintObject);
-            drawObject(paintObject);
-        }
+                if (type === "STROKE") {
+                    paintObject = Stroke.fromJson(data.object);
+
+                    if(paintObject.phase === "END" && paintObject.fill){
+                        //console.log("PAINT OBJECT WITH END : ", paintObject);
+                        canvasState.paintHistory.push(paintObject);
+                        paintObject = optimizePaintHistory(paintObject);//could return null
+                    }
+                }
+                else if (type === "DOT") {
+                    paintObject = Dot.fromJson(data.object);
+                }
+                if(paintObject != null) {
+                    canvasState.paintHistory.push(paintObject);
+                    drawObject(paintObject);
+                    canvasState.reloadJustBorder();
+                }
+            }
     }
 }
 
@@ -123,7 +149,7 @@ function optimizePaintHistory(paintObject){
 }
 
 function sendPaintObjects(paintType, paintObject){
-    const paintRequest = new PaintRequest(userID, paintType, paintObject);
+    const paintRequest = new PaintRequest(paintType, paintObject);
     const payload = JSON.stringify(paintRequest);
     const bytes = new TextEncoder().encode(payload).length;
 
@@ -131,21 +157,48 @@ function sendPaintObjects(paintType, paintObject){
     //console.log("PAINT REQUEST KB : ", bytes/1024);
 
     stompClient.publish({
-        destination: `/app/paint/${roomID}`,
+        destination: `/app/room/${roomName}`,
         body: JSON.stringify(paintRequest)
     });
 }
 
-async function getName() {
-    const response = await fetch(`/api/username`, {
-        method: "POST",
-        headers: {
+async function init(){
+    const response = await fetch("/api/paint/init", {
+        method : "POST",
+        headers : {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({roomID, userID})
-    });
+        body: JSON.stringify({roomName, username})
+    })
 
-    return response.text();
+    if(!response.ok){
+        console.error(response);
+        return;
+    }
+
+    const {players} = await response.json();
+    PLAYERS = players;
+
+    for(const player of PLAYERS){
+        addPlayer(player);
+    }
+
+    userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
 }
 
+function addPlayer(player){
+    const playerDiv = document.createElement("div")
+    playerDiv.classList.add("playerCard");
+    if(player === username){
+        playerDiv.classList.add("you");
+    }
+    playerDiv.textContent = player;
+    playerDiv.setAttribute('name', player);
+    playersListElement.appendChild(playerDiv);
+}
+
+function removePlayer(player){
+    const playerDiv = document.querySelector(`div[name="${player}"]`);
+    playerDiv?.remove();
+}
 export {sendPaintObjects}

@@ -1,34 +1,25 @@
 package net.paintstation.Paint.RoomRepository;
 
-import net.paintstation.Paint.Models.Room;
 import net.paintstation.Paint.lobby.dto.internal.RoomInfo;
 import org.springframework.stereotype.Component;
 
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class RoomRepository {
 
-    ConcurrentHashMap<UUID, Room> rooms = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, UUID> roomNameToUUID = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
     public synchronized boolean InsertRoom(Room room) {
-        Room previousRoom = rooms.putIfAbsent(room.getRoomID(), room);
-        UUID previousUUID = roomNameToUUID.putIfAbsent(room.getName(), room.getRoomID());
-        return previousRoom == null && previousUUID == null;
+        Room previousRoom = rooms.putIfAbsent(room.getName(), room);
+        return previousRoom == null;
     }
 
     public Optional<Room> findRoomByName(String roomName){
-        Optional<UUID> id = Optional.ofNullable(roomNameToUUID.get(roomName));
-        return id.map(uuid -> rooms.get(uuid));
-    }
-
-    public Optional<Room> findRoomByUUID(UUID id){
-        return Optional.ofNullable(rooms.get(id));
+        return Optional.ofNullable(rooms.get(roomName));
     }
 
     public List<RoomInfo> getAllRoomsInfo(){
@@ -36,6 +27,18 @@ public class RoomRepository {
                 .stream()
                 .map(Room::getRoomInfo)
                 .toList();
+    }
+
+    public void removeRoom(String roomName){
+        rooms.remove(roomName);
+    }
+
+    public boolean containsRoom(String name){
+        return rooms.containsKey(name);
+    }
+
+    public boolean userExistsInRoom(String username, String roomName){
+        return findRoomByName(roomName).map(room -> room.isNameTaken(username)).orElse(false);
     }
 }
 

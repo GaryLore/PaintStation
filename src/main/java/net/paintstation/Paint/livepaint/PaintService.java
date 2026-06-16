@@ -1,12 +1,17 @@
 package net.paintstation.Paint.livepaint;
 
-import net.paintstation.Paint.Models.Room;
+import net.paintstation.Paint.RoomRepository.Room;
 import net.paintstation.Paint.RoomRepository.RoomRepository;
+import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
+import net.paintstation.Paint.livepaint.dto.PaintSetupResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * The Service layer that handles the logic for the Paint Controller
+ */
 @Service
 public class PaintService {
 
@@ -16,11 +21,21 @@ public class PaintService {
         this.repository = repository;
     }
 
-    private Optional<Room> getRoomByID(UUID id){
-        return repository.findRoomByUUID(id);
-    }
+    /**
+     * This does the logic side of getting the room and getting the required information to set up the users room
+     *
+     * @param request A request to setup the room
+     * @return On success returns a PaintSetUpResponse on failure returns null
+     */
+    PaintSetupResponse setup(PaintSetupRequest request){
+        Optional<Room> room = repository.findRoomByName(request.roomName());
 
-    String getUsernameOfRoom(UUID userID, UUID roomID){
-        return getRoomByID(roomID).map(room -> room.getPlayerName(userID)).orElse("");
+        if(room.isPresent()){
+            Room accessedRoom = room.get();
+            String[] players = accessedRoom.getAllPlayerNames();
+
+            return new PaintSetupResponse(request.username(), request.roomName(), players);
+        }
+        return null;
     }
 }

@@ -25,9 +25,7 @@ const stompClient = new StompJs.Client({brokerURL: socketURL});
 stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/update', (updateRoomData) => {
-        console.log("SOCKET DATA : ")
         const updateData = JSON.parse(updateRoomData.body);
-        console.log(updateData);
         updateRooms(updateData);
     });
 };
@@ -44,9 +42,8 @@ stompClient.onStompError = (frame) => {
 //activates connection
 stompClient.activate();
 
-function PrintData(roomID, playerID, owner, players) {
-
-    console.log("ROOM ID : ", roomID);
+function PrintData(roomName, playerID, owner, players) {
+    console.log("ROOM NAME : ", roomName);
     console.log("PLAYER ID : ", playerID);
     console.log("OWNER : ", owner);
     console.log("PLAYERS : ", players);
@@ -80,13 +77,13 @@ async function submitCreateForm(event) {
             return;
         }
 
-        const {roomID, playerID, owner, players} = await response.json();
+        const {roomName, username} = await response.json();
 
         //storing session so second js file can access this
-        sessionStorage.setItem('USER_ID', playerID);
-        sessionStorage.setItem('ROOM_ID', roomID);
+        sessionStorage.setItem('ROOM_NAME', roomName);
+        sessionStorage.setItem("USERNAME", username);
 
-        PrintData(roomID, playerID, owner, players);
+        //PrintData(roomName, playerID, owner, players);
 
         window.location.href = "/room.html";
     }
@@ -97,7 +94,6 @@ async function submitCreateForm(event) {
 }
 
 function showEnterForm(event){
-
     if (event.target.matches('.roomCard')){
         roomSelectedName = event.target.getAttribute("name");
         modalElement.classList.add("show")
@@ -105,12 +101,11 @@ function showEnterForm(event){
 }
 
 async function submitEnterForm(event) {
-
     event.preventDefault();
     const formData = new FormData(enterFormElement);
 
-    const roomName = roomSelectedName;
-    const username = formData.get('username').trim();
+    const room = roomSelectedName;
+    const user = formData.get('username').trim();
     const password = formData.get('password').trim();
 
     resetEnterRoomErrors();
@@ -121,12 +116,12 @@ async function submitEnterForm(event) {
     }
 
     try {
-        const response = await fetch(`/api/room/${encodeURI(roomName)}/join`, {
+        const response = await fetch(`/api/room/${encodeURI(room)}/join`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({username, password})
+            body: JSON.stringify({username : user, password})
         });
 
         if(!response.ok){
@@ -134,11 +129,11 @@ async function submitEnterForm(event) {
             return;
         }
 
-        const {roomID, playerID, owner, players} = await response.json();
+        const {roomName, username} = await response.json();
 
-        sessionStorage.setItem('USER_ID', playerID);
-        sessionStorage.setItem('ROOM_ID', roomID);
-        PrintData(roomID, playerID, owner, players);
+        sessionStorage.setItem('ROOM_NAME', roomName);
+        sessionStorage.setItem("USERNAME", username);
+        //PrintData(roomName, playerID, owner, players);
 
         // enter room
         window.location.href = "/room.html";
@@ -150,7 +145,6 @@ async function submitEnterForm(event) {
 
 
 async function loadRooms(){
-
     const response = await fetch("/api/room/load");
     const data = await response.json();
 
@@ -164,7 +158,6 @@ async function loadRooms(){
 }
 
 function updateRooms(roomData){
-
     const action = roomData.action;
     const roomName = roomData.name;
 
@@ -177,7 +170,6 @@ function updateRooms(roomData){
 }
 
 function addRoom(roomName){
-
     const newRoomDiv = document.createElement("div")
     newRoomDiv.classList.add("roomCard");
     console.log(roomName);
@@ -187,16 +179,14 @@ function addRoom(roomName){
 }
 
 function deleteRoom(roomName) {
-
-    const tempRoom = document.querySelector('[${roomName}]');
-
+    console.log("ROOM SHOULD BE DELTED : ", roomName)
+    const tempRoom = document.querySelector(`[name="${roomName}"]`);
     //tempRoom.remove();
     //for internet explorer support
     tempRoom.parentNode.removeChild(tempRoom);
 }
 
 function clearRooms(){
-
     //internet explorer support
     while (roomsListElement.firstChild) {
         roomsListElement.removeChild(roomsListElement.firstChild);

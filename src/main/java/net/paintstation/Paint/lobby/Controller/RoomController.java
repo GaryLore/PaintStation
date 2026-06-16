@@ -1,53 +1,67 @@
 package net.paintstation.Paint.lobby.Controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import net.paintstation.Paint.Models.Room;
+import net.paintstation.Paint.RoomRepository.Room;
+import net.paintstation.Paint.jwt.JwtUtil;
 import net.paintstation.Paint.lobby.Service.DashboardService;
 import net.paintstation.Paint.lobby.dto.internal.AccessRoomResult;
 import net.paintstation.Paint.lobby.dto.request.CreateRoomRequest;
 import net.paintstation.Paint.lobby.dto.request.JoinRoomRequest;
 import net.paintstation.Paint.lobby.dto.response.RoomResponse;
 import net.paintstation.Paint.lobby.dto.response.loadAllRoomsResponse;
-import net.paintstation.Paint.lobby.dto.websocket.RoomUpdate;
+import net.paintstation.Paint.websocket.dto.RoomUpdate;
 import net.paintstation.Paint.lobby.enums.RoomAction;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.UUID;
 
-
+/**
+ * Handles the lobby or other wise known as the homepage for creating and entering rooms for users
+ */
 @RestController
 @RequestMapping("/api/room")
 public class RoomController {
 
     private final DashboardService roomService;
     private final SimpMessagingTemplate template;
+    private final JwtUtil jwtUtil;
 
-    public RoomController(DashboardService roomService, SimpMessagingTemplate template){
+    public RoomController(DashboardService roomService, SimpMessagingTemplate template, JwtUtil jwtUtil){
         this.roomService = roomService;
         this.template = template;
+        this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Handles a Post request to enter a room
+     *
+     * @param roomName The name of the room you want to join
+     * @param request The Request to join a room containing the username of the player and the attempted password
+     * @param response Used to access the response to insert the JWT as a Cookie
+     * @return The result of the attempt to join a room, if successful returns a JWT(JSON Web Token) that allows you to subscribe to a web socket for this room
+     */
     @PostMapping("/{roomName}/join")
-    ResponseEntity<?> enterRoom(@PathVariable String roomName, @Valid @RequestBody JoinRoomRequest request){
-
+    ResponseEntity<?> enterRoom(@PathVariable String roomName, @Valid @RequestBody JoinRoomRequest request, HttpServletResponse response){
         AccessRoomResult result = roomService.accessRoom(roomName, request);
-
-        //.out.println("ROOMNAME : " + roomName);
-        //System.out.println("REQUEST : " + request);
-
-        System.out.println("IMPORTANT");
-        System.out.println(result);
-        System.out.println(result.status());
-
+        System.out.println("[RoomController.java] " + "USERNAME: \"" + request.username() + "\"" + " PASSWORD: " + "\"" + request.password() +"\" " + result.status() + " ON ROOM: \"" + roomName + "\"");
         return switch (result.status()) {
             case SUCCESS -> {
-                Room room = result.room();
-                UUID playerID = room.getPlayerID(request.username());
-                RoomResponse roomResponse = new RoomResponse(room.getRoomID(), playerID, room.getOwner(), room.getAllPlayerNames(), room.getHistory());
+                RoomResponse roomResponse = new RoomResponse(roomName, request.username());
+
+                //cookie
+                String token = jwtUtil.generateToken(request.username(), roomName);
+                ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                        .httpOnly(true)
+                        .secure(true)
+                        .path("/")
+                        .maxAge(15)
+                        .build();
+
+                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
                 yield ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
             case NAME_TAKEN -> ResponseEntity.status(HttpStatus.CONFLICT).body("Name already taken");
@@ -57,32 +71,48 @@ public class RoomController {
         };
     }
 
+    /**
+     * Handles Post request creating a room
+     *
+     * @param request The Request to create a room containing the username of the player, the room name and the password
+     * @param response Used to access the response to insert the JWT as a Cookie
+     * @return The result of the attempt to create a room, if successful returns a JWT(Json Web Token) that allows you to subscribe to a web socket for this room
+     */
     @PostMapping("/create")
-    ResponseEntity<?> startRoom(@Valid @RequestBody CreateRoomRequest request){
+    ResponseEntity<?> startRoom(@Valid @RequestBody CreateRoomRequest request, HttpServletResponse response){
         Optional<Room> room = roomService.createRoom(request);
 
+        //means room creation failed
         if (room.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Room username already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Room name already taken");
         }
 
-        Room createdRoom = room.get();
-        RoomResponse response = new RoomResponse(
-                createdRoom.getRoomID(),
-                createdRoom.getOwnerID(), //player in this case is owner
-                createdRoom.getOwner(),
-                createdRoom.getAllPlayerNames(),
-                createdRoom.getHistory()
-        );
+        RoomResponse roomResponse = new RoomResponse(request.roomName(), request.ownerName());
 
-        RoomUpdate update = new RoomUpdate(RoomAction.INSERT, createdRoom.getName() );
+        //cookie
+        String token = jwtUtil.generateToken(request.ownerName(), request.roomName());
+        ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(15)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        RoomUpdate update = new RoomUpdate(RoomAction.INSERT, request.roomName() );
         template.convertAndSend("/topic/update", update);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(roomResponse);
     }
 
+    /**
+     * Handles a Get Request for all the rooms available
+     *
+     * @return A Response entity containing all the available rooms also telling the browser to not cache the rooms so its always up to date
+     */
     @GetMapping("/load")
     ResponseEntity<?> loadAllRooms(){
         loadAllRoomsResponse allRooms = roomService.getAllRooms();
-        return ResponseEntity.status(HttpStatus.OK).body(allRooms);
+        return ResponseEntity.status(HttpStatus.OK).cacheControl(CacheControl.noStore()).body(allRooms);
     }
 }
