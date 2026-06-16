@@ -81,7 +81,7 @@ spring.profiles.active=extra
 
 Here is how to figure out your IP address
 
-Open your cmd and type 
+Open your cmd **On the computer that is running the application** and type 
 ```
 ipconfig
 ```
