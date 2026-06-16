@@ -119,7 +119,7 @@ Here are the attributions that are required for some of the free icons I used in
 - https://www.youtube.com/watch?v=iB__rLXGsas
 - https://stackoverflow.com/questions/77854959/is-signature-in-jwt-base64-encoded
 - https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
-- https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
+- https://springboot-123.mizucoffee.com/en/blog/spring-boot-security-jwt-authentication/
 - https://www.youtube.com/watch?v=emhAf7srIeg
 
 ### Other Sources
