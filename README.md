@@ -46,12 +46,15 @@ git clone https://github.com/GaryLore/PaintStation.git PaintStation
 2. Create Certificate using this link https://www.youtube.com/watch?v=emhAf7srIeg
 
 
-3. Create a new file called application-extra.properties and put all the properties 
-from that certificate video in this file. Make sure to add actual keystore.p12 key in 
-the resources folder.
+3. Create a new file called **application-extra.properties** and put all the cert properties 
+from that certificate video in this file except server.port=443 property since that property
+is already included in the **application.properties file**. Put both ***application-extra.properties*** and ***keystore.p12***
+in src/main/resources/. The reason for the certificate is to make our application HTTPS. HTTPS is needed
+for using Javascript built in UUID, however LocalHost will allow UUID without HTTPS however once connected
+from another computer(not localhost) you will come across errors if there is no HTTPS.
 
 
-4. Add JWT properties to that file as well
+4. Add JWT properties to the **application-extra.properties** file as well
 ```
 # JWT configuration
 jwt.secret=please-change-this-secret-key-in-production-environment-32chars
@@ -59,9 +62,14 @@ jwt.expiration=15000
 ```
 
 
-5. Using Intelij Activate the application-extra.properties profile by specifying Active Profiles to extra.
+5. Using Intelij Activate the **application-extra.properties** profile by specifying Active Profiles to extra.
 This is in configuration settings.
-
+![](/assets/images/ActiveProfiles.jpg)
+Or an alternative you can do to active this extra profile is by going
+in your **application.properties** file and inserting this line 
+```
+spring.profiles.active=dev
+```
 
 6. Use Maven to download all the dependencies
 
