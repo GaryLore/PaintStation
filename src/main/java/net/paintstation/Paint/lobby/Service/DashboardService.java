@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Handles more of the logic that the Room Controller needs
+ */
 @Service
 public class DashboardService {
 
@@ -21,6 +24,12 @@ public class DashboardService {
         this.repository = repository;
     }
 
+    /**
+     * Creates a room with the request information if possible
+     *
+     * @param request The information required to create a room
+     * @return An optional that is either empty on failure or contains a room on success
+     */
     public Optional<Room> createRoom(CreateRoomRequest request) {
         Room room = new Room(
                 request.roomName(),
@@ -36,6 +45,14 @@ public class DashboardService {
         return success ? Optional.of(room) : Optional.empty();
     }
 
+    /**
+     * Attempts to access a room with a JoinRoomRequest and the roomName
+     * returning the room upon success or on failure returns the corresponding error
+     *
+     * @param roomName THe name of the room you want to join
+     * @param request The information needed to join the room
+     * @return The room you wanted to join if successful and the corresponding AccessRoomStatus
+     */
     public AccessRoomResult accessRoom(String roomName, JoinRoomRequest request){
 
         String username = request.username();
@@ -65,6 +82,11 @@ public class DashboardService {
         return AccessRoomResult.success(accessedRoom);
     }
 
+    /**
+     * Used in the controller to from a get request to get all the available rooms
+     *
+     * @return A LoadRoomResponse with all the available rooms you can join
+     */
     public loadAllRoomsResponse getAllRooms(){
 
         return new loadAllRoomsResponse(repository.getAllRoomsInfo());

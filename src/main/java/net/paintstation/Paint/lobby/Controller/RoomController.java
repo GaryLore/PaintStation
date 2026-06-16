@@ -10,7 +10,7 @@ import net.paintstation.Paint.lobby.dto.request.CreateRoomRequest;
 import net.paintstation.Paint.lobby.dto.request.JoinRoomRequest;
 import net.paintstation.Paint.lobby.dto.response.RoomResponse;
 import net.paintstation.Paint.lobby.dto.response.loadAllRoomsResponse;
-import net.paintstation.Paint.lobby.dto.websocket.RoomUpdate;
+import net.paintstation.Paint.websocket.dto.RoomUpdate;
 import net.paintstation.Paint.lobby.enums.RoomAction;
 import org.springframework.http.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-
+/**
+ * Handles the lobby or other wise known as the homepage for creating and entering rooms for users
+ */
 @RestController
 @RequestMapping("/api/room")
 public class RoomController {
@@ -33,6 +35,14 @@ public class RoomController {
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Handles a Post request to enter a room
+     *
+     * @param roomName The name of the room you want to join
+     * @param request The Request to join a room containing the username of the player and the attempted password
+     * @param response Used to access the response to insert the JWT as a Cookie
+     * @return The result of the attempt to join a room, if successful returns a JWT(JSON Web Token) that allows you to subscribe to a web socket for this room
+     */
     @PostMapping("/{roomName}/join")
     ResponseEntity<?> enterRoom(@PathVariable String roomName, @Valid @RequestBody JoinRoomRequest request, HttpServletResponse response){
         AccessRoomResult result = roomService.accessRoom(roomName, request);
@@ -61,6 +71,13 @@ public class RoomController {
         };
     }
 
+    /**
+     * Handles Post request creating a room
+     *
+     * @param request The Request to create a room containing the username of the player, the room name and the password
+     * @param response Used to access the response to insert the JWT as a Cookie
+     * @return The result of the attempt to create a room, if successful returns a JWT(Json Web Token) that allows you to subscribe to a web socket for this room
+     */
     @PostMapping("/create")
     ResponseEntity<?> startRoom(@Valid @RequestBody CreateRoomRequest request, HttpServletResponse response){
         Optional<Room> room = roomService.createRoom(request);
@@ -88,6 +105,11 @@ public class RoomController {
         return ResponseEntity.status(HttpStatus.CREATED).body(roomResponse);
     }
 
+    /**
+     * Handles a Get Request for all the rooms available
+     *
+     * @return A Response entity containing all the available rooms also telling the browser to not cache the rooms so its always up to date
+     */
     @GetMapping("/load")
     ResponseEntity<?> loadAllRooms(){
         loadAllRoomsResponse allRooms = roomService.getAllRooms();

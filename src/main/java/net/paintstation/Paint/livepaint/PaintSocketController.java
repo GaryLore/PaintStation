@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+ * Handles the websocket requests and responses for live paint
+ */
 @Controller
 public class PaintSocketController {
 
@@ -24,6 +27,13 @@ public class PaintSocketController {
         this.registry = registry;
     }
 
+    /**
+     *
+     * @param roomName The name of the room you are entering
+     * @param request The paint object you are sending to other users to load on the canvas
+     * @param accessor Used to extract session id from a specific web socket connection
+     * @return returns the PaintResponse containing the paint object to be drawn on the other users canvases
+     */
     @MessageMapping("/room/{roomName}")
     @SendTo("/topic/room/{roomName}")
     public PaintResponse broadcastStroke(@DestinationVariable String roomName, @Valid PaintRequest request, SimpMessageHeaderAccessor accessor){

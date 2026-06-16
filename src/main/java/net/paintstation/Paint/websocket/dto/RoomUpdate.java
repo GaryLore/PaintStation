@@ -1,4 +1,4 @@
-package net.paintstation.Paint.lobby.dto.websocket;
+package net.paintstation.Paint.websocket.dto;
 
 import net.paintstation.Paint.lobby.enums.RoomAction;
 

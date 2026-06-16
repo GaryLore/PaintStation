@@ -3,7 +3,7 @@ package net.paintstation.Paint.websocket;
 import net.paintstation.Paint.Registry.User;
 import net.paintstation.Paint.RoomRepository.Room;
 import net.paintstation.Paint.RoomRepository.RoomRepository;
-import net.paintstation.Paint.lobby.dto.websocket.RoomUpdate;
+import net.paintstation.Paint.websocket.dto.RoomUpdate;
 import net.paintstation.Paint.lobby.enums.RoomAction;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

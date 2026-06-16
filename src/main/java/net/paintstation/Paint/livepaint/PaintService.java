@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * The Service layer that handles the logic for the Paint Controller
+ */
 @Service
 public class PaintService {
 
@@ -18,6 +21,12 @@ public class PaintService {
         this.repository = repository;
     }
 
+    /**
+     * This does the logic side of getting the room and getting the required information to set up the users room
+     *
+     * @param request A request to setup the room
+     * @return On success returns a PaintSetUpResponse on failure returns null
+     */
     PaintSetupResponse setup(PaintSetupRequest request){
         Optional<Room> room = repository.findRoomByName(request.roomName());
 
