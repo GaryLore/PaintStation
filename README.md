@@ -68,7 +68,7 @@ This is in configuration settings.
 Or an alternative you can do to activate this extra profile is by going
 in your **application.properties** file and inserting this line 
 ```
-spring.profiles.active=dev
+spring.profiles.active=extra
 ```
 
 6. Use Maven to download all the dependencies
