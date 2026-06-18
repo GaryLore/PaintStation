@@ -7,6 +7,13 @@ const roomName = sessionStorage.getItem("ROOM_NAME");
 const username = sessionStorage.getItem("USERNAME");
 const playersListElement = document.querySelector(".players");
 const userCountElement = document.getElementById("userCount");
+const messageContainerElement = document.querySelector(".messagesContainer");
+const messageInputElement = document.getElementById("messageInput");
+const chatFormElement = document.getElementById("chatForm");
+chatFormElement.addEventListener("submit", sendMessage);
+const chatContainer = document.querySelector(".messagesContainer");
+const messagePopAudio = new Audio("../../audio/MessagePop.mp3");
+messagePopAudio.volume = 0.25;
 let PLAYERS;
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -20,9 +27,13 @@ stompClient.onConnect = (frame) => {
     console.log("PLEASE WORK");
     console.log('Connected: ' + frame);
     stompClient.subscribe(
-        `/topic/room/${roomName}`,
-        websocketHandling
+        `/topic/room/${roomName}/paint`,
+        paintSocketHandling
     );
+    stompClient.subscribe(
+        `/topic/room/${roomName}/chat`,
+        chatSocketHandling
+    )
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -43,7 +54,54 @@ await init();
 //activates connection
 stompClient.activate();
 
-function websocketHandling(responseData){
+function chatSocketHandling(responseData){
+
+    const data = JSON.parse(responseData.body)
+    const name = data.username;
+    const text = data.text;
+    console.log(text);
+    messagePopAudio.play();
+    loadMessage(name, text);
+    scrollDown();
+}
+
+function loadMessage(name, text){
+    const messageDiv = document.createElement("div")
+    messageDiv.textContent = text;
+    messageDiv.classList.add("message")
+    if(name === username){
+        messageDiv.classList.add("senderMessage");
+    }
+    else{
+        messageDiv.classList.add("receiverMessage");
+    }
+    messageContainerElement.appendChild(messageDiv);
+}
+
+function scrollDown(){
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    console.log("SCROLL TOP: " ,chatContainer.scrollTop);
+    console.log("SCROLLHEIGHT: ", chatContainer.scrollHeight);
+    console.log("ClientHeight : ", chatContainer.clientHeight)
+    console.log("ScrollHeight - ClientHeight", chatContainer.scrollHeight - chatContainer.clientHeight);
+}
+
+function sendMessage(event){
+    event.preventDefault();
+    const text = messageInputElement.value;
+
+    console.log("MESSAGE GONNA BE SENT [", text, "]");
+    if(text.length <= 100) {
+        stompClient.publish({
+            destination: `/app/room/${roomName}/chat`,
+            body: text//JSON.stringify(text)
+        });
+
+        messageInputElement.value = "";
+    }
+}
+
+function paintSocketHandling(responseData){
     const data = JSON.parse(responseData.body)
     const type = data.type;
 
@@ -63,13 +121,10 @@ function websocketHandling(responseData){
             }
             userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
             break;
-        case "MESSAGE":
-            break;
         default:
             const USERNAME = data.user;
             if(username !== USERNAME) {
                 let paintObject;
-                const type = data.type;
 
                 if (type === "STROKE") {
                     paintObject = Stroke.fromJson(data.object);
@@ -157,7 +212,7 @@ function sendPaintObjects(paintType, paintObject){
     //console.log("PAINT REQUEST KB : ", bytes/1024);
 
     stompClient.publish({
-        destination: `/app/room/${roomName}`,
+        destination: `/app/room/${roomName}/paint`,
         body: JSON.stringify(paintRequest)
     });
 }

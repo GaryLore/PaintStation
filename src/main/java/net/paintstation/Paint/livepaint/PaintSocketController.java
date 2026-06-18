@@ -34,9 +34,9 @@ public class PaintSocketController {
      * @param accessor Used to extract session id from a specific web socket connection
      * @return returns the PaintResponse containing the paint object to be drawn on the other users canvases
      */
-    @MessageMapping("/room/{roomName}")
-    @SendTo("/topic/room/{roomName}")
-    public PaintResponse broadcastStroke(@DestinationVariable String roomName, @Valid PaintRequest request, SimpMessageHeaderAccessor accessor){
+    @MessageMapping("/room/{roomName}/paint")
+    @SendTo("/topic/room/{roomName}/paint")
+    private PaintResponse broadcastStroke(@DestinationVariable String roomName, @Valid PaintRequest request, SimpMessageHeaderAccessor accessor){
         PaintObject paintObject = request.object();
         String username = registry.get(accessor.getSessionId()).getName();
         PaintResponse response = new PaintResponse(paintObject.getType(), username, paintObject);

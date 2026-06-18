@@ -1,4 +1,4 @@
-package net.paintstation.Paint.websocket;
+package net.paintstation.Paint.websocket.dto;
 
 public record PlayerUpdate(
         String type,
