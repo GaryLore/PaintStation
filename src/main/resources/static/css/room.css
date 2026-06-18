@@ -85,10 +85,22 @@ body {
 }
 
 .message{
+    display: flex;
+    flex-direction: row;
     padding: 10px;
     border-radius: 10px;
     word-wrap: break-word;
     max-width: 70%;
+}
+
+.messageName{
+    font-weight: bold;
+    white-space: nowrap;
+    padding-right: 10px;
+}
+
+.messageText{
+    flex: 1;
 }
 
 .senderMessage{

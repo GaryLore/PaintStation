@@ -67,13 +67,26 @@ function chatSocketHandling(responseData){
 
 function loadMessage(name, text){
     const messageDiv = document.createElement("div")
-    messageDiv.textContent = text;
+
     messageDiv.classList.add("message")
     if(name === username){
         messageDiv.classList.add("senderMessage");
+        messageDiv.textContent = text;
     }
     else{
         messageDiv.classList.add("receiverMessage");
+
+        const nameDiv = document.createElement("div")
+        const textDiv = document.createElement("div")
+
+        nameDiv.textContent = name;
+        textDiv.textContent = text;
+
+        nameDiv.classList.add("messageName");
+        textDiv.classList.add("messageText");
+
+        messageDiv.appendChild(nameDiv);
+        messageDiv.appendChild(textDiv);
     }
     messageContainerElement.appendChild(messageDiv);
 }
