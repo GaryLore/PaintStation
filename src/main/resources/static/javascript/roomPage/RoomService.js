@@ -56,6 +56,7 @@ stompClient.activate();
 
 function chatSocketHandling(responseData){
 
+    console.log("MESAGE RECEIVED");
     const data = JSON.parse(responseData.body)
     const name = data.username;
     const text = data.text;

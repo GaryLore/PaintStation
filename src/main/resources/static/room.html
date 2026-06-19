@@ -10,57 +10,69 @@
 
 </head>
 <body>
-    <div class="header">
-        <div class="left"></div>
-        <h1 class="title">Paint Station 🎨</h1>
-        <div class="trash">
-            <img src="/img/trash.png" alt="trash" >
-        </div>
-    </div>
-
     <div class="layout">
-        <div class="paintContainer">
-            <canvas id="canvas" class="optionBrush">Paint Canvas</canvas>
-            <div class="options">
-                <div class="choices">
 
-                </div>
-                <div id="all_colors" class="colors">
-
-                </div>
-                <div class="thickness">
-                    <label for="all_thickness">Paint Thickness</label>
-                    <input type="range" name="thickness" id="all_thickness" min="4" max="50" value="10">
-                </div>
-                <div class="zoom">
-                     <img src="/img/magnify.png" alt="Zoom" >
-                </div>
-                <div class="brush selected">
-                     <img src="/img/paint.png" alt="PaintBrush" >
-                </div>
-                <div class="bucket">
-                     <img src="/img/bucket.png" alt="Bucket" >
-                </div>
+        <div class="header">
+            <div class="left"></div>
+            <h1 class="title">🎨 Paint Station</h1>
+            <div class="icons">
+                <button class="trash">
+                    <img src="/img/trash-2.svg" alt="trash" >
+                </button>
+                <button class="homePage">
+                    <img src="/img/house.svg" alt="homePage">
+                </button>
+                <button class="save">
+                    <img src="/img/save.svg" alt="homePage">
+                </button>
             </div>
         </div>
-        <div class="chat">
 
-            <div class="chatHeader">
-                <h2>Players Chat</h2>
-                <p class="subtitle" id="userCount">🟢 Online</p>
-            </div>
-            <div class="players">
+        <div class="middleContainer">
+            <div class="paintContainer">
+                <canvas id="canvas" class="optionBrush">Paint Canvas</canvas>
+                <div class="options">
+                    <div class="choices">
 
-            </div>
-            <div class="messagesContainer">
+                    </div>
+                    <div id="all_colors" class="colors">
 
+                    </div>
+                    <div class="thickness">
+                        <label for="all_thickness">Paint Thickness</label>
+                        <input type="range" name="thickness" id="all_thickness" min="4" max="50" value="10">
+                    </div>
+                    <div class="zoom">
+                         <img src="/img/magnify.png" alt="Zoom" >
+                    </div>
+                    <div class="brush selected">
+                         <img src="/img/paint.png" alt="PaintBrush" >
+                    </div>
+                    <div class="bucket">
+                         <img src="/img/bucket.png" alt="Bucket" >
+                    </div>
+                </div>
             </div>
-            <form class="createMessage" id="chatForm">
-                <label for="messageInput"></label>
-                <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
-                <button id="sendMessage">Send</button>
-            </form>
+            <div class="chat">
+
+                <div class="chatHeader">
+                    <h2>Players Chat</h2>
+                    <p class="subtitle" id="userCount">🟢 Online</p>
+                </div>
+                <div class="players">
+
+                </div>
+                <div class="messagesContainer">
+
+                </div>
+                <form class="createMessage" id="chatForm">
+                    <label for="messageInput"></label>
+                    <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
+                    <button id="sendMessage">Send</button>
+                </form>
+            </div>
         </div>
+
     </div>
 
 </body>

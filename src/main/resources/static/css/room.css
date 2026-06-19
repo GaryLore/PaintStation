@@ -1,5 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+:root{
+    --primary-border-radius: 12px;
+    --primary-border: 2px solid #CAD6E3;
+    --primary-box-shadow: 0 0 20px rgba(0,0,0,.08);
+    --div-background-color: #fafafa;
+    --primary-gap: 24px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -16,12 +24,15 @@ body {
     width: 90vw;
     height: 100vh;
     margin: auto;
-    background-color: #fafafa;
-    box-shadow: 0 0px 30px rgba(0,0,0,.08);
+    background-color: #F6F7FA;
+
+    box-shadow: var(--primary-box-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .title{
-    margin: 1vw 1vw 24px;
     text-align: center;
 }
 
@@ -31,40 +42,55 @@ body {
     margin-top: 4px;
 }
 
+.layout{
+    /*border: 2px solid #CAD6E3;*/
+    display: flex;
+    flex-direction: column;
+    width: 85vw;
+    gap: var(--primary-gap);
+}
+
 .header{
+    background-color: var(--div-background-color);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+    border: var(--primary-border);
+    padding: 16px;
+    border-radius: var(--primary-border-radius);
+    box-shadow: var(--primary-box-shadow);
 }
 
-.layout{
+.middleContainer{
+    /*border: 2px solid #CAD6E3;*/
     display: flex;
     flex-direction: row;
-    gap : 30px;
+    gap : var(--primary-gap);
     justify-content: center;
-    height: calc((60vw * (9/16) / 4.7) + 30px + (60vw * (9/16))) /* Canvas height + gap + Options height*/
+    height: calc((60vw * (9/16) / 4.7) + 24px + (60vw * (9/16))) /* Canvas height + gap + Options height*/
 }
 
 .paintContainer{
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: var(--primary-gap);
 }
 
 #canvas {
     aspect-ratio: 16 / 9;
     width: 60vw;
-    border: 2px solid #CAD6E3;
-    /*margin: 0 2vw;*/
-    border-radius: 28px;
-    box-shadow: 0 0px 20px rgba(0,0,0,.08);
+    border: var(--primary-border);
+    border-radius: var(--primary-border-radius);
+    box-shadow: var(--primary-box-shadow);
 }
 
 .chat{
-    border: 2px solid #CAD6E3;
+    background-color: var(--div-background-color);
+    border: var(--primary-border);
     width: 23vw;
-    border-radius: 28px;
-    box-shadow: 0 0px 20px rgba(0,0,0,.08);
+    border-radius: var(--primary-border-radius);
+    box-shadow: var(--primary-box-shadow);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -75,38 +101,41 @@ body {
 .messagesContainer{
     display: flex;
     flex-direction: column;
+    flex: 1;
+
     gap: 10px;
     overflow-y: auto;
-    border-radius: 10px;
+    border-radius: var(--primary-border-radius);
     padding: 10px;
     scroll-behavior: smooth;
     border: 2px solid #CBD5E1;
-    flex: 1;
+    width: 100%;
 }
 
 .message{
     display: flex;
     flex-direction: row;
     padding: 10px;
-    border-radius: 10px;
-    word-wrap: break-word;
+    border-radius: var(--primary-border-radius);
     max-width: 70%;
 }
 
 .messageName{
     font-weight: bold;
-    white-space: nowrap;
+    flex-wrap: nowrap;
     padding-right: 10px;
 }
 
 .messageText{
     flex: 1;
+    word-break: break-all;
 }
 
 .senderMessage{
     background-color: #2563EB;
     color: white;
     align-self: flex-end;
+    word-break: break-all;
 }
 
 .receiverMessage{
@@ -120,12 +149,12 @@ body {
     flex-direction: row;
     height: 6vh;
     border: 2px solid #CAD6E3;
-    border-radius: 10px;
+    border-radius: var(--primary-border-radius);
     gap: 10px;
 }
 
 .playerCard{
-    border-radius: 10px;
+    border-radius: var(--primary-border-radius);
     background: #94A3B8;
     padding: 5px;
     display: grid;
@@ -146,7 +175,7 @@ body {
 
 .createMessage input{
     border: 2px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: var(--primary-border-radius);
     font-size: 14px;
     padding: 12px;
     flex: 1;
@@ -158,7 +187,7 @@ body {
     color: white;
     padding: 14px;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--primary-border-radius);
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -171,16 +200,16 @@ body {
 }
 
 .options {
-    border: 2px solid #CAD6E3;
-    /*background-color: rgb(24, 25, 28);*/
-    border-radius: 28px;
+    background-color: var(--div-background-color);
+    border: var(--primary-border);
+    border-radius: var(--primary-border-radius);
     width: 60vw;
     height: calc(60vw * (9/16) / 4.7);
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
+    padding: 24px;
     box-shadow: 0 0px 20px rgba(0,0,0,.08);
 }
 
@@ -208,11 +237,13 @@ input[type="range"]{
 .colors > div{   
     aspect-ratio: 1 / 1;
     padding: 2px;
-    border: 2px solid gray;
+    border: 1px solid gray;
+    border-radius: 4px;
     /*background-color: white;*/
 }
 
 .colors > div > div{
+    border-radius: 4px;
     aspect-ratio: 1 / 1;
     pointer-events: none;
 }
@@ -240,12 +271,67 @@ input[type="range"]{
     height:auto;
     width: 4%;
 }
-.trash{
-    height:auto;
-    width: 4%;
-    margin: 10px;
+.icons{
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
 }
-img{
+.icons button{
+    cursor: pointer;
+}
+.trash{
+    width: 45px;
+    aspect-ratio: 1/1;
+    padding: 5px;
+    border: 2px solid #D7DEE8;
+    border-radius: 8px;
+    box-shadow: var(--primary-box-shadow);
+    background-color: var(--div-background-color);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trash:hover{
+    border-color: #EF4444;
+    background: #FEF2F2;
+}
+.homePage{
+    width: 45px;
+    aspect-ratio: 1/1;
+    padding: 5px;
+    border: 2px solid #D7DEE8;
+    border-radius: 8px;
+    box-shadow: var(--primary-box-shadow);
+    background-color: var(--div-background-color);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.homePage:hover {
+    border-color: #3B82F6;
+    background: #EFF6FF;
+}
+.save{
+    width: 45px;
+    aspect-ratio: 1/1;
+    padding: 5px;
+    border: 2px solid #D7DEE8;
+    border-radius: 8px;
+    box-shadow: var(--primary-box-shadow);
+    background-color: var(--div-background-color);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.save:hover {
+    border-color: #22C55E;
+    background: #F0FDF4;
+}
+.options img{
     aspect-ratio: 1 / 1;
     width:100%;
 }
@@ -281,11 +367,13 @@ img{
     aspect-ratio: 1 / 1;
     padding: 3px;
     margin: 2px;
-    border: 2px solid gray;
+    border: 1px solid gray;
     width: 100%;
+    border-radius: 6px;
 }
 
 .choices > div > div{
+    border-radius: 6px;
     aspect-ratio: 1 / 1;
     pointer-events: none;
 }
