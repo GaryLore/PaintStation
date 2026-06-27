@@ -25,9 +25,9 @@ public class ChatController {
     @SendTo("/topic/room/{roomName}/chat")
     private Message BroadCastMessage(@Payload(required = false) String text, SimpMessageHeaderAccessor accessor){
 
-        System.out.println(text);
-
-        if(text == null){
+        System.out.println("[" + text + "]");
+        //if null is returned message isnt sent, default behavior
+        if(text == null || text.trim().isEmpty()){
             return null;
         }
         

@@ -60,6 +60,7 @@ function chatSocketHandling(responseData){
     const data = JSON.parse(responseData.body)
     const name = data.username;
     const text = data.text;
+    console.log("MESSAGE Received [", text, "]");
     console.log(text);
     messagePopAudio.play();
     loadMessage(name, text);
@@ -105,7 +106,7 @@ function sendMessage(event){
     const text = messageInputElement.value;
 
     console.log("MESSAGE GONNA BE SENT [", text, "]");
-    if(text.length <= 100) {
+    if(text.length <= 100 && /\S/.test(text)) {
         stompClient.publish({
             destination: `/app/room/${roomName}/chat`,
             body: text//JSON.stringify(text)
@@ -113,6 +114,13 @@ function sendMessage(event){
 
         messageInputElement.value = "";
     }
+    else if(text.length > 100){
+        messageInputElement.placeholder = "Message Can't Be Over 100 characters"
+        setTimeout(() => {
+            messageInputElement.placeholder = "Type your message...";
+        }, 2000);
+    }
+    messageInputElement.value = "";
 }
 
 function paintSocketHandling(responseData){
@@ -123,7 +131,6 @@ function paintSocketHandling(responseData){
         case "PLAYER_UPDATE":
             const action = data.action;
 
-            //checking USERNAME isnt yours fixes duplicate data when user subscribes and init() and websocketHandling() both run
             if(action === "ADD"){
                PLAYERS.push(data.user);
                addPlayer(data.user);
@@ -244,6 +251,9 @@ async function init(){
         console.error(response);
         return;
     }
+
+    const roomTitle = document.getElementsByClassName("title")[0];
+    roomTitle.textContent = `🎨 ${roomName}`;
 
     const {players} = await response.json();
     PLAYERS = players;

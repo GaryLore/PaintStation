@@ -46,7 +46,6 @@ body {
     /*border: 2px solid #CAD6E3;*/
     display: flex;
     flex-direction: column;
-    width: 85vw;
     gap: var(--primary-gap);
 }
 
@@ -85,6 +84,20 @@ body {
     box-shadow: var(--primary-box-shadow);
 }
 
+.options {
+    background-color: var(--div-background-color);
+    border: var(--primary-border);
+    border-radius: var(--primary-border-radius);
+    width: 60vw;
+    height: calc(60vw * (9/16) / 4.7);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    box-shadow: var(--primary-border-radius);
+}
+
 .chat{
     background-color: var(--div-background-color);
     border: var(--primary-border);
@@ -95,7 +108,6 @@ body {
     flex-direction: column;
     gap: 12px;
     padding: 24px;
-    /*align-items: center;*/
 }
 
 .messagesContainer{
@@ -118,24 +130,24 @@ body {
     padding: 10px;
     border-radius: var(--primary-border-radius);
     max-width: 70%;
+    white-space: pre-wrap;/*used so white space is accurate*/
 }
 
 .messageName{
     font-weight: bold;
-    flex-wrap: nowrap;
     padding-right: 10px;
 }
 
 .messageText{
     flex: 1;
-    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
 .senderMessage{
     background-color: #2563EB;
     color: white;
     align-self: flex-end;
-    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
 .receiverMessage{
@@ -168,7 +180,6 @@ body {
 }
 
 .createMessage{
-    /*border: 2px solid black;*/
     display: flex;
     flex-direction: row;
 }
@@ -179,7 +190,6 @@ body {
     font-size: 14px;
     padding: 12px;
     flex: 1;
-    /*width: 80%;*/
 }
 
 .createMessage button{
@@ -192,25 +202,10 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: box-shadow 0.2s;
-    /*width: 20%;*/
 }
 
 .createMessage button:hover{
     box-shadow: 0 0px 10px rgba(0, 0, 0, 0.4);
-}
-
-.options {
-    background-color: var(--div-background-color);
-    border: var(--primary-border);
-    border-radius: var(--primary-border-radius);
-    width: 60vw;
-    height: calc(60vw * (9/16) / 4.7);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px;
-    box-shadow: 0 0px 20px rgba(0,0,0,.08);
 }
 
 .colors {
@@ -265,7 +260,6 @@ input[type="range"]{
 .bucket{
     height:auto;
     width: 4%;
-    /*margin-right: 2%;*/
 }
 .brush{
     height:auto;
