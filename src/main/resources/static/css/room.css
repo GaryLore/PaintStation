@@ -141,6 +141,7 @@ body {
 .messageText{
     flex: 1;
     overflow-wrap: anywhere;
+    hyphens: auto;
 }
 
 .senderMessage{
@@ -148,6 +149,7 @@ body {
     color: white;
     align-self: flex-end;
     overflow-wrap: anywhere;
+    hyphens: auto;
 }
 
 .receiverMessage{

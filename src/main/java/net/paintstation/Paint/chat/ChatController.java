@@ -24,13 +24,10 @@ public class ChatController {
     @MessageMapping("/room/{roomName}/chat")
     @SendTo("/topic/room/{roomName}/chat")
     private Message BroadCastMessage(@Payload(required = false) String text, SimpMessageHeaderAccessor accessor){
-
-        System.out.println("[" + text + "]");
         //if null is returned message isnt sent, default behavior
         if(text == null || text.trim().isEmpty()){
             return null;
         }
-        
         String username = registry.get(accessor.getSessionId()).getName();
         return new Message(username, text);
     }
