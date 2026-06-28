@@ -1,18 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root{
-    --primary-border-radius: 12px;
-    --primary-border: 2px solid #CAD6E3;
-    --primary-box-shadow: 0 0 20px rgba(0,0,0,.08);
     --div-background-color: #fafafa;
+    --primary-border: 2px solid #CAD6E3;
+    --primary-border-radius: 12px;
+    --primary-box-shadow: 0 0 20px rgba(0,0,0,.08);
     --primary-gap: 24px;
+    --paint-options-height: calc(60vw * (9/16) / 4.7);
+    --canvas-height: calc(60vw * (9/16));
 }
 
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
   font-family: 'Inter', 'Times New Roman';
+  margin: 0;
+  padding: 0;
 }
 
 html{
@@ -21,15 +23,14 @@ html{
 
 body {
     /*border: 2px solid black;*/
-    width: 90vw;
-    height: 100vh;
-    margin: auto;
+    align-items: center;
     background-color: #F6F7FA;
-
     box-shadow: var(--primary-box-shadow);
     display: flex;
-    align-items: center;
+    height: 100vh;
     justify-content: center;
+    margin: auto;
+    width: 90vw;
 }
 
 .title{
@@ -37,8 +38,8 @@ body {
 }
 
 .subtitle {
-    font-size: 14px;
     color: #6b7280;
+    font-size: 14px;
     margin-top: 4px;
 }
 
@@ -50,15 +51,15 @@ body {
 }
 
 .header{
+    align-items: center;
     background-color: var(--div-background-color);
+    border: var(--primary-border);
+    border-radius: var(--primary-border-radius);
+    box-shadow: var(--primary-box-shadow);
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
-    border: var(--primary-border);
     padding: 16px;
-    border-radius: var(--primary-border-radius);
-    box-shadow: var(--primary-box-shadow);
 }
 
 .middleContainer{
@@ -66,8 +67,8 @@ body {
     display: flex;
     flex-direction: row;
     gap : var(--primary-gap);
+    height: calc( var(--paint-options-height) + var(--primary-gap) + var(--canvas-height) ); /* Canvas height + gap + Options height*/
     justify-content: center;
-    height: calc((60vw * (9/16) / 4.7) + 24px + (60vw * (9/16))) /* Canvas height + gap + Options height*/
 }
 
 .paintContainer{
@@ -78,58 +79,57 @@ body {
 
 #canvas {
     aspect-ratio: 16 / 9;
-    width: 60vw;
     border: var(--primary-border);
     border-radius: var(--primary-border-radius);
     box-shadow: var(--primary-box-shadow);
+    width: 60vw;
 }
 
 .options {
+    align-items: center;
     background-color: var(--div-background-color);
     border: var(--primary-border);
     border-radius: var(--primary-border-radius);
-    width: 60vw;
-    height: calc(60vw * (9/16) / 4.7);
+    box-shadow: var(--primary-border-radius);
     display: flex;
     flex-direction: row;
-    align-items: center;
+    height: var(--paint-options-height);
     justify-content: space-between;
     padding: 24px;
-    box-shadow: var(--primary-border-radius);
+    width: 60vw;
 }
 
 .chat{
     background-color: var(--div-background-color);
     border: var(--primary-border);
-    width: 23vw;
     border-radius: var(--primary-border-radius);
     box-shadow: var(--primary-box-shadow);
     display: flex;
     flex-direction: column;
     gap: 12px;
     padding: 24px;
+    width: 23vw;
 }
 
 .messagesContainer{
+    border: 2px solid #CBD5E1;
+    border-radius: var(--primary-border-radius);
     display: flex;
-    flex-direction: column;
     flex: 1;
-
+    flex-direction: column;
     gap: 10px;
     overflow-y: auto;
-    border-radius: var(--primary-border-radius);
     padding: 10px;
     scroll-behavior: smooth;
-    border: 2px solid #CBD5E1;
     width: 100%;
 }
 
 .message{
+    border-radius: var(--primary-border-radius);
     display: flex;
     flex-direction: row;
-    padding: 10px;
-    border-radius: var(--primary-border-radius);
     max-width: 70%;
+    padding: 10px;
     white-space: pre-wrap;/*used so white space is accurate*/
 }
 
@@ -140,41 +140,41 @@ body {
 
 .messageText{
     flex: 1;
-    overflow-wrap: anywhere;
     hyphens: auto;
+    overflow-wrap: anywhere;
 }
 
 .senderMessage{
+    align-self: flex-end;
     background-color: #2563EB;
     color: white;
-    align-self: flex-end;
-    overflow-wrap: anywhere;
     hyphens: auto;
+    overflow-wrap: anywhere;
 }
 
 .receiverMessage{
+    align-self: flex-start;
     background: #94A3B8;
     color: #111827;
-    align-self: flex-start;
 }
 
 .players{
-    display: flex;
-    flex-direction: row;
-    height: 6vh;
     border: 2px solid #CAD6E3;
     border-radius: var(--primary-border-radius);
+    display: flex;
+    flex-direction: row;
     gap: 10px;
+    height: 6vh;
 }
 
 .playerCard{
-    border-radius: var(--primary-border-radius);
     background: #94A3B8;
-    padding: 5px;
-    display: grid;
-    place-items: center;
+    border-radius: var(--primary-border-radius);
     color: white;
+    display: grid;
     flex: 1;
+    padding: 5px;
+    place-items: center;
 }
 
 .playerCard.you{
@@ -189,20 +189,20 @@ body {
 .createMessage input{
     border: 2px solid #e5e7eb;
     border-radius: var(--primary-border-radius);
+    flex: 1;
     font-size: 14px;
     padding: 12px;
-    flex: 1;
 }
 
 .createMessage button{
     background: #2ea44f;
-    color: white;
-    padding: 14px;
     border: none;
     border-radius: var(--primary-border-radius);
+    color: white;
+    cursor: pointer;
     font-size: 16px;
     font-weight: 600;
-    cursor: pointer;
+    padding: 14px;
     transition: box-shadow 0.2s;
 }
 
@@ -211,20 +211,20 @@ body {
 }
 
 .colors {
-    width: 35%;
-    /*border: 2px solid blue;*/
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    /*border: 2px solid blue;*/
     gap: 4px;
+    grid-template-columns: repeat(10, 1fr);
+    width: 35%;
 }
 
 .thickness{
     /*border: 2px solid green;*/
-    width: 30%;
-    height: 100%;
     display: flex;
     flex-direction: column;
+    height: 100%;
     justify-content: center;
+    width: 30%;
 }
 
 input[type="range"]{
@@ -233,15 +233,15 @@ input[type="range"]{
 
 .colors > div{   
     aspect-ratio: 1 / 1;
-    padding: 2px;
     border: 1px solid gray;
     border-radius: 4px;
+    padding: 2px;
     /*background-color: white;*/
 }
 
 .colors > div > div{
-    border-radius: 4px;
     aspect-ratio: 1 / 1;
+    border-radius: 4px;
     pointer-events: none;
 }
 
@@ -276,56 +276,53 @@ input[type="range"]{
     cursor: pointer;
 }
 .trash{
-    width: 45px;
+    align-items: center;
     aspect-ratio: 1/1;
-    padding: 5px;
+    background-color: var(--div-background-color);
     border: 2px solid #D7DEE8;
     border-radius: 8px;
     box-shadow: var(--primary-box-shadow);
-    background-color: var(--div-background-color);
-
     display: flex;
-    align-items: center;
     justify-content: center;
+    padding: 5px;
+    width: 45px;
 }
 
 .trash:hover{
-    border-color: #EF4444;
     background: #FEF2F2;
+    border-color: #EF4444;
 }
 .homePage{
-    width: 45px;
+    align-items: center;
     aspect-ratio: 1/1;
-    padding: 5px;
+    background-color: var(--div-background-color);
     border: 2px solid #D7DEE8;
     border-radius: 8px;
     box-shadow: var(--primary-box-shadow);
-    background-color: var(--div-background-color);
-
     display: flex;
-    align-items: center;
     justify-content: center;
+    padding: 5px;
+    width: 45px;
 }
 .homePage:hover {
-    border-color: #3B82F6;
     background: #EFF6FF;
+    border-color: #3B82F6;
 }
 .save{
-    width: 45px;
+    align-items: center;
     aspect-ratio: 1/1;
-    padding: 5px;
+    background-color: var(--div-background-color);
     border: 2px solid #D7DEE8;
     border-radius: 8px;
     box-shadow: var(--primary-box-shadow);
-    background-color: var(--div-background-color);
-
     display: flex;
-    align-items: center;
     justify-content: center;
+    padding: 5px;
+    width: 45px;
 }
 .save:hover {
-    border-color: #22C55E;
     background: #F0FDF4;
+    border-color: #22C55E;
 }
 .options img{
     aspect-ratio: 1 / 1;
@@ -345,12 +342,12 @@ input[type="range"]{
 }
 
 .options > .selected::before {
-  content: "";
-  position: absolute;
-  inset: -8px;              
+  border-radius: 30px;
   box-shadow: 0 0 5px 5px  rgb(32, 104, 187);
-  border-radius: 30px;       
-  pointer-events: none;      
+  content: "";
+  inset: -8px;
+  pointer-events: none;
+  position: absolute;
 }
 
 .choices{
@@ -361,15 +358,15 @@ input[type="range"]{
 
 .choices > div{
     aspect-ratio: 1 / 1;
-    padding: 3px;
-    margin: 2px;
     border: 1px solid gray;
-    width: 100%;
     border-radius: 6px;
+    margin: 2px;
+    padding: 3px;
+    width: 100%;
 }
 
 .choices > div > div{
-    border-radius: 6px;
     aspect-ratio: 1 / 1;
+    border-radius: 6px;
     pointer-events: none;
 }

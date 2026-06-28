@@ -33,7 +33,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
             case SEND -> {
                 String destination = accessor.getDestination();
                 if (destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX)) {
-                    //WILL NEED TO FIX
+                    //WILL NEED TO FIX i forgot what this is about
                     String roomName = extractRoomName(destination);
                     User user = registry.get(accessor.getSessionId());
 
@@ -55,25 +55,21 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     //check if room exists
                     String token = (String) accessor.getSessionAttributes().get("jwt");
                     if (token == null) {
-                        System.out.println("PAINT Token is null");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
                     String tokenRoomName = getRoomFromCookie(token);
                     if(!roomName.equals(tokenRoomName) || !service.roomExist(roomName)){
-                        System.out.println("Room doesnt exist");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
                     String username = jwtUtil.extractUsername(token);
                     if(service.isRoomFull(roomName)){
-                        System.out.println("Full Room");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
                     //not allowing user with same name
                     if(service.userExistsInRoom(username, roomName)){
-                        System.out.println("Same username");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
@@ -89,10 +85,8 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     String token = (String) accessor.getSessionAttributes().get("jwt");
 
                     if (token == null) {
-                        System.out.println("CHAT Token is null");
                         throw new RuntimeException("ACCESS DENIED");
                     }
-
                     //could throw exception
                     String tokenRoomName = getRoomFromCookie(token);
 
