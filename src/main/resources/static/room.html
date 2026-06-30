@@ -6,7 +6,7 @@
     <title>Paint Room</title>
     <link rel="stylesheet" href="/css/room.css">
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
-    <script type="module" src="/javascript/roomPage/main.js" defer></script>
+    <script type="module" src="/javascript/roomPage/main.js"></script>
 
 </head>
 <body>
@@ -16,13 +16,13 @@
             <div class="left"></div>
             <h1 class="title">🎨 Paint Station</h1>
             <div class="icons">
-                <button class="trash">
+                <button class="icon trash">
                     <img src="/img/trash-2.svg" alt="trash" >
                 </button>
-                <button class="homePage">
+                <button class="icon homePage">
                     <img src="/img/house.svg" alt="homePage">
                 </button>
-                <button class="save">
+                <button class="icon save">
                     <img src="/img/save.svg" alt="homePage">
                 </button>
             </div>
@@ -32,32 +32,41 @@
             <div class="paintContainer">
                 <canvas id="canvas" class="optionBrush">Paint Canvas</canvas>
                 <div class="options">
-                    <div class="choices">
 
+                    <div class="colorSelection separation">
+                        <div class="choices">
+                        </div>
+                        <div id="all_colors" class="colors">
+                        </div>
                     </div>
-                    <div id="all_colors" class="colors">
 
-                    </div>
-                    <div class="thickness">
+                    <div class="thickness separation">
                         <label for="all_thickness">Paint Thickness</label>
                         <input type="range" name="thickness" id="all_thickness" min="4" max="50" value="10">
                     </div>
-                    <div class="zoom">
-                         <img src="/img/magnify.png" alt="Zoom" >
+
+                    <div class="paintTools seperation">
+                        <div class="tool zoom">
+                             <img src="/img/magnify.png" alt="Zoom" >
+                        </div>
+                        <div class="tool brush selected">
+                             <img src="/img/paint.png" alt="PaintBrush" >
+                        </div>
+                        <div class="tool bucket">
+                             <img src="/img/bucket.png" alt="Bucket" >
+                        </div>
                     </div>
-                    <div class="brush selected">
-                         <img src="/img/paint.png" alt="PaintBrush" >
-                    </div>
-                    <div class="bucket">
-                         <img src="/img/bucket.png" alt="Bucket" >
-                    </div>
+
                 </div>
             </div>
             <div class="chat">
 
                 <div class="chatHeader">
                     <h2>Players Chat</h2>
-                    <p class="subtitle" id="userCount">🟢 Online</p>
+                    <div class="onlineStatus">
+                        <p class="onlineDot"></p>
+                        <p class="subtitle" id="userCount"> Online</p>
+                    </div>
                 </div>
                 <div class="players">
 
@@ -66,13 +75,12 @@
 
                 </div>
                 <form class="createMessage" id="chatForm">
-                    <label for="messageInput"></label>
-                    <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
+                    <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" aria-label="messageInput">
                     <button id="sendMessage">Send</button>
                 </form>
             </div>
-        </div>
 
+        </div>
     </div>
 
 </body>

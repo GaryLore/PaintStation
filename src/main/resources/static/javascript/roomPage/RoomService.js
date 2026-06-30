@@ -55,13 +55,9 @@ await init();
 stompClient.activate();
 
 function chatSocketHandling(responseData){
-
-    console.log("MESAGE RECEIVED");
     const data = JSON.parse(responseData.body)
     const name = data.username;
     const text = data.text;
-    console.log("MESSAGE Received [", text, "]");
-    console.log(text);
     messagePopAudio.play();
     loadMessage(name, text);
     scrollDown();
@@ -140,7 +136,7 @@ function paintSocketHandling(responseData){
                 PLAYERS.splice(indexToRemove,1);
                 removePlayer(data.user);
             }
-            userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
+            userCountElement.innerText = `${PLAYERS.length} Online`
             break;
         default:
             const USERNAME = data.user;
@@ -262,7 +258,7 @@ async function init(){
         addPlayer(player);
     }
 
-    userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
+    userCountElement.innerText = `${PLAYERS.length} Online`;
 }
 
 function addPlayer(player){
