@@ -11,7 +11,7 @@ whatever stroke you draw getting filled inside by a color of your choice. There 
 ### HomePage :
 ![](/assets/images/Homepage.jpg)
 ### Room :
-![](/assets/images/Room.jpg?v2)
+![](/assets/images/Room.jpg?v=2)
 
 ## Tech Stack
 
