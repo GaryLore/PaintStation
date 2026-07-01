@@ -11,6 +11,19 @@ trashCan.addEventListener("click", function(){
   canvasState.render();
 });
 
+const save = document.getElementsByClassName("save")[0];
+save.addEventListener("click", function(){
+  const link = document.createElement('a');
+  link.download = 'Drawing.png';
+  link.href = canvas.toDataURL()
+  link.click();
+});
+
+const homePage = document.getElementsByClassName("homePage")[0];
+homePage.addEventListener("click", function (){
+  window.location.href = "/";
+});
+
 const magnify = document.getElementsByClassName("zoom")[0];
 magnify.addEventListener("click", function(){
 

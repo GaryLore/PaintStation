@@ -7,6 +7,13 @@ const roomName = sessionStorage.getItem("ROOM_NAME");
 const username = sessionStorage.getItem("USERNAME");
 const playersListElement = document.querySelector(".players");
 const userCountElement = document.getElementById("userCount");
+const messageContainerElement = document.querySelector(".messagesContainer");
+const messageInputElement = document.getElementById("messageInput");
+const chatFormElement = document.getElementById("chatForm");
+chatFormElement.addEventListener("submit", sendMessage);
+const chatContainer = document.querySelector(".messagesContainer");
+const messagePopAudio = new Audio("../../audio/MessagePop.mp3");
+messagePopAudio.volume = 0.25;
 let PLAYERS;
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -20,9 +27,13 @@ stompClient.onConnect = (frame) => {
     console.log("PLEASE WORK");
     console.log('Connected: ' + frame);
     stompClient.subscribe(
-        `/topic/room/${roomName}`,
-        websocketHandling
+        `/topic/room/${roomName}/paint`,
+        paintSocketHandling
     );
+    stompClient.subscribe(
+        `/topic/room/${roomName}/chat`,
+        chatSocketHandling
+    )
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -43,7 +54,68 @@ await init();
 //activates connection
 stompClient.activate();
 
-function websocketHandling(responseData){
+function chatSocketHandling(responseData){
+    const data = JSON.parse(responseData.body)
+    const name = data.username;
+    const text = data.text;
+    messagePopAudio.play();
+    loadMessage(name, text);
+    scrollDown();
+}
+
+function loadMessage(name, text){
+    const messageDiv = document.createElement("div")
+
+    messageDiv.classList.add("message")
+    if(name === username){
+        messageDiv.classList.add("senderMessage");
+        messageDiv.textContent = text;
+    }
+    else{
+        messageDiv.classList.add("receiverMessage");
+
+        const nameDiv = document.createElement("div")
+        const textDiv = document.createElement("div")
+
+        nameDiv.textContent = name;
+        textDiv.textContent = text;
+
+        nameDiv.classList.add("messageName");
+        textDiv.classList.add("messageText");
+
+        messageDiv.appendChild(nameDiv);
+        messageDiv.appendChild(textDiv);
+    }
+    messageContainerElement.appendChild(messageDiv);
+}
+
+function scrollDown(){
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function sendMessage(event){
+    event.preventDefault();
+    const text = messageInputElement.value;
+
+    console.log("MESSAGE GONNA BE SENT [", text, "]");
+    if(text.length <= 100 && /\S/.test(text)) {
+        stompClient.publish({
+            destination: `/app/room/${roomName}/chat`,
+            body: text//JSON.stringify(text)
+        });
+
+        messageInputElement.value = "";
+    }
+    else if(text.length > 100){
+        messageInputElement.placeholder = "Message Can't Be Over 100 characters"
+        setTimeout(() => {
+            messageInputElement.placeholder = "Type your message...";
+        }, 2000);
+    }
+    messageInputElement.value = "";
+}
+
+function paintSocketHandling(responseData){
     const data = JSON.parse(responseData.body)
     const type = data.type;
 
@@ -51,7 +123,6 @@ function websocketHandling(responseData){
         case "PLAYER_UPDATE":
             const action = data.action;
 
-            //checking USERNAME isnt yours fixes duplicate data when user subscribes and init() and websocketHandling() both run
             if(action === "ADD"){
                PLAYERS.push(data.user);
                addPlayer(data.user);
@@ -61,15 +132,12 @@ function websocketHandling(responseData){
                 PLAYERS.splice(indexToRemove,1);
                 removePlayer(data.user);
             }
-            userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
-            break;
-        case "MESSAGE":
+            userCountElement.innerText = `${PLAYERS.length} Online`
             break;
         default:
             const USERNAME = data.user;
             if(username !== USERNAME) {
                 let paintObject;
-                const type = data.type;
 
                 if (type === "STROKE") {
                     paintObject = Stroke.fromJson(data.object);
@@ -157,7 +225,7 @@ function sendPaintObjects(paintType, paintObject){
     //console.log("PAINT REQUEST KB : ", bytes/1024);
 
     stompClient.publish({
-        destination: `/app/room/${roomName}`,
+        destination: `/app/room/${roomName}/paint`,
         body: JSON.stringify(paintRequest)
     });
 }
@@ -176,6 +244,9 @@ async function init(){
         return;
     }
 
+    const roomTitle = document.getElementsByClassName("title")[0];
+    roomTitle.textContent = `🎨 ${roomName}`;
+
     const {players} = await response.json();
     PLAYERS = players;
 
@@ -183,7 +254,7 @@ async function init(){
         addPlayer(player);
     }
 
-    userCountElement.innerText = `🟢 ${PLAYERS.length} Online`
+    userCountElement.innerText = `${PLAYERS.length} Online`;
 }
 
 function addPlayer(player){

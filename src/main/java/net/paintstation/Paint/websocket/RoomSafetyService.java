@@ -1,5 +1,6 @@
 package net.paintstation.Paint.websocket;
 
+import net.paintstation.Paint.Registry.PlayerRegistry;
 import net.paintstation.Paint.Registry.User;
 import net.paintstation.Paint.RoomRepository.Room;
 import net.paintstation.Paint.RoomRepository.RoomRepository;
@@ -50,7 +51,7 @@ public class RoomSafetyService {
             if(elRoom.isEmpty()){
                 repository.removeRoom(roomName);
                 RoomUpdate update = new RoomUpdate(RoomAction.DELETE, user.getRoomName());
-                template.convertAndSend("/topic/update", update);
+                template.convertAndSend(PlayerRegistry.TOPIC_LOBBY, update);
             }
         });
     }

@@ -2,6 +2,7 @@ package net.paintstation.Paint.websocket;
 
 import net.paintstation.Paint.Registry.PlayerRegistry;
 import net.paintstation.Paint.Registry.User;
+import net.paintstation.Paint.websocket.dto.PlayerUpdate;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -27,12 +28,12 @@ public class WebSocketEventListener {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         String destination = accessor.getDestination();
 
-        if (destination != null && destination.startsWith("/topic/room/")) {
+        if (destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
             String sessionId = accessor.getSessionId();
             User user = registry.get(sessionId);
             service.addPlayer(user.getRoomName(), user.getName());
             System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " SUBSCRIBED TO ROOM: " + "\"" + user.getRoomName() + "\"");
-            template.convertAndSend("/topic/room/" + user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "ADD", user.getName()));
+            template.convertAndSend(PlayerRegistry.TOPIC_ROOM_PREFIX + user.getRoomName() + "/" + "paint", new PlayerUpdate("PLAYER_UPDATE", "ADD", user.getName()));
         }
     }
 
@@ -41,11 +42,17 @@ public class WebSocketEventListener {
         String sessionId = event.getSessionId();
         User user = registry.get(sessionId);
 
+        //paint cleanup
         if(user != null) {//we only register users once they enter a room not if they subscribe to the lobby
             service.cleanUp(user, template);
             registry.remove(sessionId);
             System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " DISCONNECTED FROM ROOM: " + "\"" + user.getRoomName() + "\"");
-            template.convertAndSend("/topic/room/" + user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "REMOVE", user.getName()));
+            template.convertAndSend(PlayerRegistry.TOPIC_ROOM_PREFIX + user.getRoomName() + "/" + "paint", new PlayerUpdate("PLAYER_UPDATE", "REMOVE", user.getName()));
         }
+        //chat cleanup
+        if(registry.containsChatUser(sessionId)){
+            registry.removeChatUser(sessionId);
+        }
+
     }
 }

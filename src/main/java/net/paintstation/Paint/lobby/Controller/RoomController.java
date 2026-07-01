@@ -2,6 +2,7 @@ package net.paintstation.Paint.lobby.Controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import net.paintstation.Paint.Registry.PlayerRegistry;
 import net.paintstation.Paint.RoomRepository.Room;
 import net.paintstation.Paint.jwt.JwtUtil;
 import net.paintstation.Paint.lobby.Service.DashboardService;
@@ -101,7 +102,7 @@ public class RoomController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         RoomUpdate update = new RoomUpdate(RoomAction.INSERT, request.roomName() );
-        template.convertAndSend("/topic/update", update);
+        template.convertAndSend(PlayerRegistry.TOPIC_LOBBY, update);
         return ResponseEntity.status(HttpStatus.CREATED).body(roomResponse);
     }
 

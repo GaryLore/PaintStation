@@ -24,7 +24,7 @@ const stompClient = new StompJs.Client({brokerURL: socketURL});
 
 stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/update', (updateRoomData) => {
+    stompClient.subscribe('/topic/lobby', (updateRoomData) => {
         const updateData = JSON.parse(updateRoomData.body);
         updateRooms(updateData);
     });
@@ -109,7 +109,7 @@ async function submitEnterForm(event) {
     const password = formData.get('password').trim();
 
     resetEnterRoomErrors();
-    let clientValidation = enterRoomClientValidation(username, password);
+    let clientValidation = enterRoomClientValidation(user, password);
 
     if(!clientValidation){
         return;

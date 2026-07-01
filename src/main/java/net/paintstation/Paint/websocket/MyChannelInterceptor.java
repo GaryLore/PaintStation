@@ -32,7 +32,8 @@ public class MyChannelInterceptor implements ChannelInterceptor {
         switch(command){
             case SEND -> {
                 String destination = accessor.getDestination();
-                if (destination != null && destination.startsWith("/topic/room/")) {
+                if (destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX)) {
+                    //WILL NEED TO FIX i forgot what this is about
                     String roomName = extractRoomName(destination);
                     User user = registry.get(accessor.getSessionId());
 
@@ -47,13 +48,15 @@ public class MyChannelInterceptor implements ChannelInterceptor {
             case SUBSCRIBE -> {
                 String destination = accessor.getDestination();
 
-                if (destination != null && destination.startsWith("/topic/room/")) {
+                if (destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
 
                     String roomName = extractRoomName(destination);
 
                     //check if room exists
                     String token = (String) accessor.getSessionAttributes().get("jwt");
-                    if (token == null) throw new RuntimeException("ACCESS DENIED");
+                    if (token == null) {
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
 
                     String tokenRoomName = getRoomFromCookie(token);
                     if(!roomName.equals(tokenRoomName) || !service.roomExist(roomName)){
@@ -74,12 +77,35 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     User user = new User(username, roomName);
                     registry.add(accessor.getSessionId(), user);
                 }
+                //subscription to chat is ran after subscription to paint so registry already contains player info
+                else if(destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX) && destination.endsWith("chat")){
+
+                    String sessionId = accessor.getSessionId();
+                    String roomName = extractRoomName(destination);
+                    String token = (String) accessor.getSessionAttributes().get("jwt");
+
+                    if (token == null) {
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+                    //could throw exception
+                    String tokenRoomName = getRoomFromCookie(token);
+
+                    if(!roomName.equals(tokenRoomName) || !service.roomExist(roomName)){
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+
+                    if(registry.containsChatUser(sessionId)){
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+
+                    registry.addChatUser(sessionId);
+                    System.out.println("SUBSCRIPTION TO CHAT: " + destination );
+                }
                 //don't want user connecting to stomp routes that dont exist
-                else if(destination == null || !destination.equals("/topic/update")){
+                else if(destination == null || !destination.equals(PlayerRegistry.TOPIC_LOBBY)){
                     throw new RuntimeException("ACCESS DENIED");
                 }
             }
-
             case null -> {}
             default -> {}
         }
@@ -87,7 +113,17 @@ public class MyChannelInterceptor implements ChannelInterceptor {
     }
 
     private String extractRoomName(String destination) {
-        return destination.replace("/topic/room/", "");
+        final int PAINT_SUFFIX_LENGTH = 6; // "/paint"
+        final int CHAT_SUFFIX_LENGTH = 5; // "/chat"
+
+        String roomName = null;
+        if(destination.endsWith("/paint")){
+            roomName = destination.substring(PlayerRegistry.TOPIC_ROOM_PREFIX.length(), destination.length() - PAINT_SUFFIX_LENGTH);
+        }
+        else if(destination.endsWith("/chat")){
+            roomName = destination.substring(PlayerRegistry.TOPIC_ROOM_PREFIX.length(), destination.length() - CHAT_SUFFIX_LENGTH);
+        }
+        return roomName;
     }
 
     private String getRoomFromCookie(String token){
