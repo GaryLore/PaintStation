@@ -26,7 +26,6 @@ html{
 }
 
 body {
-    /*border: 2px solid black;*/
     align-items: center;
     background-color: #F6F7FA;
     box-shadow: var(--primary-box-shadow);
@@ -48,7 +47,6 @@ body {
 }
 
 .layout{
-    /*border: 2px solid #CAD6E3;*/
     display: flex;
     flex-direction: column;
     gap: var(--primary-gap);
@@ -67,7 +65,6 @@ body {
 }
 
 .middleContainer{
-    /*border: 2px solid #CAD6E3;*/
     display: flex;
     flex-direction: row;
     gap : var(--primary-gap);
@@ -99,7 +96,6 @@ body {
     flex-direction: row;
     height: var(--paint-options-height);
     justify-content: space-between;
-    /*padding: 24px;*/
     width: 60vw;
 }
 
@@ -118,7 +114,6 @@ body {
 }
 
 .thickness{
-    /*border: 2px solid green;*/
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -147,12 +142,14 @@ body {
     padding: 24px;
     width: 23vw;
 }
+
 .onlineStatus{
     display: flex;
     flex-direction: row;
     align-items: end;
     gap: 8px;
 }
+
 .onlineDot{
     width: 15px;
     height: 15px;
@@ -275,7 +272,6 @@ body {
 
 .colors {
     display: grid;
-    /*border: 2px solid blue;*/
     gap: 4px;
     grid-template-columns: repeat(10, 1fr);
     width: 80%;
@@ -291,7 +287,6 @@ input[type="range"]{
     border: 1px solid gray;
     border-radius: 4px;
     padding: 2px;
-    /*background-color: white;*/
 }
 
 .colors > div > div{
@@ -388,7 +383,4 @@ input[type="range"]{
     aspect-ratio: 1 / 1;
     border-radius: 6px;
     pointer-events: none;
-    width: 100%;
-    height: 100%;
-    /*width: 100%;*/
 }

@@ -91,10 +91,10 @@ function loadMessage(name, text){
 
 function scrollDown(){
     chatContainer.scrollTop = chatContainer.scrollHeight;
-    console.log("SCROLL TOP: " ,chatContainer.scrollTop);
     console.log("SCROLLHEIGHT: ", chatContainer.scrollHeight);
     console.log("ClientHeight : ", chatContainer.clientHeight)
     console.log("ScrollHeight - ClientHeight", chatContainer.scrollHeight - chatContainer.clientHeight);
+    console.log("SCROLL TOP: " ,chatContainer.scrollTop);
 }
 
 function sendMessage(event){
