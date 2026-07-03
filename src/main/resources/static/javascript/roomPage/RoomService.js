@@ -264,12 +264,12 @@ function addPlayer(player){
         playerDiv.classList.add("you");
     }
     playerDiv.textContent = player;
-    playerDiv.setAttribute('name', player);
+    playerDiv.setAttribute('data-name', player);
     playersListElement.appendChild(playerDiv);
 }
 
 function removePlayer(player){
-    const playerDiv = document.querySelector(`div[name="${player}"]`);
+    const playerDiv = document.querySelector(`div[data-name="${player}"]`);
     playerDiv?.remove();
 }
 export {sendPaintObjects}

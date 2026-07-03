@@ -95,7 +95,7 @@ async function submitCreateForm(event) {
 
 function showEnterForm(event){
     if (event.target.matches('.roomCard')){
-        roomSelectedName = event.target.getAttribute("name");
+        roomSelectedName = event.target.dataset.name;
         modalElement.classList.add("show")
     }
 }
@@ -174,13 +174,13 @@ function addRoom(roomName){
     newRoomDiv.classList.add("roomCard");
     console.log(roomName);
     newRoomDiv.textContent = roomName;
-    newRoomDiv.setAttribute('name', roomName);
+    newRoomDiv.setAttribute('data-name', roomName);
     roomsListElement.appendChild(newRoomDiv);
 }
 
 function deleteRoom(roomName) {
     console.log("ROOM SHOULD BE DELTED : ", roomName)
-    const tempRoom = document.querySelector(`[name="${roomName}"]`);
+    const tempRoom = document.querySelector(`[data-name="${roomName}"]`);
     //tempRoom.remove();
     //for internet explorer support
     tempRoom.parentNode.removeChild(tempRoom);
