@@ -1,12 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* ===== RESET ===== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Inter', 'Times New Roman';
 }
+/* ===== VARIABLES ===== */
+:root{
+    --panel-shadow: 0 0 30px rgba(0,0,0,.08);
+    --panel-gap: 24px;
+    --panel-padding: 24px;
+    --panel-border-radius: 28px;
+}
 
+/* ===== GENERAL STYLES ===== */
 html{
     background-color: antiquewhite;
 }
@@ -18,31 +27,29 @@ body{
     justify-content: center;
 }
 
-.header{
-    margin-bottom: 24px;
+.app__header{
+    margin-bottom: 0;
 }
 
+
+/* ===== GENERAL LAYOUT ===== */
 .homepage{
-    height: 95vh;
+    height: 90vh;
     display: grid;
     grid-template-columns:1fr 5fr 1fr;
 }
 
 .app{
     background: #fafafa;
-    border-radius: 28px;
-    box-shadow: 0 0px 30px rgba(0,0,0,.08);
+    border-radius: var(--panel-border-radius);
+    box-shadow: var(--panel-shadow);
     
     height: 100%;
-    padding: 40px 40px 10px;
+    padding: 20px 40px 10px;
 
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-
-.center{
-    text-align: center;
 }
 
 .dashboard{
@@ -52,19 +59,43 @@ body{
     gap: 32px
 }
 
-.roomsPanel{    
-    border-radius: 28px;
-    box-shadow: 0 0px 30px rgba(0,0,0,.08);
+.rightColumn{
     height: 100%;
-    /*border: 2px solid black;*/
-    padding: 24px;
+    display: grid;
+    grid-template-rows: 2fr 1fr;
+    gap: var(--panel-gap);
+}
+
+/* ===== PANELS LAYOUT ===== */
+.about-panel{
+    border-radius: var(--panel-border-radius);
+    box-shadow: var(--panel-shadow);
+    padding: var(--panel-padding);
+}
+
+.rooms-panel{
+    border-radius: 28px;
+    box-shadow: var(--panel-shadow);
+    height: 100%;
+    padding: var(--panel-padding);
 
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
-.roomsList{
+.create-room{
+    border-radius: var(--panel-border-radius);
+    box-shadow: var(--panel-shadow);
+    padding: var(--panel-padding);
+
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ===== ROOM LIST / CARDS ===== */
+.room-list{
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -88,67 +119,27 @@ body{
     cursor: pointer;
 }
 
-.rightColumn{
-    height: 100%;
-    display: grid;
-    grid-template-rows: 2fr 1fr;
-    gap: 24px;
-    
-    /*border: 2px solid black;*/
-}
-
-.createRoomPanel{
-    border-radius: 28px;
-    box-shadow: 0 0 30px rgba(0,0,0,.08);
-    padding: 24px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-.roomForm{
+/* ===== FORMS ===== */
+.room-form{
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-}
-
-.aboutPanel{
-    border-radius: 28px;
-    box-shadow: 0 0px 30px rgba(0,0,0,.08);
-    padding: 24px;
-}
-
-.aboutContent{
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.sectionHeader{
-    margin-bottom: 20px;
-}
-
-.formGroup{
+.form-group{
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.formGroup input{
+.form-group__input{
     border: 2px solid #e5e7eb;
     border-radius: 8px;
     font-size: 14px;
-    padding: 12px 12px 12px 12px;
+    padding: 12px;
 }
 
-.submitBtn{
+.submit-btn{
     background: #2ea44f;
     color: white;
     padding: 14px;
@@ -161,26 +152,24 @@ body{
     transition: box-shadow 0.2s
 }
 
-.submitBtn:hover{
+.submit-btn:hover{
     box-shadow: 0 0px 10px rgba(0, 0, 0, 0.4);
 }
 
-.subtitle {
+.form-group__label{
     font-size: 14px;
-    color: #6b7280;
-    margin-top: 4px;
-}
-
-.formGroup label{
-    font-size: 14px;
-    /*font-weight: 500;*/
     color: #374151;
 }
 
-.footer{
-    color: #6b7280;
+.error.hidden{
+    display: none;
+}
+.error{
+    font-size: 14px;
+    color : darkred;
 }
 
+/* ===== MODAL ===== */
 .modal-container{
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(8px);
@@ -196,14 +185,12 @@ body{
 
     opacity: 0;
     pointer-events: none;
-    /*visibility: hidden;   */       /* removes from accessibility tree */
-    transition: opacity 0.3s ease;/*, visibility 0.3s ease;*/
+    transition: opacity 0.3s ease;
 }
 
 .modal-container.show{
     opacity: 1;
     pointer-events: auto;
-    /*visibility: visible;*/
 }
 
 .modal{
@@ -214,7 +201,7 @@ body{
     width: 60vw;
 }
 
-.modalHeader{
+.modal-header{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -229,9 +216,7 @@ body{
     border: none;
     background-color: #733635;
     color: white;
-
     line-height: 50px;
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -245,10 +230,27 @@ body{
     cursor: pointer;
 }
 
-.error.hidden{
-    display: none;
+/* ===== MISC / UTILITY CLASSES ===== */
+.center{
+    text-align: center;
 }
-.error{
+
+.footer{
+    color: #6b7280;
+}
+
+.subtitle {
     font-size: 14px;
-    color : darkred;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.about-content{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-header{
+    margin-bottom: 20px;
 }

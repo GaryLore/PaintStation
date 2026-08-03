@@ -1,4 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', 'Times New Roman';
+  margin: 0;
+  padding: 0;
+}
 
 :root{
     --div-background-color: #fafafa;
@@ -12,13 +18,6 @@
     --you-player-text-color: white;
     --other-player-background-color: #F0F1F4;
     --other-player-text-color: #111827;
-}
-
-* {
-  box-sizing: border-box;
-  font-family: 'Inter', 'Times New Roman';
-  margin: 0;
-  padding: 0;
 }
 
 html{

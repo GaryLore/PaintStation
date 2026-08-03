@@ -6,7 +6,7 @@ createFormElement.addEventListener("submit", submitCreateForm)
 const enterFormElement = document.querySelector("#enterRoom");
 enterFormElement.addEventListener("submit", submitEnterForm)
 
-const roomsListElement = document.querySelector(".roomsList");
+const roomsListElement = document.querySelector(".room-list");
 document.addEventListener("DOMContentLoaded", loadRooms);
 document.addEventListener("click", showEnterForm);
 
