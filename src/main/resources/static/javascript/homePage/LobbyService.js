@@ -170,12 +170,14 @@ function updateRooms(roomData){
 }
 
 function addRoom(roomName){
-    const newRoomDiv = document.createElement("div")
-    newRoomDiv.classList.add("roomCard");
+    const newRoomListItem = document.createElement("li");
+    const newRoomBtn = document.createElement("button");
+    newRoomBtn.classList.add("roomCard");
     console.log(roomName);
-    newRoomDiv.textContent = roomName;
-    newRoomDiv.setAttribute('data-name', roomName);
-    roomsListElement.appendChild(newRoomDiv);
+    newRoomBtn.textContent = roomName;
+    newRoomBtn.setAttribute('data-name', roomName);
+    newRoomListItem.appendChild(newRoomBtn);
+    roomsListElement.appendChild(newRoomListItem);
 }
 
 function deleteRoom(roomName) {
