@@ -328,14 +328,6 @@ body {
 }
 
 /* ===== PAINT TOOLS ===== */
-.paint__tools{
-    display: flex;
-    flex-direction: row;
-    gap: 32px;
-    width: 22%;
-    padding: 0 24px;
-}
-
 .paint__thickness{
     display: flex;
     flex-direction: column;
@@ -351,6 +343,14 @@ body {
     width: 100%;
 }
 
+.paint__tools{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 22%;
+    padding: 0 1.2vw;
+}
+
 .paint__tool{
     appearance: none;
     -webkit-appearance: none;
@@ -358,9 +358,8 @@ body {
     border: none;
     padding: 0;
     height:auto;
-    width: 25%;
+    width: 23%;
 }
-
 
 .paint__tools-img{
     aspect-ratio: 1 / 1;
@@ -383,7 +382,7 @@ body {
     border-radius: 30px;
     box-shadow: 0 0 5px 5px  rgb(32, 104, 187);
     content: "";
-    inset: -8px;
+    inset: -20%;
     pointer-events: none;
     position: absolute;
 }
