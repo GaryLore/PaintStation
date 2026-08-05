@@ -94,7 +94,7 @@ async function submitCreateForm(event) {
 }
 
 function showEnterForm(event){
-    if (event.target.matches('.roomCard')){
+    if (event.target.matches('.room-card')){
         roomSelectedName = event.target.dataset.name;
         modalElement.classList.add("show")
     }
