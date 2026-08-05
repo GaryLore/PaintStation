@@ -24,24 +24,23 @@ homePage.addEventListener("click", function (){
   window.location.href = "/";
 });
 
-const magnify = document.getElementsByClassName("paint__tool--pan-zoom")[0];
+const magnify = document.querySelector('[data-tool="pan-zoom"]');
 magnify.addEventListener("click", function(){
-
   canvasState.tool = Tool.PANZOOM;
+  canvasState.brush.fill = false;
+
   this.classList.add('paint__tool--selected');
   canvas.classList.add('paint__canvas--pan-zoom');
 
   brush.classList.remove('paint__tool--selected');
-  canvas.classList.remove('paint__canvas--brush');
   bucket.classList.remove('paint__tool--selected');
-  canvasState.brush.fill = false;
-
+  canvas.classList.remove('paint__canvas--brush');
 });
 
-const brush = document.getElementsByClassName("paint__tool--brush")[0];
+const brush = document.querySelector('[data-tool="brush"]');
 brush.addEventListener("click", function(){
-
   canvasState.tool = Tool.BRUSH;
+
   this.classList.add('paint__tool--selected');
   canvas.classList.add('paint__canvas--brush');
 
@@ -49,19 +48,13 @@ brush.addEventListener("click", function(){
   canvas.classList.remove('paint__canvas--pan-zoom');
 });
 
-const bucket = document.getElementsByClassName("paint__tool--bucket")[0];
+const bucket = document.querySelector('[data-tool="bucket"]');
 bucket.addEventListener("click", function(){
+  if(canvasState.tool !== Tool.BRUSH)
+    return
 
-  if(canvasState.tool === Tool.BRUSH)
-    canvasState.brush.fill = !canvasState.brush.fill;
-
-  if(canvasState.brush.fill){
-    this.classList.add('paint__tool--selected');
-  }
-  else{
-    this.classList.remove('paint__tool--selected');
-  }
-
+  canvasState.brush.fill = !canvasState.brush.fill;
+  this.classList.toggle("paint__tool--selected", canvasState.brush.fill);
 });
 
 const title = document.getElementsByClassName("header__title")[0];
@@ -75,26 +68,39 @@ slider.addEventListener("change", function (){
   ctx.lineWidth = canvasState.brush.paintWidth * canvasState.viewportTransform.scale;
 });
 
-function createColor(string){
-  let square = document.createElement("div");
-  let colors = document.getElementById("all_colors");
-  let inner = document.createElement("div");
-  square.setAttribute("id", string);
-  inner.style.backgroundColor = string;
-  square.appendChild(inner);
-  colors.appendChild(square);
+function createColor(color){
+  const palette = document.getElementById("all_colors");
+
+  const swatch = document.createElement("button");
+  const swatchInner = document.createElement("div");
+
+  swatch.classList.add("paint__swatch");
+  swatch.id = color;
+  swatch.setAttribute("aria-label", `${color} color`);
+
+  swatchInner.classList.add("paint__swatch-inner");
+  swatchInner.style.backgroundColor = color;
+
+  swatch.append(swatchInner);
+  palette.append(swatch);
 }
 
-function createOptions(num, string){
-  let square = document.createElement("div");
-  let colors = document.querySelector(".paint__color-choices");
-  let inner = document.createElement("div");
-  square.setAttribute("id", num);
-  inner.style.backgroundColor = string;
-  square.appendChild(inner);
-  colors.appendChild(square);
+function createOptions(index, color){
+  let palette = document.querySelector(".paint__color-choices");
 
-  return [square, inner];
+  let swatch = document.createElement("button");
+  let swatchInner = document.createElement("div");
+
+  swatch.classList.add("paint__choice-swatch");
+  swatch.setAttribute("id", index);
+
+  swatchInner.classList.add("paint__choice-swatch-inner")
+  swatchInner.style.backgroundColor = color;
+
+  swatch.appendChild(swatchInner);
+  palette.appendChild(swatch);
+
+  return [swatch, swatchInner];
 }
 
 //populates colors in html
@@ -151,18 +157,20 @@ bucketSquare.addEventListener("click", function(){
 let colorOptions = document.getElementById("all_colors");
 colorOptions.addEventListener("click", setBrushColors);
 
-function setBrushColors(e){
-  if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
+function setBrushColors(event) {
+  if (event.target.tagName !== "BUTTON" || event.target === event.currentTarget) {
+    return;
+  }
 
-      if(selectedColorTarget === ColorTarget.BRUSH){
-        canvasState.brush.color = e.target.id;
-        innerBrushSquare.style.backgroundColor = canvasState.brush.color;
-        ctx.strokeStyle = canvasState.brush.color;
-      }
-      else if(selectedColorTarget === ColorTarget.BUCKET){
-        canvasState.brush.bucketColor = e.target.id;
-        innerBucketSquare.style.backgroundColor = canvasState.brush.bucketColor;
-        ctx.fillStyle = canvasState.brush.bucketColor;
-      }
-    }
+  const color = event.target.id;
+
+  if (selectedColorTarget === ColorTarget.BRUSH) {
+    canvasState.brush.color = color;
+    innerBrushSquare.style.backgroundColor = color;
+    ctx.strokeStyle = color;
+  } else if (selectedColorTarget === ColorTarget.BUCKET) {
+    canvasState.brush.bucketColor = color;
+    innerBucketSquare.style.backgroundColor = color;
+    ctx.fillStyle = color;
+  }
 }

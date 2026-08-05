@@ -114,17 +114,17 @@ body {
     cursor: pointer;
 }
 
-.header__icon-btn--trash:hover{
+.header__icon-btn--trash:is(:hover, :focus-visible){
     background: #FEF2F2;
     border-color: #EF4444;
 }
 
-.header__icon-btn--homepage:hover {
+.header__icon-btn--homepage:is(:hover, :focus-visible) {
     background: #EFF6FF;
     border-color: #3B82F6;
 }
 
-.header__icon-btn--save:hover {
+.header__icon-btn--save:is(:hover, :focus-visible) {
     background: #F0FDF4;
     border-color: #22C55E;
 }
@@ -284,27 +284,47 @@ body {
     width: 80%;
 }
 
-.paint__palette > div{
+.paint__swatch{
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
     aspect-ratio: 1 / 1;
     border: 1px solid gray;
     border-radius: 4px;
     padding: 2px;
 }
 
-.paint__palette > div > div{
+.paint__swatch-inner{
     aspect-ratio: 1 / 1;
     border-radius: 4px;
     pointer-events: none;
 }
 
-.paint__palette > div:hover{
+:is(.paint__swatch, .paint__choice-swatch):is(:hover, :focus-visible){
     border-color: #0d8bf3;
     box-shadow: 0 0 6px #0d8bf3;
 }
 
-.paint__color-choices > div.selected{
+.paint__swatch.selected{
     border-color: #0d5df3;
     box-shadow: 0 0 5px 3px #0d5df3;
+}
+
+.paint__choice-swatch{
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    aspect-ratio: 1 / 1;
+    border: 1px solid gray;
+    border-radius: 6px;
+    padding: 3px;
+    width: 50%;
+}
+
+.paint__choice-swatch-inner{
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    pointer-events: none;
 }
 
 /* ===== PAINT TOOLS ===== */
@@ -320,6 +340,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    height: 75%;
     width: 33%;
     padding: 0 24px;
     border-right: 2px solid rgba(15, 23, 42, 0.08);
@@ -331,6 +352,11 @@ body {
 }
 
 .paint__tool{
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: none;
+    padding: 0;
     height:auto;
     width: 25%;
 }
@@ -362,20 +388,6 @@ body {
     position: absolute;
 }
 
-.paint__color-choices > div{
-    aspect-ratio: 1 / 1;
-    border: 1px solid gray;
-    border-radius: 6px;
-    padding: 3px;
-    width: 50%;
-}
-
-.paint__color-choices > div > div{
-    aspect-ratio: 1 / 1;
-    border-radius: 6px;
-    pointer-events: none;
-}
-
 /* ===== MISC / UTILITY CLASSES ===== */
 .header__title{
     text-align: center;
@@ -385,10 +397,4 @@ body {
     color: #6b7280;
     font-size: 14px;
     margin-top: 4px;
-}
-
-.separation{
-    height: 75%;
-    display: flex;
-    align-items: center;
 }

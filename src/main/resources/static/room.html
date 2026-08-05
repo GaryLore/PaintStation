@@ -13,17 +13,17 @@
     <div class="app-layout">
 
         <div class="header">
-            <div class="header__spacer"></div>
+            <div class="header__left"></div>
             <h1 class="header__title">🎨 Paint Station</h1>
             <div class="header__icons">
-                <button class="header__icon-btn header__icon-btn--trash">
-                    <img src="/img/trash-2.svg" alt="trash" >
+                <button class="header__icon-btn header__icon-btn--trash" aria-label="Delete drawing">
+                    <img src="/img/trash-2.svg" alt="">
                 </button>
-                <button class="header__icon-btn header__icon-btn--homepage">
-                    <img src="/img/house.svg" alt="homePage">
+                <button class="header__icon-btn header__icon-btn--homepage" aria-label="Go to home page">
+                    <img src="/img/house.svg" alt="">
                 </button>
-                <button class="header__icon-btn header__icon-btn--save">
-                    <img src="/img/save.svg" alt="homePage">
+                <button class="header__icon-btn header__icon-btn--save" aria-label="Save drawing">
+                    <img src="/img/save.svg" alt="">
                 </button>
             </div>
         </div>
@@ -33,28 +33,34 @@
                 <canvas id="canvas" class="paint__canvas paint__canvas--brush">Paint Canvas</canvas>
                 <div class="paint__toolbar">
 
-                    <div class="paint__color-picker separation">
+                    <div class="paint__color-picker">
                         <div class="paint__color-choices">
                         </div>
                         <div id="all_colors" class="paint__palette">
                         </div>
                     </div>
 
-                    <div class="paint__thickness separation">
+                    <div class="paint__thickness">
                         <label for="all_thickness">Paint Thickness</label>
                         <input type="range" class="paint__thickness-input" name="thickness" id="all_thickness" min="4" max="50" value="10">
                     </div>
 
-                    <div class="paint__tools seperation">
-                        <div class="paint__tool paint__tool--pan-zoom">
-                             <img class="paint__tools-img" src="/img/magnify.png" alt="Zoom" >
-                        </div>
-                        <div class="paint__tool paint__tool--brush paint__tool--selected">
-                             <img class="paint__tools-img" src="/img/paint.png" alt="PaintBrush" >
-                        </div>
-                        <div class="paint__tool paint__tool--bucket">
-                             <img class="paint__tools-img" src="/img/bucket.png" alt="Bucket" >
-                        </div>
+                    <div class="paint__tools">
+                        <button class="paint__tool"
+                                data-tool="pan-zoom"
+                                aria-label="Brush tool">
+                                <img class="paint__tools-img" src="/img/magnify.png" alt="">
+                        </button>
+                        <button class="paint__tool paint__tool--selected"
+                                data-tool="brush"
+                                aria-label="Bucket fill tool">
+                                <img class="paint__tools-img" src="/img/paint.png" alt="">
+                        </button>
+                        <button class="paint__tool"
+                                data-tool="bucket"
+                                aria-label="Pan and zoom tool">
+                                <img class="paint__tools-img" src="/img/bucket.png" alt="Bucket" >
+                        </button>
                     </div>
 
                 </div>
