@@ -14,9 +14,10 @@
     --primary-border: 2px solid #CAD6E3;
     --primary-border-radius: 12px;
     --primary-box-shadow: 0 0 20px rgba(0,0,0,.08);
-    --primary-gap: 24px;
-    --paint-options-height: calc(60vw * (9/16) / 4.7);
-    --canvas-height: calc(60vw * (9/16));
+    --primary-gap: 16px; /*24px; DESKTOP */
+    --canvas-height: calc(var(--canvas-width) * 9/16);
+    --canvas-width: 91%;/*55vw; DESKTOP*/
+    --paint-options-height: calc(var(--canvas-height) / 4.7);
     --you-player-background: #2563EB;
     --you-player-text-color: white;
     --other-player-background-color: #F0F1F4;
@@ -28,47 +29,64 @@ html{
     background-color: antiquewhite;
 }
 
+h1{
+    font-size: 1.2rem;
+}
+
+h2{
+    font-size: 1rem;
+}
+
+label{
+    font-size: .8rem;
+}
+
 body {
     align-items: center;
     background-color: #F6F7FA;
     box-shadow: var(--primary-box-shadow);
     display: flex;
-    height: 100vh;
     justify-content: center;
     margin: auto;
-    width: 90vw;
+    width: 100%; /*85vw;*/
+    min-height: 100vh;
 }
 
 .app-layout{
     display: flex;
     flex-direction: column;
-    gap: var(--primary-gap);
+    align-items: center; /*mobile */
+    justify-content: space-between; /* MOBILE */
+    min-height: 100vh;/* MOBILE */
+    gap: 8px;/*MOBILE */
 }
 
 .header{
     align-items: center;
-    background-color: var(--div-background-color);
-    border: var(--primary-border);
+    /*background-color: var(--div-background-color);*/
+    /*border: var(--primary-border); DESKTOP
     border-radius: var(--primary-border-radius);
-    box-shadow: var(--primary-box-shadow);
+    box-shadow: var(--primary-box-shadow);*/
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 16px;
+    padding: 8px 8px 0 8px; /* 16px; DESKPTOP */
+    width: var(--canvas-width);
 }
 
 .app-layout__middle{
-    display: flex;
-    flex-direction: row;
+    display: contents; /*flex;
+    flex-direction: row; DESKTOP
     gap : var(--primary-gap);
-    height: calc( var(--paint-options-height) + var(--primary-gap) + var(--canvas-height) ); /* Canvas height + gap + Options height*/
-    justify-content: center;
+    height: fit-content;/*calc( var(--paint-options-height) + var(--primary-gap) + var(--canvas-height) );*/ /* Canvas height + gap + Options height DESKTOP*/
+    /*justify-content: center;*/
 }
 
 .paint{
-    display: flex;
+    display: contents; /*flex;
     flex-direction: column;
     gap: var(--primary-gap);
+    align-items: center;*/
 }
 
 .paint__canvas {
@@ -76,7 +94,9 @@ body {
     border: var(--primary-border);
     border-radius: var(--primary-border-radius);
     box-shadow: var(--primary-box-shadow);
-    width: 60vw;
+    width: var(--canvas-width);
+    height: auto;
+    flex-grow: 0;
 }
 
 .paint__toolbar {
@@ -86,10 +106,12 @@ body {
     border-radius: var(--primary-border-radius);
     box-shadow: var(--primary-box-shadow);
     display: flex;
-    flex-direction: row;
-    height: var(--paint-options-height);
-    justify-content: space-between;
-    width: 60vw;
+    flex-direction: column; /*row; desktop*/
+    gap: 16px; /*mobile */
+    height: fit-content; /*var(--paint-options-height)  Desktop*/;
+    justify-content: space-evenly; /*Space-between DESKPTOP */
+    width: var(--canvas-width);
+    padding: 16px; /* MOBILE */
 }
 
 /* ===== ROOM SETTINGS ===== */
@@ -138,8 +160,16 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 24px;
-    width: 23vw;
+    padding: 8px; /*24px; DESKTOP */
+    width: var(--canvas-width); /*23vw; DESKTOP*/
+    flex-grow: 1; /*MOBILE */
+    max-height: 48vh; /*MOBILE */
+}
+
+/*mobile */
+.chat__header{
+    display: flex;
+    justify-content: space-between;
 }
 
 .chat__status{
@@ -210,7 +240,7 @@ body {
     display: flex;
     flex-direction: row;
     gap: 10px;
-    height: 6vh;
+    height: 5%;/*6vh; DESKTOP */
 }
 
 .player-card{
@@ -240,8 +270,8 @@ body {
     border: 2px solid #e5e7eb;
     border-radius: var(--primary-border-radius);
     flex: 1;
-    font-size: 14px;
-    padding: 12px;
+    font-size: 12px; /*14px;*/
+    padding: 8px;/*12px;*/
 }
 
 .chat__send-btn{
@@ -250,9 +280,9 @@ body {
     border-radius: var(--primary-border-radius);
     color: white;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 12px; /*16px;*/
     font-weight: 600;
-    padding: 14px 18px;
+    padding: 8px; /*14px 18px;*/
     transition: box-shadow 0.2s;
 }
 
@@ -265,8 +295,8 @@ body {
     display: flex;
     flex-direction: row;
     gap: 15px;
-    width: 45%;
-    padding: 0 24px;
+    width: 100%;/*45%; desktop*/
+    padding: 0px; /*padding: 0 24px;*/
 }
 
 .paint__color-choices{
@@ -300,12 +330,12 @@ body {
     pointer-events: none;
 }
 
-:is(.paint__swatch, .paint__choice-swatch):is(:hover, :focus-visible){
+:is(.paint__swatch, .paint__choice-swatch):is(:hover, :focus-visible):not(.paint__choice-swatch--selected){
     border-color: #0d8bf3;
     box-shadow: 0 0 6px #0d8bf3;
 }
 
-.paint__swatch.selected{
+.paint__choice-swatch--selected{
     border-color: #0d5df3;
     box-shadow: 0 0 5px 3px #0d5df3;
 }
@@ -333,8 +363,9 @@ body {
     flex-direction: column;
     justify-content: center;
     height: 75%;
-    width: 33%;
-    padding: 0 24px;
+    width: 100%; /*33%; desktop*/
+    padding: 0px;
+    /*padding: 0 24px; DESKTOP */
     border-right: 2px solid rgba(15, 23, 42, 0.08);
     border-left: 2px solid rgba(15, 23, 42, 0.08);
 }
@@ -346,9 +377,11 @@ body {
 .paint__tools{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    width: 22%;
-    padding: 0 1.2vw;
+    justify-content: space-evenly;/*space-between; DESKTOP*/
+    width: 100%; /*22% desktop */;
+
+    padding: 0px;
+    /*padding: 0 1.2vw; DESKTOP */
 }
 
 .paint__tool{
@@ -358,7 +391,7 @@ body {
     border: none;
     padding: 0;
     height:auto;
-    width: 23%;
+    width: 12%; /*23%; desktop*/
 }
 
 .paint__tools-img{

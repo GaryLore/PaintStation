@@ -129,8 +129,6 @@ function populateColors(){
 
 //populate paintbrush options in html
 populateColors();
-const blackColor = document.getElementById("black");
-blackColor.classList.add("selected");
 
 const ColorTarget = Object.freeze({
   BRUSH: 1,
@@ -140,18 +138,18 @@ const ColorTarget = Object.freeze({
 let selectedColorTarget = ColorTarget.BRUSH;
 const [brushSquare, innerBrushSquare] = createOptions("1", "black");
 const [bucketSquare, innerBucketSquare] = createOptions("2", "white");
-brushSquare.classList.add("selected");
+brushSquare.classList.add("paint__choice-swatch--selected");
 
 brushSquare.addEventListener("click", function(){
   selectedColorTarget = ColorTarget.BRUSH;;
-  bucketSquare.classList.remove("selected");
-  this.classList.add("selected");
+  bucketSquare.classList.remove("paint__choice-swatch--selected");
+  this.classList.add("paint__choice-swatch--selected");
 });
 
 bucketSquare.addEventListener("click", function(){
   selectedColorTarget = ColorTarget.BUCKET;
-  brushSquare.classList.remove("selected");
-  this.classList.add("selected");
+  brushSquare.classList.remove("paint__choice-swatch--selected");
+  this.classList.add("paint__choice-swatch--selected");
 });
 
 let colorOptions = document.getElementById("all_colors");
