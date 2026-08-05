@@ -5,13 +5,12 @@ import {canvasState, ctx} from "./canvasState.js"
 
 const roomName = sessionStorage.getItem("ROOM_NAME");
 const username = sessionStorage.getItem("USERNAME");
-const playersListElement = document.querySelector(".players");
+const playersListElement = document.querySelector(".chat__players");
 const userCountElement = document.getElementById("userCount");
-const messageContainerElement = document.querySelector(".messagesContainer");
+const messageContainerElement = document.querySelector(".chat__messages");
 const messageInputElement = document.getElementById("messageInput");
 const chatFormElement = document.getElementById("chatForm");
 chatFormElement.addEventListener("submit", sendMessage);
-const chatContainer = document.querySelector(".messagesContainer");
 const messagePopAudio = new Audio("../../audio/MessagePop.mp3");
 messagePopAudio.volume = 0.25;
 let PLAYERS;
@@ -244,7 +243,7 @@ async function init(){
         return;
     }
 
-    const roomTitle = document.getElementsByClassName("title")[0];
+    const roomTitle = document.getElementsByClassName("header__title")[0];
     roomTitle.textContent = `🎨 ${roomName}`;
 
     const {players} = await response.json();
@@ -259,9 +258,9 @@ async function init(){
 
 function addPlayer(player){
     const playerDiv = document.createElement("div")
-    playerDiv.classList.add("playerCard");
+    playerDiv.classList.add("player-card");
     if(player === username){
-        playerDiv.classList.add("you");
+        playerDiv.classList.add("player-card--you");
     }
     playerDiv.textContent = player;
     playerDiv.setAttribute('data-name', player);

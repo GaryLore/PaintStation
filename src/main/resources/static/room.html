@@ -10,50 +10,50 @@
 
 </head>
 <body>
-    <div class="layout">
+    <div class="app-layout">
 
         <div class="header">
-            <div class="left"></div>
-            <h1 class="title">🎨 Paint Station</h1>
-            <div class="icons">
-                <button class="icon trash">
+            <div class="header__spacer"></div>
+            <h1 class="header__title">🎨 Paint Station</h1>
+            <div class="header__icons">
+                <button class="header__icon-btn header__icon-btn--trash">
                     <img src="/img/trash-2.svg" alt="trash" >
                 </button>
-                <button class="icon homePage">
+                <button class="header__icon-btn header__icon-btn--homepage">
                     <img src="/img/house.svg" alt="homePage">
                 </button>
-                <button class="icon save">
+                <button class="header__icon-btn header__icon-btn--save">
                     <img src="/img/save.svg" alt="homePage">
                 </button>
             </div>
         </div>
 
-        <div class="middleContainer">
-            <div class="paintContainer">
-                <canvas id="canvas" class="optionBrush">Paint Canvas</canvas>
-                <div class="options">
+        <div class="app-layout__middle">
+            <div class="paint">
+                <canvas id="canvas" class="paint__canvas paint__canvas--brush">Paint Canvas</canvas>
+                <div class="paint__toolbar">
 
-                    <div class="colorSelection separation">
-                        <div class="choices">
+                    <div class="paint__color-picker separation">
+                        <div class="paint__color-choices">
                         </div>
-                        <div id="all_colors" class="colors">
+                        <div id="all_colors" class="paint__palette">
                         </div>
                     </div>
 
-                    <div class="thickness separation">
+                    <div class="paint__thickness separation">
                         <label for="all_thickness">Paint Thickness</label>
-                        <input type="range" name="thickness" id="all_thickness" min="4" max="50" value="10">
+                        <input type="range" class="paint__thickness-input" name="thickness" id="all_thickness" min="4" max="50" value="10">
                     </div>
 
-                    <div class="paintTools seperation">
-                        <div class="tool zoom">
-                             <img src="/img/magnify.png" alt="Zoom" >
+                    <div class="paint__tools seperation">
+                        <div class="paint__tool paint__tool--pan-zoom">
+                             <img class="paint__tools-img" src="/img/magnify.png" alt="Zoom" >
                         </div>
-                        <div class="tool brush selected">
-                             <img src="/img/paint.png" alt="PaintBrush" >
+                        <div class="paint__tool paint__tool--brush paint__tool--selected">
+                             <img class="paint__tools-img" src="/img/paint.png" alt="PaintBrush" >
                         </div>
-                        <div class="tool bucket">
-                             <img src="/img/bucket.png" alt="Bucket" >
+                        <div class="paint__tool paint__tool--bucket">
+                             <img class="paint__tools-img" src="/img/bucket.png" alt="Bucket" >
                         </div>
                     </div>
 
@@ -61,22 +61,22 @@
             </div>
             <div class="chat">
 
-                <div class="chatHeader">
+                <div class="chat__header">
                     <h2>Players Chat</h2>
-                    <div class="onlineStatus">
-                        <p class="onlineDot"></p>
+                    <div class="chat__status">
+                        <p class="chat__status-dot"></p>
                         <p class="subtitle" id="userCount"> Online</p>
                     </div>
                 </div>
-                <div class="players">
+                <div class="chat__players">
 
                 </div>
-                <div class="messagesContainer">
+                <div class="chat__messages">
 
                 </div>
-                <form class="createMessage" id="chatForm">
-                    <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" aria-label="messageInput">
-                    <button id="sendMessage">Send</button>
+                <form class="chat__form" id="chatForm">
+                    <input type="text" class="chat__input" id="messageInput" placeholder="Type your message..." autocomplete="off" aria-label="messageInput">
+                    <button class="chat__send-btn" id="sendMessage">Send</button>
                 </form>
             </div>
 

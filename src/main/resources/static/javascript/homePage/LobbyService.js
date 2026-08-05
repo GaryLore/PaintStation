@@ -172,7 +172,7 @@ function updateRooms(roomData){
 function addRoom(roomName){
     const newRoomListItem = document.createElement("li");
     const newRoomBtn = document.createElement("button");
-    newRoomBtn.classList.add("roomCard");
+    newRoomBtn.classList.add("room-card");
     console.log(roomName);
     newRoomBtn.textContent = roomName;
     newRoomBtn.setAttribute('data-name', roomName);
