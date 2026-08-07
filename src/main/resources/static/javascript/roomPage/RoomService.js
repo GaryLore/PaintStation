@@ -89,7 +89,7 @@ function loadMessage(name, text){
 }
 
 function scrollDown(){
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    messageContainerElement.scrollTop = messageContainerElement.scrollHeight;
 }
 
 function sendMessage(event){
