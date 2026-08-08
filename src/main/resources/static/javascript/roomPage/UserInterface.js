@@ -31,21 +31,11 @@ magnify.addEventListener("click", function(){
 
   this.classList.add('paint__tool--selected');
   canvas.classList.add('paint__canvas--pan-zoom');
+  bucket.classList.add('paint__tool--disabled');
 
   brush.classList.remove('paint__tool--selected');
   bucket.classList.remove('paint__tool--selected');
   canvas.classList.remove('paint__canvas--brush');
-});
-
-const brush = document.querySelector('[data-tool="brush"]');
-brush.addEventListener("click", function(){
-  canvasState.tool = Tool.BRUSH;
-
-  this.classList.add('paint__tool--selected');
-  canvas.classList.add('paint__canvas--brush');
-
-  magnify.classList.remove('paint__tool--selected');
-  canvas.classList.remove('paint__canvas--pan-zoom');
 });
 
 const bucket = document.querySelector('[data-tool="bucket"]');
@@ -55,6 +45,18 @@ bucket.addEventListener("click", function(){
 
   canvasState.brush.fill = !canvasState.brush.fill;
   this.classList.toggle("paint__tool--selected", canvasState.brush.fill);
+});
+
+const brush = document.querySelector('[data-tool="brush"]');
+brush.addEventListener("click", function(){
+  canvasState.tool = Tool.BRUSH;
+
+  this.classList.add('paint__tool--selected');
+  canvas.classList.add('paint__canvas--brush');
+  bucket.classList.remove('paint__tool--disabled');
+
+  magnify.classList.remove('paint__tool--selected');
+  canvas.classList.remove('paint__canvas--pan-zoom');
 });
 
 const title = document.getElementsByClassName("header__title")[0];

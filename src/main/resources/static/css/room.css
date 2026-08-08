@@ -76,7 +76,7 @@ body {
 .app-layout__middle{
     display: flex;
     flex-direction: column;
-    flex: 1;              /* let it fill remaining space in .app-layout */
+    /*flex: 1;              /* caused a glitch basis overrides height so i think .chat 100% was indefinite*/
     min-height: 0;        /* important: allows children to actually grow/shrink instead of overflowing */
     align-items: center;
     gap: var(--primary-gap);
@@ -409,7 +409,7 @@ body {
     cursor: all-scroll;
 }
 
-.paint__tool--selected {
+.paint__tool {
     position: relative;
 }
 
@@ -433,7 +433,54 @@ body {
     margin-top: 4px;
 }
 
-@media (min-width: 768px) {
+.height-to-75{
+    height: 75%;
+}
+
+@media (min-width: 540px) and (orientation: portrait){
+    :root{
+        --primary-padding: 16px;
+    }
+}
+
+
+@media (min-width: 768px) and (orientation: portrait) {
+    :root{
+        --primary-padding: 24px;
+        --primary-gap: 24px;
+    }
+
+    h1{
+        font-size: revert;
+    }
+
+    h2{
+        font-size: revert;
+    }
+
+    label{
+        font-size: revert;
+    }
+
+    .chat{
+        gap: 12px;
+    }
+
+    .player-card{
+        font-size: revert;
+    }
+
+    .chat__send-btn{
+        font-size: 16px;
+        padding: 14px 18px;
+    }
+
+    .header__icon-btn{
+        width: 45px;
+    }
+}
+
+@media (min-width: 1024px) {
     :root{
         --primary-gap: 24px;
         --primary-padding: 24px;
@@ -483,31 +530,28 @@ body {
     .chat{
         height: 60vh;
     }
-
 }
 
 @media (orientation: landscape) {
     :root{
         --canvas-width: 60vw;
     }
+
+    .header{
+        width: auto;
+    }
+
     .app-layout{
         justify-content: center; /* MOBILE */
         align-items: normal;/*to get header to stretch*/
         min-height: 0;
         padding: 0;
     }
-    .header{
-        background-color: var(--div-background-color);
-        border: var(--primary-border);
-        border-radius: var(--primary-border-radius);
-        box-shadow: var(--primary-box-shadow);
-        padding: 16px;
-        width: auto;
-    }
+
     .app-layout__middle{
         display: flex;
         flex-direction: row;
-        /*align-items: stretch;*/
+        justify-content: center;
         gap : var(--primary-gap);
         height: calc( var(--paint-options-height) + var(--primary-gap) + var(--canvas-height) ); /* Canvas height + gap + Options height DESKTOP*/
     }
@@ -529,9 +573,8 @@ body {
     }
 
     .chat{
-        width: 23vw;
-        height: auto; /*For some reason if you put 100% it doesnt work well*/
-        align-self: stretch;
+        width: 30vw;/*23vw before */
+        height: 100%; /*For some reason if you put 100% it doesnt work well*/
     }
 
     .paint__thickness{
@@ -548,6 +591,98 @@ body {
     }
 
     .paint__tools{
+        justify-content: space-between;
         width: 22%;
     }
+
+    .paint__tools,
+    .paint__thickness,
+    .paint__color-picker{
+        padding: 0 6px;
+    }
+
+    .paint__tool{
+        width: 23%;
+    }
+
+    .paint__palette{
+        align-self: center;
+    }
+
+    .paint__color-picker,
+    .paint__thickness,
+    .paint__tools {
+        height: 75%;
+    }
+
+    .paint__tool--selected::before {
+        border-radius: 30px;
+        inset: -5% -18%;
+    }
+
+    .paint__tool:is(:hover, :focus-visible):not(.paint__tool--selected,.paint__tool--disabled)::before {
+        box-shadow: 0 0 5px 5px rgb(32 104 187 / 0.5);
+        content: "";
+        pointer-events: none;
+        position: absolute;
+        border-radius: 30px;
+        inset: -5% -18%;
+    }
+
+    .paint__tool--disabled{
+        cursor: not-allowed;
+    }
+
+    .paint__tool--disabled:is(:hover, :focus-visible)::before{
+        box-shadow: 0 0 5px 5px rgb(255 0 0 / 0.5);
+        content: "";
+        pointer-events: none;
+        position: absolute;
+        border-radius: 30px;
+        inset: -5% -18%;
+    }
+
+    .chat__header{
+        flex-direction: column;
+    }
+}
+
+@media(min-width: 1536px) and (orientation: landscape) {
+
+    :root{
+        --header-padding: calc(var(--primary-padding) * 2/3);
+        --canvas-width: 55vw;
+    }
+
+    body {
+        width: 85vw;
+    }
+
+    .paint__tools,
+    .paint__thickness,
+    .paint__color-picker {
+        padding: 0 24px;
+    }
+
+    .message {
+        font-size: revert;
+    }
+
+    .chat__messages {
+        gap: 10px;
+    }
+
+    .chat {
+        width: 23vw;
+    }
+
+    .header {
+        background-color: var(--div-background-color);
+        border: var(--primary-border);
+        border-radius: var(--primary-border-radius);
+        box-shadow: var(--primary-box-shadow);
+        padding: var(--primary-padding);
+
+    }
+
 }
