@@ -175,7 +175,7 @@ function addRoom(roomName){
     newRoomBtn.classList.add("room-card");
     console.log(roomName);
     newRoomBtn.textContent = roomName;
-    newRoomBtn.setAttribute('data-name', roomName);
+    newRoomListItem.setAttribute('data-name', roomName);
     newRoomListItem.appendChild(newRoomBtn);
     roomsListElement.appendChild(newRoomListItem);
 }
