@@ -8,7 +8,7 @@ enterFormElement.addEventListener("submit", submitEnterForm)
 
 const roomsListElement = document.querySelector(".room-list");
 document.addEventListener("DOMContentLoaded", loadRooms);
-document.addEventListener("click", showEnterForm);
+roomsListElement.addEventListener("click", showEnterForm);
 
 document.querySelector('.close-btn').addEventListener('click', closeModal);
 function closeModal(){
@@ -175,14 +175,14 @@ function addRoom(roomName){
     newRoomBtn.classList.add("room-card");
     console.log(roomName);
     newRoomBtn.textContent = roomName;
-    newRoomListItem.setAttribute('data-name', roomName);
+    newRoomBtn.setAttribute('data-name', roomName);
     newRoomListItem.appendChild(newRoomBtn);
     roomsListElement.appendChild(newRoomListItem);
 }
 
 function deleteRoom(roomName) {
     console.log("ROOM SHOULD BE DELTED : ", roomName)
-    const tempRoom = document.querySelector(`[data-name="${roomName}"]`);
+    const tempRoom = document.querySelector(`[data-name="${roomName}"]`).parentNode;
     //tempRoom.remove();
     //for internet explorer support
     tempRoom.parentNode.removeChild(tempRoom);
