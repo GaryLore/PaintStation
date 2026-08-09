@@ -25,7 +25,7 @@ aside{
     display: none;
 }
 
-body{
+body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -38,19 +38,14 @@ body{
 
 /* ===== GENERAL LAYOUT ===== */
 .homepage{
-    min-height: 100vh;/*90vh;*/
+    min-height: 100vh;
     width: 100%;
-    /*
-    display: grid;
-    grid-template-columns:1fr 5fr 1fr;*/
 }
 
 .app{
-    background: #FAF7F0;/*antiquewhite;/*#fafafa;*/
+    background: #FAF7F0;
     width: 100%;
-    /*border-radius: var(--panel-border-radius); desktop */
     height: auto;
-    /*padding: 20px 40px 10px;*/
     padding: var(--app-padding);
     display: flex;
     flex-direction: column;
@@ -58,18 +53,13 @@ body{
 }
 
 .dashboard{
-    min-height: 100vh;/*90%;*/
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /*display: grid;
-    /*
-    grid-template-columns:1fr 1fr; desktop*/
-    /*grid-template-rows: 1fr 1fr;*/
-    gap: var(--panel-gap);/*32px*/
+    gap: var(--panel-gap);
 }
 
 .right-column{
-    /*height: 100%;*/
     display: grid;
     grid-template-rows: 2fr 1fr;
     gap: var(--panel-gap);
@@ -110,7 +100,7 @@ body{
     display: flex;
     flex-direction: column;
     gap: 12px;
-    flex-grow: 1;
+    height: 50vh;
     overflow-y: auto;
     padding: 20px;
     list-style: none;
@@ -168,7 +158,7 @@ body{
 }
 
 .submit-btn:hover{
-    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
 }
 
 .form-group__label{
@@ -211,7 +201,7 @@ body{
     border-radius: 28px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     padding: 40px;
-    width: 100%/*60vw;*/
+    width: 100%;
 }
 
 .modal-header{
@@ -271,7 +261,7 @@ body{
 @media (min-width: 540px){
     :root{
         --app-padding: 32px;
-        --panel-gap: 32px; /* 24px*/
+        --panel-gap: 32px;
     }
 }
 
@@ -279,23 +269,33 @@ body{
     :root{
         --app-padding: 20px 40px 10px;
         --panel-padding: 24px;
-        --panel-gap: 24px; /* 24px*/
+        --panel-gap: 24px;
+    }
+    body{
+        height: 100vh;
+        min-height: revert;
+
+        /*
+        background-image: url("../img/splotch_blue.svg"), url("../img/splotch_red.svg");
+        background-position: -250px -200px, 1100px 200px;
+        background-repeat: no-repeat;
+        background-size: 60%;*/
     }
 
     .homepage{
-        height: 90vh;/*90vh;*/
+        height: auto;
         min-height: revert;
         width: 100%;
-        display: grid;
+        display: grid; /*grid;*/
         grid-template-columns:1fr 5fr 1fr;
     }
 
     .dashboard{
-        height: 90%;
+        height: auto;
         min-height: revert;
         display: grid;
         grid-template-columns:1fr 1fr;
-        gap: var(--panel-gap);/*32px*/
+        gap: var(--panel-gap);
     }
 
     aside{
@@ -303,14 +303,42 @@ body{
     }
 
     .app{
-        height: 100%;
-        background: #F6F7FA;/*whitesmoke;/*#fafafa;*/
+        height: auto;
+        background: #F6F7FA;
         border-radius: var(--panel-border-radius);
         box-shadow: var(--panel-shadow);
         padding: var(--app-padding);
+
+    }
+
+    .app::before{
+        background-image: url("../img/splotch_blue.svg"), url("../img/splotch_red.svg");
+        background-position: -250px -200px, 800px 200px;
+        background-repeat: no-repeat;
+        background-size: 70%;
+
+        content: "";
+        position: fixed;
+        inset: 0;
+
+        opacity: 0.7;
+        pointer-events: none;
+        z-index: -1;
     }
 
     .right-column{
-        height: 100%;
+        height: auto;
+    }
+
+    .rooms-panel{
+        height: auto;
+    }
+
+    .room-list{
+        height: 600px;
+    }
+
+    .modal{
+        width: 60vw;
     }
 }

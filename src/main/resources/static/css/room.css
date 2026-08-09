@@ -654,8 +654,29 @@ body {
         --canvas-width: 55vw;
     }
 
+    html::before{
+        background-image: url("../img/splotch_blue.svg"), url("../img/splotch_red.svg");
+        background-position: -350px -200px, 1400px 200px;
+        background-repeat: no-repeat;
+        background-size: 60%;
+
+        content: "";
+        position: fixed;
+        inset: 0;
+
+        opacity: 0.7;
+        pointer-events: none;
+        z-index: -1;
+    }
+
     body {
         width: 85vw;
+
+        /*
+        background-image: url("../img/splotch_blue.svg"), url("../img/splotch_red.svg");
+        background-position: -250px -200px, 1100px 200px;
+        background-repeat: no-repeat;
+        background-size: 60%;*/
     }
 
     .paint__tools,
