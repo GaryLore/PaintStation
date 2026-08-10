@@ -51,6 +51,7 @@ stompClient.onWebSocketClose = (event) => {
 
 await init();
 //activates connection
+//player doesnt technically get added till its activated so init doesnt have it in its players array
 stompClient.activate();
 
 function chatSocketHandling(responseData){
@@ -124,6 +125,7 @@ function paintSocketHandling(responseData){
 
             if(action === "ADD"){
                PLAYERS.push(data.user);
+               console.log(data.user, "Player getting added through paintsocket handling");
                addPlayer(data.user);
             }
             else if(action === "REMOVE"){
@@ -247,9 +249,11 @@ async function init(){
     roomTitle.textContent = `🎨 ${roomName}`;
 
     const {players} = await response.json();
+    //console.log(players);
     PLAYERS = players;
-
+    console.log("INIT handler fired, PLAYERS length:", PLAYERS.length, PLAYERS);
     for(const player of PLAYERS){
+        console.log(player, "Player getting added through INIT handling");
         addPlayer(player);
     }
 

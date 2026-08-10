@@ -253,9 +253,10 @@ body {
     border-radius: var(--primary-border-radius);
     border: var(--primary-border);
     display: grid;
-    flex: 1;
+    flex-grow: 1;
     padding: 5px;
     place-items: center;
+    line-height: 1;
     font-weight: 600;
     font-size: .7rem;/* MOBILE */
 }
@@ -269,12 +270,14 @@ body {
     display: flex;
     flex-direction: row;
     gap: 8px;
+    width: 100%;
 }
 
 .chat__input{
     border: 2px solid #e5e7eb;
     border-radius: var(--primary-border-radius);
     flex: 1;
+    min-width: 0;
     font-size: 12px; /*14px;*/
     padding: 8px;/*12px;*/
 }
@@ -664,7 +667,7 @@ body {
         position: fixed;
         inset: 0;
 
-        opacity: 0.7;
+        opacity: 0.6;
         pointer-events: none;
         z-index: -1;
     }
