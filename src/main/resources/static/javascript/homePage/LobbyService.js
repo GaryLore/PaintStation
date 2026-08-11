@@ -12,7 +12,7 @@ roomsListElement.addEventListener("click", showEnterForm);
 
 document.querySelector('.close-btn').addEventListener('click', closeModal);
 function closeModal(){
-    modalElement.classList.remove("show")
+    modalElement.classList.remove("modal-container--show")
 }
 
 const modalElement =document.getElementById("model_container");
@@ -94,9 +94,9 @@ async function submitCreateForm(event) {
 }
 
 function showEnterForm(event){
-    if (event.target.matches('.room-card')){
+    if (event.target.matches('.room-list__card')){
         roomSelectedName = event.target.dataset.name;
-        modalElement.classList.add("show")
+        modalElement.classList.add("modal-container--show")
     }
 }
 
@@ -172,7 +172,7 @@ function updateRooms(roomData){
 function addRoom(roomName){
     const newRoomListItem = document.createElement("li");
     const newRoomBtn = document.createElement("button");
-    newRoomBtn.classList.add("room-card");
+    newRoomBtn.classList.add("room-list__card");
     console.log(roomName);
     newRoomBtn.textContent = roomName;
     newRoomBtn.setAttribute('data-name', roomName);

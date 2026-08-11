@@ -68,11 +68,11 @@ function loadMessage(name, text){
 
     messageDiv.classList.add("message")
     if(name === username){
-        messageDiv.classList.add("senderMessage");
+        messageDiv.classList.add("message--sent");
         messageDiv.textContent = text;
     }
     else{
-        messageDiv.classList.add("receiverMessage");
+        messageDiv.classList.add("message--received");
 
         const nameDiv = document.createElement("div")
         const textDiv = document.createElement("div")
@@ -80,8 +80,8 @@ function loadMessage(name, text){
         nameDiv.textContent = name;
         textDiv.textContent = text;
 
-        nameDiv.classList.add("messageName");
-        textDiv.classList.add("messageText");
+        nameDiv.classList.add("message__name");
+        textDiv.classList.add("message__text");
 
         messageDiv.appendChild(nameDiv);
         messageDiv.appendChild(textDiv);

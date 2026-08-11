@@ -214,17 +214,17 @@ body {
     font-size: .7rem; /*MOBILE */
 }
 
-.messageName{
+.message__name{
     font-weight: bold;
     padding-right: 10px;
 }
 
-.messageText{
+.message__text{
     hyphens: auto;
     overflow-wrap: anywhere;
 }
 
-.senderMessage{
+.message--sent{
     align-self: flex-end;
     background-color: var(--you-player-background);
     color: var(--you-player-text-color);
@@ -232,7 +232,7 @@ body {
     overflow-wrap: anywhere;
 }
 
-.receiverMessage{
+.message--received{
     align-self: flex-start;
     background: var(--other-player-background-color);
     color: var(--other-player-text-color);
@@ -690,6 +690,10 @@ body {
 
     .message {
         font-size: revert;
+    }
+
+    .chat__input{
+        font-size: 14px;
     }
 
     .chat__messages {
