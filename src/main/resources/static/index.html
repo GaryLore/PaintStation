@@ -8,6 +8,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script type="module" src="/javascript/homePage/LobbyService.js" defer></script>
 </head>
+<script>
+    setTimeout(() => {
+        console.log("=== LAYOUT DEBUG ===");
+        console.log("innerWidth:", window.innerWidth);
+        console.log("innerHeight:", window.innerHeight);
+        console.log("devicePixelRatio:", window.devicePixelRatio);
+        console.log("homepage:", document.querySelector(".homepage")?.getBoundingClientRect());
+        console.log("app:", document.querySelector(".app")?.getBoundingClientRect());
+        console.log("dashboard:", document.querySelector(".dashboard")?.getBoundingClientRect());
+        console.log("homepage grid:", getComputedStyle(document.querySelector(".homepage")).gridTemplateColumns);
+        console.log("dashboard grid:", getComputedStyle(document.querySelector(".dashboard")).gridTemplateColumns);
+        console.log("desktop media:", matchMedia("(min-width: 1280px)").matches);
+        console.log("landscape:", matchMedia("(orientation: landscape)").matches);
+    }, 1000);
+</script>
 <body>
 
     <div class="homepage">

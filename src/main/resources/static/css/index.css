@@ -277,11 +277,6 @@ body {
         pointer-events: none;
     }
 
-    body {
-        height: 100vh;
-        min-height: revert;
-    }
-
     .homepage {
         width: 100%;
         display: grid;
@@ -299,7 +294,6 @@ body {
     }
 
     .app {
-        height: auto;
         background: #F6F7FA;
         border-radius: var(--panel-border-radius);
         box-shadow: var(--panel-shadow);
@@ -328,7 +322,7 @@ body {
     }
 
     .room-list {
-        height: 600px;
+        height: 60vh;
     }
 
     .modal {
