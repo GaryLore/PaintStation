@@ -50,7 +50,6 @@ body {
     display: grid;
     place-content: center;
     margin: auto;
-    width: 100%; /*85vw;*/
     min-height: 100vh;
 }
 
@@ -68,7 +67,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: var(--primary-padding) 0 0 0; /* 16px; DESKPTOP */
+    padding: var(--primary-padding) 0 0 0;
     height: auto;
     width: var(--canvas-width);
 }
@@ -76,7 +75,6 @@ body {
 .app-layout__middle{
     display: flex;
     flex-direction: column;
-    /*flex: 1;              /* caused a glitch basis overrides height so i think .chat 100% was indefinite*/
     min-height: 0;        /* important: allows children to actually grow/shrink instead of overflowing */
     align-items: center;
     gap: var(--primary-gap);
@@ -659,7 +657,7 @@ body {
 
     html::before{
         background-image: url("../img/splotch_blue.svg"), url("../img/splotch_red.svg");
-        background-position: -350px -200px, 1400px 200px;
+        background-position: -350px -200px, 1250px 200px;
         background-repeat: no-repeat;
         background-size: 60%;
 
@@ -674,12 +672,6 @@ body {
 
     body {
         width: 85vw;
-
-        /*
-        background-image: url("../img/splotch_blue.svg"), url("../img/splotch_red.svg");
-        background-position: -250px -200px, 1100px 200px;
-        background-repeat: no-repeat;
-        background-size: 60%;*/
     }
 
     .paint__tools,
@@ -709,7 +701,7 @@ body {
         border: var(--primary-border);
         border-radius: var(--primary-border-radius);
         box-shadow: var(--primary-box-shadow);
-        padding: var(--primary-padding);
+        padding: calc(var(--primary-padding) / 2) var(--primary-padding);
 
     }
 
