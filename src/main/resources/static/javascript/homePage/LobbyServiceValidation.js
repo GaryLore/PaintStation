@@ -6,18 +6,20 @@ const create_roomName_div_error = document.getElementById("create_roomname_error
 const create_username_div_error = document.getElementById("create_username_error");
 const create_password_div_error = document.getElementById("create_password_error");
 
+const errorClass = "error--hidden";
+
 
 function enterRoomClientValidation(username, password){
 
     let valid = true
 
     if(username.length < 1 || username.length > 10){
-        showError(enter_username_div_error, "length must be at least 1 character and at most 10 characters");
+        showError(enter_username_div_error, "Must be between 1 and 10 characters");
         valid = false;
     }
 
     if(password.length > 64){
-        showError(enter_password_div_error, "length must be a max of 64 characters" )
+        showError(enter_password_div_error, "Must be a max of 64 characters" )
         valid = false;
     }
 
@@ -29,7 +31,7 @@ function createRoomClientValidation(roomName, ownerName, password){
     let valid = true
 
     if(roomName.length < 5 || roomName.length > 25){
-        showError(create_roomName_div_error, "length must be at least 5 character and at most 25 characters");
+        showError(create_roomName_div_error, "Must be between 5 and 25 characters");
         valid = false;
     }
     else if(!is_alphanumeric_and_spaces(roomName)){
@@ -38,12 +40,12 @@ function createRoomClientValidation(roomName, ownerName, password){
     }
 
     if(ownerName.length < 1 || ownerName.length > 10){
-        showError(create_username_div_error, "length must be at least 1 character and at most 10 characters");
+        showError(create_username_div_error, "Must be between 1 and 10 characters");
         valid = false;
     }
 
     if(password.length > 64){
-        showError(create_password_div_error, "length must be a max of 64 characters");
+        showError(create_password_div_error, "Must be a max of 64 characters");
         valid = false;
     }
 
@@ -116,23 +118,23 @@ function is_alphanumeric_and_spaces(name){
 
 function showError(div, string) {
 
-    div.classList.remove("hidden");
+    div.classList.remove(errorClass);
     div.textContent = string;
 }
 
 function resetEnterRoomErrors() {
 
-    enter_username_div_error.classList.add("hidden");
-    enter_password_div_error.classList.add("hidden");
-    enter_div_error.classList.add("hidden");
+    enter_username_div_error.classList.add(errorClass);
+    enter_password_div_error.classList.add(errorClass);
+    enter_div_error.classList.add(errorClass);
 }
 
 
 function resetCreateRoomErrors() {
 
-    create_roomName_div_error.classList.add("hidden");
-    create_username_div_error.classList.add("hidden");
-    create_password_div_error.classList.add("hidden");
+    create_roomName_div_error.classList.add(errorClass);
+    create_username_div_error.classList.add(errorClass);
+    create_password_div_error.classList.add(errorClass);
 }
 
 export {enterRoomClientValidation, createRoomClientValidation, handleCreateRoomServerErrors, handleEnterRoomServerErrors, resetCreateRoomErrors, resetEnterRoomErrors}

@@ -6,13 +6,13 @@ createFormElement.addEventListener("submit", submitCreateForm)
 const enterFormElement = document.querySelector("#enterRoom");
 enterFormElement.addEventListener("submit", submitEnterForm)
 
-const roomsListElement = document.querySelector(".roomsList");
+const roomsListElement = document.querySelector(".room-list");
 document.addEventListener("DOMContentLoaded", loadRooms);
-document.addEventListener("click", showEnterForm);
+roomsListElement.addEventListener("click", showEnterForm);
 
 document.querySelector('.close-btn').addEventListener('click', closeModal);
 function closeModal(){
-    modalElement.classList.remove("show")
+    modalElement.classList.remove("modal-container--show")
 }
 
 const modalElement =document.getElementById("model_container");
@@ -94,9 +94,9 @@ async function submitCreateForm(event) {
 }
 
 function showEnterForm(event){
-    if (event.target.matches('.roomCard')){
-        roomSelectedName = event.target.getAttribute("name");
-        modalElement.classList.add("show")
+    if (event.target.matches('.room-list__card')){
+        roomSelectedName = event.target.dataset.name;
+        modalElement.classList.add("modal-container--show")
     }
 }
 
@@ -170,17 +170,19 @@ function updateRooms(roomData){
 }
 
 function addRoom(roomName){
-    const newRoomDiv = document.createElement("div")
-    newRoomDiv.classList.add("roomCard");
+    const newRoomListItem = document.createElement("li");
+    const newRoomBtn = document.createElement("button");
+    newRoomBtn.classList.add("room-list__card");
     console.log(roomName);
-    newRoomDiv.textContent = roomName;
-    newRoomDiv.setAttribute('name', roomName);
-    roomsListElement.appendChild(newRoomDiv);
+    newRoomBtn.textContent = roomName;
+    newRoomBtn.setAttribute('data-name', roomName);
+    newRoomListItem.appendChild(newRoomBtn);
+    roomsListElement.appendChild(newRoomListItem);
 }
 
 function deleteRoom(roomName) {
     console.log("ROOM SHOULD BE DELTED : ", roomName)
-    const tempRoom = document.querySelector(`[name="${roomName}"]`);
+    const tempRoom = document.querySelector(`[data-name="${roomName}"]`).parentNode;
     //tempRoom.remove();
     //for internet explorer support
     tempRoom.parentNode.removeChild(tempRoom);

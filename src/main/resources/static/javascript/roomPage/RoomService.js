@@ -5,13 +5,12 @@ import {canvasState, ctx} from "./canvasState.js"
 
 const roomName = sessionStorage.getItem("ROOM_NAME");
 const username = sessionStorage.getItem("USERNAME");
-const playersListElement = document.querySelector(".players");
+const playersListElement = document.querySelector(".chat__players");
 const userCountElement = document.getElementById("userCount");
-const messageContainerElement = document.querySelector(".messagesContainer");
+const messageContainerElement = document.querySelector(".chat__messages");
 const messageInputElement = document.getElementById("messageInput");
 const chatFormElement = document.getElementById("chatForm");
 chatFormElement.addEventListener("submit", sendMessage);
-const chatContainer = document.querySelector(".messagesContainer");
 const messagePopAudio = new Audio("../../audio/MessagePop.mp3");
 messagePopAudio.volume = 0.25;
 let PLAYERS;
@@ -52,6 +51,7 @@ stompClient.onWebSocketClose = (event) => {
 
 await init();
 //activates connection
+//player doesnt technically get added till its activated so init doesnt have it in its players array
 stompClient.activate();
 
 function chatSocketHandling(responseData){
@@ -68,11 +68,11 @@ function loadMessage(name, text){
 
     messageDiv.classList.add("message")
     if(name === username){
-        messageDiv.classList.add("senderMessage");
+        messageDiv.classList.add("message--sent");
         messageDiv.textContent = text;
     }
     else{
-        messageDiv.classList.add("receiverMessage");
+        messageDiv.classList.add("message--received");
 
         const nameDiv = document.createElement("div")
         const textDiv = document.createElement("div")
@@ -80,8 +80,8 @@ function loadMessage(name, text){
         nameDiv.textContent = name;
         textDiv.textContent = text;
 
-        nameDiv.classList.add("messageName");
-        textDiv.classList.add("messageText");
+        nameDiv.classList.add("message__name");
+        textDiv.classList.add("message__text");
 
         messageDiv.appendChild(nameDiv);
         messageDiv.appendChild(textDiv);
@@ -90,7 +90,7 @@ function loadMessage(name, text){
 }
 
 function scrollDown(){
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    messageContainerElement.scrollTop = messageContainerElement.scrollHeight;
 }
 
 function sendMessage(event){
@@ -125,6 +125,7 @@ function paintSocketHandling(responseData){
 
             if(action === "ADD"){
                PLAYERS.push(data.user);
+               console.log(data.user, "Player getting added through paintsocket handling");
                addPlayer(data.user);
             }
             else if(action === "REMOVE"){
@@ -244,13 +245,15 @@ async function init(){
         return;
     }
 
-    const roomTitle = document.getElementsByClassName("title")[0];
+    const roomTitle = document.getElementsByClassName("header__title")[0];
     roomTitle.textContent = `🎨 ${roomName}`;
 
     const {players} = await response.json();
+    //console.log(players);
     PLAYERS = players;
-
+    console.log("INIT handler fired, PLAYERS length:", PLAYERS.length, PLAYERS);
     for(const player of PLAYERS){
+        console.log(player, "Player getting added through INIT handling");
         addPlayer(player);
     }
 
@@ -259,17 +262,17 @@ async function init(){
 
 function addPlayer(player){
     const playerDiv = document.createElement("div")
-    playerDiv.classList.add("playerCard");
+    playerDiv.classList.add("player-card");
     if(player === username){
-        playerDiv.classList.add("you");
+        playerDiv.classList.add("player-card--you");
     }
     playerDiv.textContent = player;
-    playerDiv.setAttribute('name', player);
+    playerDiv.setAttribute('data-name', player);
     playersListElement.appendChild(playerDiv);
 }
 
 function removePlayer(player){
-    const playerDiv = document.querySelector(`div[name="${player}"]`);
+    const playerDiv = document.querySelector(`div[data-name="${player}"]`);
     playerDiv?.remove();
 }
 export {sendPaintObjects}

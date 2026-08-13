@@ -1,6 +1,6 @@
 import {canvasState, Tool, canvas, ctx, slider} from "./canvasState.js"
 
-const trashCan = document.getElementsByClassName("trash")[0];
+const trashCan = document.getElementsByClassName("header__icon-btn--trash")[0];
 trashCan.addEventListener("click", function(){
   const debug = false;  
 
@@ -11,7 +11,7 @@ trashCan.addEventListener("click", function(){
   canvasState.render();
 });
 
-const save = document.getElementsByClassName("save")[0];
+const save = document.getElementsByClassName("header__icon-btn--save")[0];
 save.addEventListener("click", function(){
   const link = document.createElement('a');
   link.download = 'Drawing.png';
@@ -19,52 +19,47 @@ save.addEventListener("click", function(){
   link.click();
 });
 
-const homePage = document.getElementsByClassName("homePage")[0];
+const homePage = document.getElementsByClassName("header__icon-btn--homepage")[0];
 homePage.addEventListener("click", function (){
   window.location.href = "/";
 });
 
-const magnify = document.getElementsByClassName("zoom")[0];
+const magnify = document.querySelector('[data-tool="pan-zoom"]');
 magnify.addEventListener("click", function(){
-
   canvasState.tool = Tool.PANZOOM;
-  this.classList.add('selected');
-  canvas.classList.add('optionPanZoom');
-
-  brush.classList.remove('selected');
-  canvas.classList.remove('optionBrush');
-  bucket.classList.remove('selected');
   canvasState.brush.fill = false;
 
+  this.classList.add('paint__tool--selected');
+  canvas.classList.add('paint__canvas--pan-zoom');
+  bucket.classList.add('paint__tool--disabled');
+
+  brush.classList.remove('paint__tool--selected');
+  bucket.classList.remove('paint__tool--selected');
+  canvas.classList.remove('paint__canvas--brush');
 });
 
-const brush = document.getElementsByClassName("brush")[0];
-brush.addEventListener("click", function(){
-
-  canvasState.tool = Tool.BRUSH;
-  this.classList.add('selected');
-  canvas.classList.add('optionBrush');
-
-  magnify.classList.remove('selected');
-  canvas.classList.remove('optionPanZoom');
-});
-
-const bucket = document.getElementsByClassName("bucket")[0];
+const bucket = document.querySelector('[data-tool="bucket"]');
 bucket.addEventListener("click", function(){
+  if(canvasState.tool !== Tool.BRUSH)
+    return
 
-  if(canvasState.tool === Tool.BRUSH)
-    canvasState.brush.fill = !canvasState.brush.fill;
-
-  if(canvasState.brush.fill){
-    this.classList.add('selected');
-  }
-  else{
-    this.classList.remove('selected');
-  }
-
+  canvasState.brush.fill = !canvasState.brush.fill;
+  this.classList.toggle("paint__tool--selected", canvasState.brush.fill);
 });
 
-const title = document.getElementsByClassName("title")[0];
+const brush = document.querySelector('[data-tool="brush"]');
+brush.addEventListener("click", function(){
+  canvasState.tool = Tool.BRUSH;
+
+  this.classList.add('paint__tool--selected');
+  canvas.classList.add('paint__canvas--brush');
+  bucket.classList.remove('paint__tool--disabled');
+
+  magnify.classList.remove('paint__tool--selected');
+  canvas.classList.remove('paint__canvas--pan-zoom');
+});
+
+const title = document.getElementsByClassName("header__title")[0];
 title.addEventListener("click", function(){
   canvasState.render();
   canvasState.writeHistory();
@@ -75,26 +70,39 @@ slider.addEventListener("change", function (){
   ctx.lineWidth = canvasState.brush.paintWidth * canvasState.viewportTransform.scale;
 });
 
-function createColor(string){
-  let square = document.createElement("div");
-  let colors = document.getElementById("all_colors");
-  let inner = document.createElement("div");
-  square.setAttribute("id", string);
-  inner.style.backgroundColor = string;
-  square.appendChild(inner);
-  colors.appendChild(square);
+function createColor(color){
+  const palette = document.getElementById("all_colors");
+
+  const swatch = document.createElement("button");
+  const swatchInner = document.createElement("div");
+
+  swatch.classList.add("paint__swatch");
+  swatch.id = color;
+  swatch.setAttribute("aria-label", `${color} color`);
+
+  swatchInner.classList.add("paint__swatch-inner");
+  swatchInner.style.backgroundColor = color;
+
+  swatch.append(swatchInner);
+  palette.append(swatch);
 }
 
-function createOptions(num, string){
-  let square = document.createElement("div");
-  let colors = document.querySelector(".choices");
-  let inner = document.createElement("div");
-  square.setAttribute("id", num);
-  inner.style.backgroundColor = string;
-  square.appendChild(inner);
-  colors.appendChild(square);
+function createOptions(index, color){
+  let palette = document.querySelector(".paint__color-choices");
 
-  return [square, inner];
+  let swatch = document.createElement("button");
+  let swatchInner = document.createElement("div");
+
+  swatch.classList.add("paint__choice-swatch");
+  swatch.setAttribute("id", index);
+
+  swatchInner.classList.add("paint__choice-swatch-inner")
+  swatchInner.style.backgroundColor = color;
+
+  swatch.appendChild(swatchInner);
+  palette.appendChild(swatch);
+
+  return [swatch, swatchInner];
 }
 
 //populates colors in html
@@ -123,8 +131,6 @@ function populateColors(){
 
 //populate paintbrush options in html
 populateColors();
-const blackColor = document.getElementById("black");
-blackColor.classList.add("selected");
 
 const ColorTarget = Object.freeze({
   BRUSH: 1,
@@ -134,35 +140,37 @@ const ColorTarget = Object.freeze({
 let selectedColorTarget = ColorTarget.BRUSH;
 const [brushSquare, innerBrushSquare] = createOptions("1", "black");
 const [bucketSquare, innerBucketSquare] = createOptions("2", "white");
-brushSquare.classList.add("selected");
+brushSquare.classList.add("paint__choice-swatch--selected");
 
 brushSquare.addEventListener("click", function(){
   selectedColorTarget = ColorTarget.BRUSH;;
-  bucketSquare.classList.remove("selected");
-  this.classList.add("selected");
+  bucketSquare.classList.remove("paint__choice-swatch--selected");
+  this.classList.add("paint__choice-swatch--selected");
 });
 
 bucketSquare.addEventListener("click", function(){
   selectedColorTarget = ColorTarget.BUCKET;
-  brushSquare.classList.remove("selected");
-  this.classList.add("selected");
+  brushSquare.classList.remove("paint__choice-swatch--selected");
+  this.classList.add("paint__choice-swatch--selected");
 });
 
 let colorOptions = document.getElementById("all_colors");
 colorOptions.addEventListener("click", setBrushColors);
 
-function setBrushColors(e){
-  if(e.target.tagName === "DIV" && e.target !== e.currentTarget){
+function setBrushColors(event) {
+  if (event.target.tagName !== "BUTTON" || event.target === event.currentTarget) {
+    return;
+  }
 
-      if(selectedColorTarget === ColorTarget.BRUSH){
-        canvasState.brush.color = e.target.id;
-        innerBrushSquare.style.backgroundColor = canvasState.brush.color;
-        ctx.strokeStyle = canvasState.brush.color;
-      }
-      else if(selectedColorTarget === ColorTarget.BUCKET){
-        canvasState.brush.bucketColor = e.target.id;
-        innerBucketSquare.style.backgroundColor = canvasState.brush.bucketColor;
-        ctx.fillStyle = canvasState.brush.bucketColor;
-      }
-    }
+  const color = event.target.id;
+
+  if (selectedColorTarget === ColorTarget.BRUSH) {
+    canvasState.brush.color = color;
+    innerBrushSquare.style.backgroundColor = color;
+    ctx.strokeStyle = color;
+  } else if (selectedColorTarget === ColorTarget.BUCKET) {
+    canvasState.brush.bucketColor = color;
+    innerBucketSquare.style.backgroundColor = color;
+    ctx.fillStyle = color;
+  }
 }

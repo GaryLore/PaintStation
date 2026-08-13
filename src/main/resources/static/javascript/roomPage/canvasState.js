@@ -166,10 +166,6 @@ const canvasState = {
     );
     this.drawBorder();
     ctx.restore();
-
-    /*
-    ctx.beginPath();
-    ctx.moveTo(canvasState.x1, canvasState.y1);*/
   },
 
   writeHistory(){
