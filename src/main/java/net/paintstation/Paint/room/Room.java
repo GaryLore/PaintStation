@@ -1,4 +1,4 @@
-package net.paintstation.Paint.RoomRepository;
+package net.paintstation.Paint.room;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

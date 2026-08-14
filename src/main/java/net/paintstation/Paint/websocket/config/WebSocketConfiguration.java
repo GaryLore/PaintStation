@@ -1,11 +1,9 @@
 package net.paintstation.Paint.websocket.config;
 
-import net.paintstation.Paint.Registry.PlayerRegistry;
-import net.paintstation.Paint.jwt.JwtUtil;
 import net.paintstation.Paint.websocket.JwtHandshakeInterceptor;
 import net.paintstation.Paint.websocket.MyChannelInterceptor;
-import net.paintstation.Paint.websocket.RoomSafetyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -29,7 +27,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     }
 
     @Autowired
-    public void setMessageBrokerTaskScheduler(@Lazy TaskScheduler taskScheduler) {
+    public void setMessageBrokerTaskScheduler(@Qualifier("messageBrokerTaskScheduler") @Lazy TaskScheduler taskScheduler) {
         this.messageBrokerTaskScheduler = taskScheduler;
     }
 

@@ -1,7 +1,8 @@
 package net.paintstation.Paint.websocket;
 
-import net.paintstation.Paint.Registry.PlayerRegistry;
-import net.paintstation.Paint.Registry.User;
+import net.paintstation.Paint.registry.PlayerRegistry;
+import net.paintstation.Paint.registry.User;
+import net.paintstation.Paint.room.RoomSafetyService;
 import net.paintstation.Paint.jwt.JwtUtil;
 import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.Message;
@@ -32,7 +33,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
         switch(command){
             case SEND -> {
                 String destination = accessor.getDestination();
-                if (destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX)) {
+                if (destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX)) {
                     //WILL NEED TO FIX i forgot what this is about
                     String roomName = extractRoomName(destination);
                     User user = registry.get(accessor.getSessionId());
@@ -48,7 +49,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
             case SUBSCRIBE -> {
                 String destination = accessor.getDestination();
 
-                if (destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
+                if (destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
 
                     String roomName = extractRoomName(destination);
 
@@ -78,7 +79,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     registry.add(accessor.getSessionId(), user);
                 }
                 //subscription to chat is ran after subscription to paint so registry already contains player info
-                else if(destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX) && destination.endsWith("chat")){
+                else if(destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("chat")){
 
                     String sessionId = accessor.getSessionId();
                     String roomName = extractRoomName(destination);
@@ -102,7 +103,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     System.out.println("SUBSCRIPTION TO CHAT: " + destination );
                 }
                 //don't want user connecting to stomp routes that dont exist
-                else if(destination == null || !destination.equals(PlayerRegistry.TOPIC_LOBBY)){
+                else if(destination == null || !destination.equals(WebSocketManager.TOPIC_LOBBY)){
                     throw new RuntimeException("ACCESS DENIED");
                 }
             }
@@ -118,10 +119,10 @@ public class MyChannelInterceptor implements ChannelInterceptor {
 
         String roomName = null;
         if(destination.endsWith("/paint")){
-            roomName = destination.substring(PlayerRegistry.TOPIC_ROOM_PREFIX.length(), destination.length() - PAINT_SUFFIX_LENGTH);
+            roomName = destination.substring(WebSocketManager.TOPIC_ROOM_PREFIX.length(), destination.length() - PAINT_SUFFIX_LENGTH);
         }
         else if(destination.endsWith("/chat")){
-            roomName = destination.substring(PlayerRegistry.TOPIC_ROOM_PREFIX.length(), destination.length() - CHAT_SUFFIX_LENGTH);
+            roomName = destination.substring(WebSocketManager.TOPIC_ROOM_PREFIX.length(), destination.length() - CHAT_SUFFIX_LENGTH);
         }
         return roomName;
     }

@@ -1,26 +1,31 @@
 package net.paintstation.Paint.websocket;
 
-import net.paintstation.Paint.Registry.PlayerRegistry;
-import net.paintstation.Paint.Registry.User;
+import net.paintstation.Paint.registry.PlayerRegistry;
+import net.paintstation.Paint.registry.User;
+import net.paintstation.Paint.room.Room;
+import net.paintstation.Paint.room.RoomRepository;
+import net.paintstation.Paint.lobby.enums.RoomAction;
 import net.paintstation.Paint.websocket.dto.PlayerUpdate;
+import net.paintstation.Paint.websocket.dto.RoomUpdate;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
+import java.util.Optional;
+
 @Component
 public class WebSocketEventListener {
 
-    private final SimpMessagingTemplate template;
+    private final WebSocketManager webSocketManager;
     private final PlayerRegistry registry;
-    private final RoomSafetyService service;
+    private final RoomRepository repository;
 
-    public WebSocketEventListener(SimpMessagingTemplate template, PlayerRegistry registry, RoomSafetyService service) {
-        this.template = template;
+    public WebSocketEventListener(WebSocketManager webSocketManager, PlayerRegistry registry, RoomRepository repository) {
+        this.webSocketManager = webSocketManager;
         this.registry = registry;
-        this.service = service;
+        this.repository = repository;
     }
 
     @EventListener
@@ -28,12 +33,12 @@ public class WebSocketEventListener {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         String destination = accessor.getDestination();
 
-        if (destination != null && destination.startsWith(PlayerRegistry.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
+        if (destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
             String sessionId = accessor.getSessionId();
             User user = registry.get(sessionId);
-            service.addPlayer(user.getRoomName(), user.getName());
+            repository.addPlayer(user.getRoomName(), user.getName());
             System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " SUBSCRIBED TO ROOM: " + "\"" + user.getRoomName() + "\"");
-            template.convertAndSend(PlayerRegistry.TOPIC_ROOM_PREFIX + user.getRoomName() + "/" + "paint", new PlayerUpdate("PLAYER_UPDATE", "ADD", user.getName()));
+            webSocketManager.broadcastUserUpdate(user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "ADD", user.getName()) );
         }
     }
 
@@ -44,15 +49,28 @@ public class WebSocketEventListener {
 
         //paint cleanup
         if(user != null) {//we only register users once they enter a room not if they subscribe to the lobby
-            service.cleanUp(user, template);
+            cleanUp(user);
             registry.remove(sessionId);
             System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " DISCONNECTED FROM ROOM: " + "\"" + user.getRoomName() + "\"");
-            template.convertAndSend(PlayerRegistry.TOPIC_ROOM_PREFIX + user.getRoomName() + "/" + "paint", new PlayerUpdate("PLAYER_UPDATE", "REMOVE", user.getName()));
+            webSocketManager.broadcastUserUpdate(user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "REMOVE", user.getName()) );
         }
         //chat cleanup
         if(registry.containsChatUser(sessionId)){
             registry.removeChatUser(sessionId);
         }
 
+    }
+
+    private void cleanUp(User user){
+        if(user == null) return;
+        String roomName = user.getRoomName();
+        Optional<Room> room = repository.findRoomByName(roomName);
+        room.ifPresent(elRoom -> {
+            elRoom.removePlayer(user.getName());
+            if(elRoom.isEmpty()){
+                repository.removeRoom(roomName);
+                webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, roomName));
+            }
+        });
     }
 }

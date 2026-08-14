@@ -1,4 +1,4 @@
-package net.paintstation.Paint.Registry;
+package net.paintstation.Paint.registry;
 
 import org.springframework.stereotype.Component;
 
@@ -9,8 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class PlayerRegistry {
 
-    public static final String TOPIC_LOBBY = "/topic/lobby";
-    public static final String TOPIC_ROOM_PREFIX = "/topic/room/";
     private final ConcurrentHashMap<String, User> players = new ConcurrentHashMap<>();
     private final Set<String> chatUsers = new HashSet<>();
 

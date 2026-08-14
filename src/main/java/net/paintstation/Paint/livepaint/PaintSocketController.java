@@ -1,19 +1,15 @@
 package net.paintstation.Paint.livepaint;
 
 import jakarta.validation.Valid;
-import net.paintstation.Paint.Registry.PlayerRegistry;
+import net.paintstation.Paint.registry.PlayerRegistry;
 import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.livepaint.dto.PaintRequest;
 import net.paintstation.Paint.livepaint.dto.PaintResponse;
-import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Handles the websocket requests and responses for live paint

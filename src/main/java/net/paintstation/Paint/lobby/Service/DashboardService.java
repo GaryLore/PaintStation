@@ -1,16 +1,21 @@
 package net.paintstation.Paint.lobby.Service;
 
-import net.paintstation.Paint.RoomRepository.Room;
-import net.paintstation.Paint.RoomRepository.RoomRepository;
+import net.paintstation.Paint.room.Room;
+import net.paintstation.Paint.room.RoomRepository;
 import net.paintstation.Paint.lobby.dto.internal.AccessRoomResult;
 import net.paintstation.Paint.lobby.dto.request.CreateRoomRequest;
 import net.paintstation.Paint.lobby.dto.request.JoinRoomRequest;
 import net.paintstation.Paint.lobby.dto.response.loadAllRoomsResponse;
 import net.paintstation.Paint.lobby.enums.AccessRoomStatus;
+import net.paintstation.Paint.lobby.enums.RoomAction;
+import net.paintstation.Paint.websocket.WebSocketManager;
+import net.paintstation.Paint.websocket.dto.RoomUpdate;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Handles more of the logic that the Room Controller needs
@@ -19,9 +24,13 @@ import java.util.UUID;
 public class DashboardService {
 
     private final RoomRepository repository;
+    private final TaskScheduler scheduler;
+    private final WebSocketManager webSocketManager;
 
-    DashboardService(RoomRepository repository){
+    DashboardService(RoomRepository repository, @Qualifier("taskScheduler") TaskScheduler scheduler, WebSocketManager webSocketManager){
         this.repository = repository;
+        this.scheduler = scheduler;
+        this.webSocketManager = webSocketManager;
     }
 
     /**
@@ -42,7 +51,17 @@ public class DashboardService {
         System.out.println("[DashboardService.java] Owner Name : \"" + request.ownerName() + "\"");
 
         boolean success = repository.InsertRoom(room);
-        return success ? Optional.of(room) : Optional.empty();
+        if (success) {
+            //removes a created room that was never joined
+            scheduler.schedule(
+                    () -> expireRoomIfEmpty(room),
+                    Instant.now().plusSeconds(10)
+            );
+            return Optional.of(room);
+        }
+        else{
+            return Optional.empty();
+        }
     }
 
     /**
@@ -92,4 +111,16 @@ public class DashboardService {
         return new loadAllRoomsResponse(repository.getAllRoomsInfo());
     }
 
+    /**
+     * Deletes a room if its empty scheduled after 10 seconds
+     *
+     * @param room The Room you are checking
+     */
+    public void expireRoomIfEmpty(Room room) {
+        if(room.isEmpty()) {
+            System.out.println("DELETED EMPTY ROOM");
+            repository.removeRoom(room.getName());
+            webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, room.getName()));
+        }
+    }
 }
