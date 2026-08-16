@@ -28,6 +28,7 @@ public class WebSocketEventListener {
         this.repository = repository;
     }
 
+    /* This is now handled with a separate topic with stomp in PaintSocketControler.java joinRoom Method
     @EventListener
     public void handleSubscribe(SessionSubscribeEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
@@ -40,13 +41,12 @@ public class WebSocketEventListener {
             System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " SUBSCRIBED TO ROOM: " + "\"" + user.getRoomName() + "\"");
             webSocketManager.broadcastUserUpdate(user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "ADD", user.getName()) );
         }
-    }
+    }*/
 
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {
         String sessionId = event.getSessionId();
         User user = registry.get(sessionId);
-
         //paint cleanup
         if(user != null) {//we only register users once they enter a room not if they subscribe to the lobby
             cleanUp(user);
@@ -58,7 +58,6 @@ public class WebSocketEventListener {
         if(registry.containsChatUser(sessionId)){
             registry.removeChatUser(sessionId);
         }
-
     }
 
     private void cleanUp(User user){

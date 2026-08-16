@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerRegistry {
 
     private final ConcurrentHashMap<String, User> players = new ConcurrentHashMap<>();
-    private final Set<String> chatUsers = new HashSet<>();
+    private final Set<String> chatUsers = new HashSet<>();//UNSURE but this maybe able to remove this
 
     public void add(String sessionId, User player) {
         players.put(sessionId, player);
