@@ -35,6 +35,7 @@ public class PaintController {
     ResponseEntity<?> setup(@Valid @RequestBody PaintSetupRequest request){
         PaintSetupResponse response = service.setup(request);
         if(response != null){
+            System.out.println(response);
             return ResponseEntity.ok().body(response);
         }
         return ResponseEntity.notFound().build();

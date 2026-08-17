@@ -1,6 +1,4 @@
-package net.paintstation.Paint.Registry;
-
-import java.util.UUID;
+package net.paintstation.Paint.registry;
 
 public class User{
 

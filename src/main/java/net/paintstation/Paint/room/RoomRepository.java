@@ -1,4 +1,4 @@
-package net.paintstation.Paint.RoomRepository;
+package net.paintstation.Paint.room;
 
 import net.paintstation.Paint.lobby.dto.internal.RoomInfo;
 import org.springframework.stereotype.Component;
@@ -39,6 +39,10 @@ public class RoomRepository {
 
     public boolean userExistsInRoom(String username, String roomName){
         return findRoomByName(roomName).map(room -> room.isNameTaken(username)).orElse(false);
+    }
+
+    public void addPlayer(String roomName, String player){
+        findRoomByName(roomName).map(room -> room.addPlayer(player));
     }
 }
 

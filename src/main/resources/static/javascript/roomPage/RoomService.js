@@ -13,6 +13,9 @@ const chatFormElement = document.getElementById("chatForm");
 chatFormElement.addEventListener("submit", sendMessage);
 const messagePopAudio = new Audio("../../audio/MessagePop.mp3");
 messagePopAudio.volume = 0.25;
+// needed in case events arrive while initializing page, we will only worry about paint events
+let initialized = false;
+let pendingEvents = [];
 let PLAYERS;
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -33,6 +36,10 @@ stompClient.onConnect = (frame) => {
         `/topic/room/${roomName}/chat`,
         chatSocketHandling
     )
+    stompClient.publish({
+        destination: `/app/room/${roomName}/join`,
+        body: JSON.stringify({})
+    });
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -49,10 +56,11 @@ stompClient.onWebSocketClose = (event) => {
     window.location.href = "/";
 };
 
-await init();
+
 //activates connection
 //player doesnt technically get added till its activated so init doesnt have it in its players array
 stompClient.activate();
+await init();
 
 function chatSocketHandling(responseData){
     const data = JSON.parse(responseData.body)
@@ -116,6 +124,11 @@ function sendMessage(event){
 }
 
 function paintSocketHandling(responseData){
+    if(!initialized){
+        pendingEvents.push(responseData);
+        return;
+    }
+
     const data = JSON.parse(responseData.body)
     const type = data.type;
 
@@ -249,7 +262,8 @@ async function init(){
     roomTitle.textContent = `🎨 ${roomName}`;
 
     const {players} = await response.json();
-    //console.log(players);
+    //looks like if its the first user joining players will be empty because server doesnt add user quick enough before https get request
+    //but user is still added on client thought stomp so its fine
     PLAYERS = players;
     console.log("INIT handler fired, PLAYERS length:", PLAYERS.length, PLAYERS);
     for(const player of PLAYERS){
@@ -258,6 +272,13 @@ async function init(){
     }
 
     userCountElement.innerText = `${PLAYERS.length} Online`;
+
+    initialized = true;
+    for(const event of pendingEvents){
+        paintSocketHandling(event);
+        console.log("Pending event processed");
+    }
+    pendingEvents = null;
 }
 
 function addPlayer(player){

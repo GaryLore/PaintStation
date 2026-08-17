@@ -285,8 +285,10 @@ body {
 
     .dashboard {
         display: grid;
+        flex-grow: 1;
         gap: var(--panel-gap);
         grid-template-columns:1fr 1fr;
+        min-height: 0;
     }
 
     aside {
@@ -297,6 +299,7 @@ body {
         background: #F6F7FA;
         border-radius: var(--panel-border-radius);
         box-shadow: var(--panel-shadow);
+        height: 850px;
         padding: var(--app-padding);
         position: relative;
     }
@@ -321,8 +324,22 @@ body {
         z-index: 1;
     }
 
+    .panel--rooms {
+        min-height: 0;
+    }
+
     .room-list {
-        height: 60vh;
+        flex-grow: 1;
+        height: auto;
+    }
+
+    .panel--create-rooms {
+        flex-grow: 1;
+    }
+
+    .right-column {
+        display: flex;
+        flex-direction: column;
     }
 
     .modal {

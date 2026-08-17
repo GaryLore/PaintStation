@@ -1,13 +1,12 @@
 package net.paintstation.Paint.livepaint;
 
-import net.paintstation.Paint.RoomRepository.Room;
-import net.paintstation.Paint.RoomRepository.RoomRepository;
+import net.paintstation.Paint.room.Room;
+import net.paintstation.Paint.room.RoomRepository;
 import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
 import net.paintstation.Paint.livepaint.dto.PaintSetupResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * The Service layer that handles the logic for the Paint Controller

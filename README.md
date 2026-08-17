@@ -121,6 +121,7 @@ Here are the attributions that are required for some of the free icons I used in
 - https://medium.com/@tericcabrel/implement-jwt-authentication-in-a-spring-boot-3-application-5839e4fd8fac
 - https://springboot-123.mizucoffee.com/en/blog/spring-boot-security-jwt-authentication/
 - https://www.youtube.com/watch?v=emhAf7srIeg
+- https://www.baeldung.com/spring-task-scheduler
 
 ### Other Sources
 - I used MDN as documentation for various CSS and Javascript things I needed to know, MDN is one of the best documentations I have read and easy to understand

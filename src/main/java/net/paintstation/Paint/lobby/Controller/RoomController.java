@@ -2,8 +2,7 @@ package net.paintstation.Paint.lobby.Controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import net.paintstation.Paint.Registry.PlayerRegistry;
-import net.paintstation.Paint.RoomRepository.Room;
+import net.paintstation.Paint.room.Room;
 import net.paintstation.Paint.jwt.JwtUtil;
 import net.paintstation.Paint.lobby.Service.DashboardService;
 import net.paintstation.Paint.lobby.dto.internal.AccessRoomResult;
@@ -11,10 +10,10 @@ import net.paintstation.Paint.lobby.dto.request.CreateRoomRequest;
 import net.paintstation.Paint.lobby.dto.request.JoinRoomRequest;
 import net.paintstation.Paint.lobby.dto.response.RoomResponse;
 import net.paintstation.Paint.lobby.dto.response.loadAllRoomsResponse;
+import net.paintstation.Paint.websocket.WebSocketManager;
 import net.paintstation.Paint.websocket.dto.RoomUpdate;
 import net.paintstation.Paint.lobby.enums.RoomAction;
 import org.springframework.http.*;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -27,12 +26,12 @@ import java.util.Optional;
 public class RoomController {
 
     private final DashboardService roomService;
-    private final SimpMessagingTemplate template;
+    private final WebSocketManager webSocketManager;
     private final JwtUtil jwtUtil;
 
-    public RoomController(DashboardService roomService, SimpMessagingTemplate template, JwtUtil jwtUtil){
+    public RoomController(DashboardService roomService, WebSocketManager webSocketManager, JwtUtil jwtUtil){
         this.roomService = roomService;
-        this.template = template;
+        this.webSocketManager = webSocketManager;
         this.jwtUtil = jwtUtil;
     }
 
@@ -102,7 +101,7 @@ public class RoomController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         RoomUpdate update = new RoomUpdate(RoomAction.INSERT, request.roomName() );
-        template.convertAndSend(PlayerRegistry.TOPIC_LOBBY, update);
+        webSocketManager.broadcastRoomUpdate(update);
         return ResponseEntity.status(HttpStatus.CREATED).body(roomResponse);
     }
 
