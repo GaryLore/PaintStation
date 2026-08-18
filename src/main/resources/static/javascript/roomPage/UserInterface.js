@@ -13,10 +13,13 @@ trashCan.addEventListener("click", function(){
 
 const save = document.getElementsByClassName("header__icon-btn--save")[0];
 save.addEventListener("click", function(){
-  const link = document.createElement('a');
-  link.download = 'Drawing.png';
-  link.href = canvas.toDataURL()
-  link.click();
+  canvas.toBlob((blob) => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "Drawing.png";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
 });
 
 const homePage = document.getElementsByClassName("header__icon-btn--homepage")[0];
