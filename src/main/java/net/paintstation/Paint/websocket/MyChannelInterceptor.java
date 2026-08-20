@@ -1,7 +1,9 @@
 package net.paintstation.Paint.websocket;
 
+import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
 import net.paintstation.Paint.registry.PlayerRegistry;
 import net.paintstation.Paint.registry.User;
+import net.paintstation.Paint.room.RoomRepository;
 import net.paintstation.Paint.room.RoomSafetyService;
 import net.paintstation.Paint.jwt.JwtUtil;
 import org.jspecify.annotations.NonNull;
@@ -17,11 +19,13 @@ public class MyChannelInterceptor implements ChannelInterceptor {
 
     private final RoomSafetyService service;
     private final PlayerRegistry registry;
+    private final RoomRepository repository;
     private final JwtUtil jwtUtil;
 
-    public MyChannelInterceptor(RoomSafetyService service, PlayerRegistry registry, JwtUtil jwtUtil){
+    public MyChannelInterceptor(RoomSafetyService service, PlayerRegistry registry, RoomRepository repository, JwtUtil jwtUtil){
         this.service = service;
         this.registry = registry;
+        this.repository = repository;
         this.jwtUtil = jwtUtil;
     }
 
@@ -33,11 +37,15 @@ public class MyChannelInterceptor implements ChannelInterceptor {
         switch(command){
             case SEND -> {
                 String destination = accessor.getDestination();
-                if (destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX)) {
-                    //WILL NEED TO FIX i forgot what this is about
+                if (destination == null) {
+                    throw new RuntimeException("ACCESS DENIED");
+                }
+                if (destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX)) {
                     String roomName = extractRoomName(destination);
                     User user = registry.get(accessor.getSessionId());
-
+                    if (user == null) {
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
                     if(!service.roomExist(roomName)){
                         throw new RuntimeException("ACCESS DENIED");
                     }
@@ -45,11 +53,17 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                         throw new RuntimeException("ACCESS DENIED");
                     }
                 }
+                else{
+                    //client attempting to send anywhere else is denied allows server tho, since this is on inbound channel
+                    throw new RuntimeException("ACCESS DENIED");
+                }
             }
             case SUBSCRIBE -> {
                 String destination = accessor.getDestination();
-
-                if (destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
+                if (destination == null) {
+                    throw new RuntimeException("ACCESS DENIED");
+                }
+                if (destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
 
                     String roomName = extractRoomName(destination);
 
@@ -60,26 +74,24 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     }
 
                     String tokenRoomName = getRoomFromCookie(token);
-                    if(!roomName.equals(tokenRoomName) || !service.roomExist(roomName)){
+                    if(!roomName.equals(tokenRoomName)){
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
                     String username = jwtUtil.extractUsername(token);
-                    if(service.isRoomFull(roomName)){
-                        throw new RuntimeException("ACCESS DENIED");
-                    }
+                    AddPlayerStatus result = repository.addPlayer(roomName, username);//this checks if room exists as well in order to add it
 
-                    //not allowing user with same name
-                    if(service.userExistsInRoom(username, roomName)){
+                    if(result != AddPlayerStatus.SUCCESS){
                         throw new RuntimeException("ACCESS DENIED");
                     }
+                    System.out.println("user added to room");
 
                     //set registry associated with session id
                     User user = new User(username, roomName);
                     registry.add(accessor.getSessionId(), user);
                 }
                 //subscription to chat is ran after subscription to paint so registry already contains player info
-                else if(destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("chat")){
+                else if(destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("chat")){
 
                     String sessionId = accessor.getSessionId();
                     String roomName = extractRoomName(destination);
@@ -90,11 +102,10 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     }
                     //could throw exception
                     String tokenRoomName = getRoomFromCookie(token);
-
                     if(!roomName.equals(tokenRoomName) || !service.roomExist(roomName)){
                         throw new RuntimeException("ACCESS DENIED");
                     }
-
+                    //dont want to add user to chat twice
                     if(registry.containsChatUser(sessionId)){
                         throw new RuntimeException("ACCESS DENIED");
                     }
@@ -102,8 +113,28 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     registry.addChatUser(sessionId);
                     System.out.println("SUBSCRIPTION TO CHAT: " + destination );
                 }
+                //relies on paint subscription set up finishing first may implement receipts in the future
+                else if(destination.startsWith(WebSocketManager.APP_ROOM_PREFIX) && destination.endsWith("init")){
+                    //SOME OF THIS IS REPEATED you may need METHOD
+                    String roomName = extractRoomName(destination);
+
+                    //check if room exists
+                    String token = (String) accessor.getSessionAttributes().get("jwt");
+                    if (token == null) {
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+
+                    String tokenRoomName = getRoomFromCookie(token);
+                    String username = jwtUtil.extractUsername(token);
+
+                    System.out.println("DOES USER EXIST IN ROOM: " + service.roomExist(roomName));
+                    if(!roomName.equals(tokenRoomName) || !service.userExistsInRoom(username, roomName)){
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+
+                }
                 //don't want user connecting to stomp routes that dont exist
-                else if(destination == null || !destination.equals(WebSocketManager.TOPIC_LOBBY)){
+                else if(!destination.equals(WebSocketManager.TOPIC_LOBBY)){
                     throw new RuntimeException("ACCESS DENIED");
                 }
             }
@@ -116,6 +147,8 @@ public class MyChannelInterceptor implements ChannelInterceptor {
     private String extractRoomName(String destination) {
         final int PAINT_SUFFIX_LENGTH = 6; // "/paint"
         final int CHAT_SUFFIX_LENGTH = 5; // "/chat"
+        final int INIT_SUFFIX_LENGTH = 5; // "/init"
+        final int SNAPSHOT_SUFFIX_LENGTH = 8; // "snapshot"
 
         String roomName = null;
         if(destination.endsWith("/paint")){
@@ -123,6 +156,12 @@ public class MyChannelInterceptor implements ChannelInterceptor {
         }
         else if(destination.endsWith("/chat")){
             roomName = destination.substring(WebSocketManager.TOPIC_ROOM_PREFIX.length(), destination.length() - CHAT_SUFFIX_LENGTH);
+        }
+        else if(destination.endsWith("/init")){
+            roomName = destination.substring(WebSocketManager.APP_ROOM_PREFIX.length(), destination.length() - INIT_SUFFIX_LENGTH);
+        }
+        else if(destination.endsWith("/snapshot")){
+            roomName = destination.substring(WebSocketManager.TOPIC_ROOM_PREFIX.length(), destination.length() - SNAPSHOT_SUFFIX_LENGTH);
         }
         return roomName;
     }

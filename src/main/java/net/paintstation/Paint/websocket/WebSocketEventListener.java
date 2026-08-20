@@ -1,5 +1,6 @@
 package net.paintstation.Paint.websocket;
 
+import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
 import net.paintstation.Paint.registry.PlayerRegistry;
 import net.paintstation.Paint.registry.User;
 import net.paintstation.Paint.room.Room;
@@ -28,7 +29,6 @@ public class WebSocketEventListener {
         this.repository = repository;
     }
 
-    /* This is now handled with a separate topic with stomp in PaintSocketControler.java joinRoom Method
     @EventListener
     public void handleSubscribe(SessionSubscribeEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
@@ -37,11 +37,10 @@ public class WebSocketEventListener {
         if (destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
             String sessionId = accessor.getSessionId();
             User user = registry.get(sessionId);
-            repository.addPlayer(user.getRoomName(), user.getName());
             System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " SUBSCRIBED TO ROOM: " + "\"" + user.getRoomName() + "\"");
             webSocketManager.broadcastUserUpdate(user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "ADD", user.getName()) );
         }
-    }*/
+    }
 
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {

@@ -29,17 +29,17 @@ stompClient.onConnect = (frame) => {
     console.log("PLEASE WORK");
     console.log('Connected: ' + frame);
     stompClient.subscribe(
+        `/topic/room/${roomName}/chat`,
+        chatSocketHandling
+    )
+    stompClient.subscribe(
         `/topic/room/${roomName}/paint`,
         paintSocketHandling
     );
     stompClient.subscribe(
-        `/topic/room/${roomName}/chat`,
-        chatSocketHandling
+        `/app/room/${roomName}/init`,
+        init
     )
-    stompClient.publish({
-        destination: `/app/room/${roomName}/join`,
-        body: JSON.stringify({})
-    });
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -60,7 +60,6 @@ stompClient.onWebSocketClose = (event) => {
 //activates connection
 //player doesnt technically get added till its activated so init doesnt have it in its players array
 stompClient.activate();
-await init();
 
 function chatSocketHandling(responseData){
     const data = JSON.parse(responseData.body)
@@ -129,17 +128,18 @@ function paintSocketHandling(responseData){
         return;
     }
 
-    const data = JSON.parse(responseData.body)
+    const data = JSON.parse(responseData.body);
     const type = data.type;
 
     switch (type) {
         case "PLAYER_UPDATE":
             const action = data.action;
 
-            if(action === "ADD"){
+            if(action === "ADD" && data.user !== username){
+               //prevents you from being added twice, one from init and another from here.
+               addPlayer(data.user);
                PLAYERS.push(data.user);
                console.log(data.user, "Player getting added through paintsocket handling");
-               addPlayer(data.user);
             }
             else if(action === "REMOVE"){
                 const indexToRemove = PLAYERS.indexOf(data.user);
@@ -244,7 +244,8 @@ function sendPaintObjects(paintType, paintObject){
     });
 }
 
-async function init(){
+async function init(responseData){
+    /*
     const response = await fetch("/api/paint/init", {
         method : "POST",
         headers : {
@@ -256,12 +257,14 @@ async function init(){
     if(!response.ok){
         console.error(response);
         return;
-    }
+    }*/
+
+    const data = JSON.parse(responseData.body)
 
     const roomTitle = document.getElementsByClassName("header__title")[0];
     roomTitle.textContent = `🎨 ${roomName}`;
 
-    const {players} = await response.json();
+    const {players} = data;//object destructuring
     //looks like if its the first user joining players will be empty because server doesnt add user quick enough before https get request
     //but user is still added on client thought stomp so its fine
     PLAYERS = players;

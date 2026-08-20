@@ -95,7 +95,7 @@ public class DashboardService {
         }
 
         if(accessedRoom.isNameTaken(username)){
-            return AccessRoomResult.failure(AccessRoomStatus.NAME_TAKEN);
+            return AccessRoomResult.failure(AccessRoomStatus.USERNAME_TAKEN);
         }
 
         return AccessRoomResult.success(accessedRoom);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.paintstation.Paint.lobby.dto.internal.RoomInfo;
 import net.paintstation.Paint.lobby.enums.AccessRoomStatus;
+import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -54,13 +55,13 @@ public class Room {
 
     public boolean isEmpty() {return numOfPlayers == 0;}
 
-    public synchronized AccessRoomStatus addPlayer(String playerName) {
+    public synchronized AddPlayerStatus addPlayer(String playerName) {
 
-        if (isFull()) return AccessRoomStatus.ROOM_FULL;
-        if (isNameTaken(playerName)) return AccessRoomStatus.NAME_TAKEN;
+        if (isFull()) return AddPlayerStatus.ROOM_FULL;
+        if (isNameTaken(playerName)) return AddPlayerStatus.USERNAME_TAKEN;
         players.add(playerName);
         numOfPlayers++;
-        return AccessRoomStatus.SUCCESS;
+        return AddPlayerStatus.SUCCESS;
     }
 
     public synchronized boolean removePlayer(String username){
@@ -68,7 +69,6 @@ public class Room {
         if(!removed){
             return false;
         }
-
         numOfPlayers--;
         return true;
     }

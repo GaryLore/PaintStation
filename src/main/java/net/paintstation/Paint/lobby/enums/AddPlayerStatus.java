@@ -1,9 +1,8 @@
 package net.paintstation.Paint.lobby.enums;
 
-public enum AccessRoomStatus {
+public enum AddPlayerStatus {
     SUCCESS,
     ROOM_FULL,
     USERNAME_TAKEN,
-    INCORRECT_PASSWORD,
     ROOM_NOT_FOUND
 }

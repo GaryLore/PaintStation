@@ -33,7 +33,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic")
+        config.enableSimpleBroker("/topic", "/queue")
                 .setHeartbeatValue(new long[] {10000, 10000})
                 .setTaskScheduler(this.messageBrokerTaskScheduler);
         config.setApplicationDestinationPrefixes("/app");

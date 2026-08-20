@@ -1,6 +1,7 @@
 package net.paintstation.Paint.room;
 
 import net.paintstation.Paint.lobby.dto.internal.RoomInfo;
+import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
 import org.springframework.stereotype.Component;
 
 
@@ -41,8 +42,9 @@ public class RoomRepository {
         return findRoomByName(roomName).map(room -> room.isNameTaken(username)).orElse(false);
     }
 
-    public void addPlayer(String roomName, String player){
-        findRoomByName(roomName).map(room -> room.addPlayer(player));
+    public AddPlayerStatus addPlayer(String roomName, String player){
+        Optional<AddPlayerStatus> result = findRoomByName(roomName).map(room -> room.addPlayer(player));
+        return result.orElse(AddPlayerStatus.ROOM_NOT_FOUND);
     }
 }
 

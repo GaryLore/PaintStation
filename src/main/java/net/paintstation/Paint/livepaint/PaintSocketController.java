@@ -1,6 +1,8 @@
 package net.paintstation.Paint.livepaint;
 
 import jakarta.validation.Valid;
+import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
+import net.paintstation.Paint.livepaint.dto.PaintSetupResponse;
 import net.paintstation.Paint.registry.PlayerRegistry;
 import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.livepaint.dto.PaintRequest;
@@ -12,6 +14,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -22,10 +25,12 @@ public class PaintSocketController {
 
     private final PlayerRegistry registry;
     private final RoomRepository repository;
+    private final PaintService service;
 
-    public PaintSocketController(PlayerRegistry registry, RoomRepository repository) {
+    public PaintSocketController(PlayerRegistry registry, RoomRepository repository, PaintService service) {
         this.registry = registry;
         this.repository = repository;
+        this.service = service;
     }
 
     /**
@@ -44,20 +49,22 @@ public class PaintSocketController {
         return response;
     }
 
-    @MessageMapping("/room/{roomName}/join")
-    @SendTo("/topic/room/{roomName}/paint")
-    private PlayerUpdate joinRoom(@DestinationVariable String roomName, SimpMessageHeaderAccessor accessor){
+    /**
+     * Client sends request here upon loading into the room, and gets a response back to initialize their room
+     *
+     * @param accessor Used to extract session id from a specific web socket connection
+     * @return a PaintSetupResponse to initialize the paint canvas on success
+     */
+    @SubscribeMapping("/room/{roomName}/init")
+    public PaintSetupResponse setup(SimpMessageHeaderAccessor accessor){
         User user = registry.get(accessor.getSessionId());
-        /*
-        if user is null that means player was never added to registry on sessionSubscribe which means this could be an attack
-        to add a user in a room they are not in, so we drop the message and dont add the user
-        */
-        if(user == null){
-            return null;
-        }
-        repository.addPlayer(user.getRoomName(), user.getName());
-        System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " SUBSCRIBED TO ROOM: " + "\"" + user.getRoomName() + "\"");
-        return new PlayerUpdate("PLAYER_UPDATE", "ADD", user.getName());
+        PaintSetupRequest request = new PaintSetupRequest(user.getRoomName(), user.getName());
+        PaintSetupResponse response = service.setup(request);
+        return response;
+    }
+
+    private void requestSnapshotDebug(){
+
     }
 
     private static void debugRequest(PaintRequest request) {
