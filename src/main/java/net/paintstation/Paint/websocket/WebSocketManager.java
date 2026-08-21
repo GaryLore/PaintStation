@@ -10,6 +10,9 @@ public class WebSocketManager {
 
     public static final String TOPIC_LOBBY = "/topic/lobby";
     public static final String TOPIC_ROOM_PREFIX = "/topic/room/";
+    public static final String PUBLISH_ROOM_PREFIX = "/app/room/";
+    public static final String QUEUE_PAINT_SNAPSHOT = "/queue/paint/snapshot";
+    public static final String APP_PAINT_SNAPSHOT = "/app/paint/snapshot";
     public static final String APP_ROOM_PREFIX = "/app/room/";
     private final SimpMessagingTemplate template;
 
@@ -25,7 +28,7 @@ public class WebSocketManager {
         template.convertAndSend(TOPIC_ROOM_PREFIX + room + "/" + "paint", update);
     }
 
-    public void requestSnapshot(String room, String user){
-
+    public void requestSnapshot(String user){
+        template.convertAndSendToUser(user, QUEUE_PAINT_SNAPSHOT, "SNAPSHOT_REQUEST");
     }
 }

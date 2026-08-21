@@ -4,6 +4,7 @@ import net.paintstation.Paint.websocket.JwtHandshakeInterceptor;
 import net.paintstation.Paint.websocket.MyChannelInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -12,6 +13,8 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -24,6 +27,19 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     WebSocketConfiguration(MyChannelInterceptor channelInterceptor, JwtHandshakeInterceptor handshakeInterceptor){
         this.channelInterceptor = channelInterceptor;
         this.handshakeInterceptor = handshakeInterceptor;
+    }
+
+    @Bean
+    public ServletServerContainerFactoryBean createWebSocketContainer() {
+        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+        container.setMaxTextMessageBufferSize(8192);
+        container.setMaxBinaryMessageBufferSize(9 * 1024 * 1024);
+        return container;
+    }
+
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry.setMessageSizeLimit(9 * 1024 * 1024); //default 64 x 1024
     }
 
     @Autowired

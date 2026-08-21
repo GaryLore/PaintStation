@@ -1,7 +1,7 @@
 import PaintRequest from "./PaintRequest.js";
 import Stroke from "./Stroke.js";
 import Dot from "./Dot.js";
-import {canvasState, ctx} from "./canvasState.js"
+import {canvas, canvasState, ctx} from "./canvasState.js"
 
 const roomName = sessionStorage.getItem("ROOM_NAME");
 const username = sessionStorage.getItem("USERNAME");
@@ -40,6 +40,10 @@ stompClient.onConnect = (frame) => {
         `/app/room/${roomName}/init`,
         init
     )
+    stompClient.subscribe(
+        "/user/queue/paint/snapshot",
+        snapshot
+    )
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -53,7 +57,7 @@ stompClient.onStompError = (frame) => {
 
 stompClient.onWebSocketClose = (event) => {
     console.error("WebSocket closed", event);
-    window.location.href = "/";
+    //window.location.href = "/";
 };
 
 
@@ -284,6 +288,28 @@ async function init(responseData){
     pendingEvents = null;
 }
 
+function snapshot(responseData) {
+    console.log("REQUEST RECEIVED FOR SNAPSHOT");
+    canvas.toBlob(async (blob) => {
+        if (!blob) {
+            console.error("Failed to create PNG");
+            return;
+        }
+
+        console.log("Snapshot size:", blob.size, "bytes");
+        const arrayBuffer = await blob.arrayBuffer();
+
+
+        stompClient.publish({
+            destination: "/app/paint/snapshot",
+            binaryBody: new Uint8Array(arrayBuffer),
+            headers: {
+                "content-type": "image/png"
+            }
+        });
+    }, "image/png");
+}
+
 function addPlayer(player){
     const playerDiv = document.createElement("div")
     playerDiv.classList.add("player-card");
@@ -299,4 +325,5 @@ function removePlayer(player){
     const playerDiv = document.querySelector(`div[data-name="${player}"]`);
     playerDiv?.remove();
 }
+
 export {sendPaintObjects}

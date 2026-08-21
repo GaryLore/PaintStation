@@ -11,6 +11,7 @@ import net.paintstation.Paint.websocket.dto.RoomUpdate;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
@@ -49,9 +50,9 @@ public class WebSocketEventListener {
         //paint cleanup
         if(user != null) {//we only register users once they enter a room not if they subscribe to the lobby
             cleanUp(user);
-            registry.remove(sessionId);
             System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " DISCONNECTED FROM ROOM: " + "\"" + user.getRoomName() + "\"");
             webSocketManager.broadcastUserUpdate(user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "REMOVE", user.getName()) );
+            registry.remove(sessionId);
         }
         //chat cleanup
         if(registry.containsChatUser(sessionId)){

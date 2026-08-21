@@ -12,7 +12,10 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 public class MyChannelInterceptor implements ChannelInterceptor {
@@ -31,30 +34,38 @@ public class MyChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        //StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+
+        StompHeaderAccessor accessor =
+                MessageHeaderAccessor.getAccessor(
+                        message,
+                        StompHeaderAccessor.class
+                );
         StompCommand command = accessor.getCommand();
 
         switch(command){
             case SEND -> {
                 String destination = accessor.getDestination();
                 if (destination == null) {
+                    System.out.println("desintation is null");
                     throw new RuntimeException("ACCESS DENIED");
                 }
-                if (destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX)) {
-                    String roomName = extractRoomName(destination);
+                if (destination.startsWith(WebSocketManager.PUBLISH_ROOM_PREFIX) && destination.endsWith("/paint")) {
                     User user = registry.get(accessor.getSessionId());
                     if (user == null) {
+                        System.out.println("user null");
                         throw new RuntimeException("ACCESS DENIED");
                     }
-                    if(!service.roomExist(roomName)){
-                        throw new RuntimeException("ACCESS DENIED");
-                    }
-                    if(!service.userExistsInRoom(user.getName(), roomName)){
+                    //this is not perfect got to check route
+                    if(!service.userExistsInRoom(user.getName(), user.getRoomName())){
+                        System.out.println("user exists in room");
                         throw new RuntimeException("ACCESS DENIED");
                     }
                 }
-                else{
+                else if(!destination.equals(WebSocketManager.APP_PAINT_SNAPSHOT)) {
                     //client attempting to send anywhere else is denied allows server tho, since this is on inbound channel
+                    System.out.println(destination);
+                    System.out.println("not allowed to send here");
                     throw new RuntimeException("ACCESS DENIED");
                 }
             }
@@ -90,9 +101,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     User user = new User(username, roomName);
                     registry.add(accessor.getSessionId(), user);
                 }
-                //subscription to chat is ran after subscription to paint so registry already contains player info
                 else if(destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("chat")){
-
                     String sessionId = accessor.getSessionId();
                     String roomName = extractRoomName(destination);
                     String token = (String) accessor.getSessionAttributes().get("jwt");
@@ -113,7 +122,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     registry.addChatUser(sessionId);
                     System.out.println("SUBSCRIPTION TO CHAT: " + destination );
                 }
-                //relies on paint subscription set up finishing first may implement receipts in the future
+                //relies on paint subscription set up finishing first may implement receipts in the future could result in bug
                 else if(destination.startsWith(WebSocketManager.APP_ROOM_PREFIX) && destination.endsWith("init")){
                     //SOME OF THIS IS REPEATED you may need METHOD
                     String roomName = extractRoomName(destination);
@@ -134,9 +143,14 @@ public class MyChannelInterceptor implements ChannelInterceptor {
 
                 }
                 //don't want user connecting to stomp routes that dont exist
-                else if(!destination.equals(WebSocketManager.TOPIC_LOBBY)){
+                else if(!destination.equals(WebSocketManager.TOPIC_LOBBY) && !destination.equals("/user" + WebSocketManager.QUEUE_PAINT_SNAPSHOT)){
                     throw new RuntimeException("ACCESS DENIED");
                 }
+
+            }
+            case CONNECT -> {
+                StompPrincipal principal = new StompPrincipal(accessor.getSessionId());
+                accessor.setUser(principal);
             }
             case null -> {}
             default -> {}
@@ -144,6 +158,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
         return message;
     }
 
+    //doesnt work for send frames only subscribe
     private String extractRoomName(String destination) {
         final int PAINT_SUFFIX_LENGTH = 6; // "/paint"
         final int CHAT_SUFFIX_LENGTH = 5; // "/chat"
