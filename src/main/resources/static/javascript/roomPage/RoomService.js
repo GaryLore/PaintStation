@@ -1,7 +1,7 @@
 import PaintRequest from "./PaintRequest.js";
 import Stroke from "./Stroke.js";
 import Dot from "./Dot.js";
-import {canvas, canvasState, ctx} from "./canvasState.js"
+import {canvas, snapshotCanvas, canvasState, ctx, snapshot_ctx} from "./canvasState.js"
 
 const roomName = sessionStorage.getItem("ROOM_NAME");
 const username = sessionStorage.getItem("USERNAME");
@@ -172,7 +172,7 @@ function paintSocketHandling(responseData){
                 if(paintObject != null) {
                     canvasState.paintHistory.push(paintObject);
                     drawObject(paintObject);
-                    canvasState.reloadJustBorder();
+                    canvasState.reloadJustBorder(ctx);
                 }
             }
     }
@@ -181,7 +181,7 @@ function paintSocketHandling(responseData){
 function drawObject(object){
     ctx.save()
     canvasState.setTransformCanvas();
-    object.draw();
+    object.draw(ctx);
     ctx.restore()
 }
 
@@ -249,20 +249,6 @@ function sendPaintObjects(paintType, paintObject){
 }
 
 async function init(responseData){
-    /*
-    const response = await fetch("/api/paint/init", {
-        method : "POST",
-        headers : {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({roomName, username})
-    })
-
-    if(!response.ok){
-        console.error(response);
-        return;
-    }*/
-
     const data = JSON.parse(responseData.body)
 
     const roomTitle = document.getElementsByClassName("header__title")[0];
@@ -288,26 +274,22 @@ async function init(responseData){
     pendingEvents = null;
 }
 
-function snapshot(responseData) {
+async function snapshot(responseData) {
     console.log("REQUEST RECEIVED FOR SNAPSHOT");
-    canvas.toBlob(async (blob) => {
-        if (!blob) {
-            console.error("Failed to create PNG");
-            return;
+
+
+    canvasState.render(snapshot_ctx);
+    const blob = await snapshotCanvas.convertToBlob();//by default makes a png
+    console.log("Snapshot size:", blob.size, "bytes");
+    const arrayBuffer = await blob.arrayBuffer();
+
+    stompClient.publish({
+        destination: "/app/paint/snapshot",
+        binaryBody: new Uint8Array(arrayBuffer),
+        headers: {
+            "content-type": "image/png"
         }
-
-        console.log("Snapshot size:", blob.size, "bytes");
-        const arrayBuffer = await blob.arrayBuffer();
-
-
-        stompClient.publish({
-            destination: "/app/paint/snapshot",
-            binaryBody: new Uint8Array(arrayBuffer),
-            headers: {
-                "content-type": "image/png"
-            }
-        });
-    }, "image/png");
+    });
 }
 
 function addPlayer(player){

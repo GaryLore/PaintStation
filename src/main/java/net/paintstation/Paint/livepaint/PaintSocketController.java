@@ -8,25 +8,21 @@ import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.livepaint.dto.PaintRequest;
 import net.paintstation.Paint.livepaint.dto.PaintResponse;
 import net.paintstation.Paint.registry.User;
+import net.paintstation.Paint.room.Room;
 import net.paintstation.Paint.room.RoomRepository;
 import net.paintstation.Paint.websocket.WebSocketManager;
-import net.paintstation.Paint.websocket.dto.PlayerUpdate;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
-import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.Principal;
+import java.util.Optional;
+import java.util.Random;
 
 /**
  * Handles the websocket requests and responses for live paint
@@ -61,6 +57,16 @@ public class PaintSocketController {
         PaintObject paintObject = request.object();
         User user = registry.get(accessor.getSessionId());
 
+        //store in repository and if over 50 objects request snapshot
+        Optional<Room> optionalRoom = repository.findRoomByName(user.getRoomName());
+        if(optionalRoom.isPresent()){
+            Room room = optionalRoom.get();
+            boolean snapshotNeeded = room.addPaintObject(paintObject);
+            System.out.println("[" + user.getRoomName() + "]Number of Paint Objects Stored :" + room.getHistoryCount() );
+            if(snapshotNeeded){
+                requestSnapshot(room);
+            }
+        }
 
         PaintResponse response = new PaintResponse(
                 paintObject.getType(),
@@ -71,6 +77,19 @@ public class PaintSocketController {
     }
 
     /**
+     * Gets all player Ids picks a random one to request a snapshot from
+     * Maybe in the future we should put some way of confirming that we actually received the snapshot IMPORTANT
+     *
+     * @param room The room which a snapshot is requested from
+     */
+    private void requestSnapshot(Room room){
+        String[] ids = room.getAllPlayerIds();
+        String id = ids[new Random().nextInt(ids.length)];
+        System.out.println("Snapshot Requested from: " + room.idToPlayer(id) );
+        webSocketManager.requestSnapshot(id);
+    }
+
+    /**
      * Client sends request here upon loading into the room, and gets a response back to initialize their room
      *
      * @param accessor Used to extract session id from a specific web socket connection
@@ -78,19 +97,38 @@ public class PaintSocketController {
      */
     @SubscribeMapping("/room/{roomName}/init")
     public PaintSetupResponse setup(SimpMessageHeaderAccessor accessor){
-        User user = registry.get(accessor.getSessionId());
+        String id = accessor.getSessionId();
+        User user = registry.get(id);
+        Optional<Room> possibleRoom = repository.findRoomByName(user.getRoomName());
+        if(possibleRoom.isPresent()){
+            Room room = possibleRoom.get();
+            room.registerPlayer(user.getName(), id);
+        }
+        else{
+            System.out.println("ROOM NOT FOUND WHEN INITIALIZING");
+        }
         PaintSetupRequest request = new PaintSetupRequest(user.getRoomName(), user.getName());
         PaintSetupResponse response = service.setup(request);
         return response;
     }
 
+    /**
+     * Gets the client snapshot in response to requestSnapshot(room);
+     *
+     * @param imageBytes Where Png image is stored
+     * @param accessor Used to extract session id from this specific web socket connection
+     * @throws IOException
+     */
     @MessageMapping("/paint/snapshot")
     private void processSnapshot(byte[] imageBytes, SimpMessageHeaderAccessor accessor) throws IOException {
+        System.out.println("PROCESSING SNAPSHOT");
         User user = registry.get(accessor.getSessionId());
         Files.write(Path.of("canvas.png"), imageBytes);
         System.out.println("File written");
     }
 
+
+    /*
     @Scheduled(fixedDelay = 10000)
     private void IntervalRequestSnapShotDebug(){
         System.out.println("Request debug entered");
@@ -106,7 +144,7 @@ public class PaintSocketController {
                 }
             }
         }
-    }
+    }*/
 
     private static void debugRequest(PaintRequest request) {
         System.out.println("REQUEST");

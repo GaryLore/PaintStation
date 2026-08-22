@@ -2,10 +2,13 @@ const canvas = document.getElementById("canvas");
 console.log(canvas);
 if (!canvas.getContext) {
   console.log("CANVAS IS NOT SUPPORTED PLEASE USE ANOTHER BROWSER");
-} 
+}
+
 const ctx = canvas.getContext("2d");
 canvas.width = 1280;
 canvas.height = 720;
+const snapshotCanvas = new OffscreenCanvas(canvas.width, canvas.height);
+const snapshot_ctx = snapshotCanvas.getContext("2d");
 
 //fixes problem where if you resize browser the paint stroke isnt in the correct location
 let rect = canvas.getBoundingClientRect();
@@ -26,6 +29,14 @@ const viewport = {
   skewingX: 0,
   skewingY: 0,
   scale: 1
+};
+
+const snapshot_viewport = {
+  x: canvas.width/4,
+  y: canvas.height/4,
+  skewingX: 0,
+  skewingY: 0,
+  scale: 1/2
 };
 
 const WORLD_BOUNDS = {
@@ -51,6 +62,7 @@ const canvasState = {
   hasDrawn : false,
   tool : Tool.BRUSH, 
   viewportTransform : viewport,
+  snapshotViewportTransform : snapshot_viewport,
   worldBounds : WORLD_BOUNDS,
   drawBounds : DRAW_Bounds,
 
@@ -100,14 +112,19 @@ const canvasState = {
     return (y/rect.height) * canvas.height;
   },
 
-  render(){
-    ctx.save();
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    this.setTransformCanvas();
-    canvasState.paintHistory.forEach((paintObject) => paintObject.draw());
-    this.drawBorder();
-    ctx.restore();
+  render(context){
+    context.save();
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    if(context === ctx) {
+      this.setTransformCanvas();
+    }
+    else{
+      this.setTransformSnapshotCanvas();
+    }
+    canvasState.paintHistory.forEach((paintObject) => paintObject.draw(context));
+    this.drawBorder(context);
+    context.restore();
   },
 
   setTransformCanvas(){
@@ -122,8 +139,20 @@ const canvasState = {
     );
   },
 
-  drawBorder(){
-    ctx.fillStyle = "dimgray";
+  setTransformSnapshotCanvas(){
+    snapshot_ctx.resetTransform();
+    snapshot_ctx.setTransform(
+        this.snapshotViewportTransform.scale,
+        this.snapshotViewportTransform.skewingX,
+        this.snapshotViewportTransform.skewingY,
+        this.snapshotViewportTransform.scale,
+        this.snapshotViewportTransform.x,
+        this.snapshotViewportTransform.y
+    );
+  },
+
+  drawBorder(context){
+    context.fillStyle = "dimgray";
 
     const {
       x: outerX,
@@ -132,11 +161,11 @@ const canvasState = {
       height: outerHeight
     } = this.worldBounds;
 
-    ctx.beginPath();
-    ctx.moveTo(outerX, outerY);
-    ctx.lineTo(outerX + outerWidth, outerY);
-    ctx.lineTo(outerX + outerWidth, outerY + outerHeight);
-    ctx.lineTo(outerX, outerY + outerHeight);
+    context.beginPath();
+    context.moveTo(outerX, outerY);
+    context.lineTo(outerX + outerWidth, outerY);
+    context.lineTo(outerX + outerWidth, outerY + outerHeight);
+    context.lineTo(outerX, outerY + outerHeight);
 
     const {
       x: innerX,
@@ -145,18 +174,18 @@ const canvasState = {
       height: innerHeight
     } = this.drawBounds;
 
-    ctx.moveTo(innerX, innerY);
-    ctx.lineTo(innerX, innerY + innerHeight);
-    ctx.lineTo(innerX + innerWidth, innerY + innerHeight);
-    ctx.lineTo(innerX + innerWidth, innerY);
+    context.moveTo(innerX, innerY);
+    context.lineTo(innerX, innerY + innerHeight);
+    context.lineTo(innerX + innerWidth, innerY + innerHeight);
+    context.lineTo(innerX + innerWidth, innerY);
 
-    ctx.fill();
+    context.fill();
   },
 
 
-  reloadJustBorder(){
-    ctx.save();
-    ctx.setTransform(
+  reloadJustBorder(context){
+    context.save();
+    context.setTransform(
       this.viewportTransform.scale,
       this.viewportTransform.skewingX,
       this.viewportTransform.skewingY,
@@ -164,12 +193,13 @@ const canvasState = {
       this.viewportTransform.x,
       this.viewportTransform.y
     );
-    this.drawBorder();
-    ctx.restore();
+    this.drawBorder(context);
+    context.restore();
   },
 
   writeHistory(){
     console.log("BEGIN PAINT HISTORY");
+    console.log("HISTORY LENGTH: ", this.paintHistory.length);
     this.paintHistory.forEach((paintObject) => console.log("    ",paintObject.constructor.name, paintObject));
     console.log("END");
   }
@@ -183,6 +213,6 @@ ctx.lineWidth = canvasState.brush.paintWidth;
 ctx.lineCap = "round"; 
 ctx.lineJoin = "round"; 
 
-canvasState.render();
+canvasState.render(ctx);
 
-export {canvasState, Tool, canvas, ctx, rect, slider};
+export {canvasState, Tool, canvas, snapshotCanvas, ctx, snapshot_ctx, rect, slider};

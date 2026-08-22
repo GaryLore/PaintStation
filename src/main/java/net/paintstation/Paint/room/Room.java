@@ -2,6 +2,7 @@ package net.paintstation.Paint.room;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.lobby.dto.internal.RoomInfo;
 import net.paintstation.Paint.lobby.enums.AccessRoomStatus;
 import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
@@ -14,9 +15,13 @@ public class Room {
     private final String password;
     private final String owner;
     private int numOfPlayers = 0;
-    private final HashMap<UUID, String> idToPlayer = new HashMap<>();
-    private final Set<String> players = new HashSet<>();
-    private final ConcurrentLinkedQueue<Integer> history = new ConcurrentLinkedQueue<>();
+    private boolean snapshotPending = false;
+    private final HashMap<String, String> players = new HashMap<>();
+    public ConcurrentLinkedQueue<PaintObject> history = new ConcurrentLinkedQueue<>();
+    public ConcurrentLinkedQueue<PaintObject> previousHistory = new ConcurrentLinkedQueue<>();
+    private int historyCount = 0;
+    private final Object playersLock = new Object();
+    private final Object historyLock = new Object();
 
     @JsonCreator
     public Room(@JsonProperty("username") String name, @JsonProperty("password") String password, @JsonProperty("owner") String owner) {
@@ -37,16 +42,45 @@ public class Room {
         return owner;
     }
 
-    public List<Integer> getHistory(){
+    public List<PaintObject> getHistory(){
         return List.copyOf(history);
     }
 
+    public boolean addPaintObject(PaintObject object){
+        synchronized(historyLock) {
+            history.add(object);
+            historyCount++;
+
+            if(historyCount >= 50){
+                previousHistory = history;
+                history = new ConcurrentLinkedQueue<>();
+                historyCount = 0;
+                snapshotPending = true;
+                return true;
+            }
+            return false;
+        }
+    }
+
     public String[] getAllPlayerNames(){
-        return players.toArray(String[]::new);
+        return players.keySet().toArray(String[]::new);
+    }
+
+    public String[] getAllPlayerIds(){
+        return players.values().toArray(String[]::new);
+    }
+
+    public String idToPlayer(String id){
+        for (Map.Entry<String, String> entry : players.entrySet()) {
+            if (Objects.equals(id, entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return "";
     }
 
     public boolean isNameTaken(String name){
-        return players.contains(name);
+        return players.containsKey(name);
     }
 
     public boolean isFull(){
@@ -55,25 +89,42 @@ public class Room {
 
     public boolean isEmpty() {return numOfPlayers == 0;}
 
-    public synchronized AddPlayerStatus addPlayer(String playerName) {
-
-        if (isFull()) return AddPlayerStatus.ROOM_FULL;
-        if (isNameTaken(playerName)) return AddPlayerStatus.USERNAME_TAKEN;
-        players.add(playerName);
-        numOfPlayers++;
-        return AddPlayerStatus.SUCCESS;
+    public AddPlayerStatus addPlayer(String playerName) {
+        synchronized(playersLock) {
+            if (isFull()) return AddPlayerStatus.ROOM_FULL;
+            if (isNameTaken(playerName)) return AddPlayerStatus.USERNAME_TAKEN;
+            players.put(playerName, null);
+            numOfPlayers++;
+            return AddPlayerStatus.SUCCESS;
+        }
     }
 
-    public synchronized boolean removePlayer(String username){
-        boolean removed = players.remove(username);
-        if(!removed){
-            return false;
+    public void registerPlayer(String username, String id){
+        synchronized(playersLock) {
+            players.put(username, id);
         }
-        numOfPlayers--;
-        return true;
+    }
+
+    public boolean removePlayer(String username){
+        synchronized(playersLock) {
+            boolean removed = players.remove(username) != null;
+            if (!removed) {
+                return false;
+            }
+            numOfPlayers--;
+            return true;
+        }
     }
 
     public RoomInfo getRoomInfo(){
         return new RoomInfo(this.name, this.numOfPlayers);
+    }
+
+    public boolean isSnapshotRequested() {
+        return snapshotPending;
+    }
+
+    public int getHistoryCount(){
+        return historyCount;
     }
 }

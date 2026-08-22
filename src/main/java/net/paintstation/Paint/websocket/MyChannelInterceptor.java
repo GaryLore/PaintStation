@@ -50,7 +50,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     System.out.println("desintation is null");
                     throw new RuntimeException("ACCESS DENIED");
                 }
-                if (destination.startsWith(WebSocketManager.PUBLISH_ROOM_PREFIX) && destination.endsWith("/paint")) {
+                if (destination.startsWith(WebSocketManager.PUBLISH_ROOM_PREFIX) && (destination.endsWith("/paint") || destination.endsWith("/chat")) ) {
                     User user = registry.get(accessor.getSessionId());
                     if (user == null) {
                         System.out.println("user null");

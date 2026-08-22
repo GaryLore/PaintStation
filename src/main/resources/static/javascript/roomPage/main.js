@@ -49,6 +49,10 @@ function updatePanning(event){
     viewportTransform.x = tempX;
     viewportTransform.y = tempY;
 
+    console.log("viewportTransform.scale: ", viewportTransform.scale);
+    console.log("viewportTransform.x: ", viewportTransform.x);
+    console.log("viewportTransform.y: ", viewportTransform.y);
+
     //you have to divide it because when you zoom in and are very close and move by a certain amount of pixels, but realistically if it wasnt zoomed in that amount of pixels
     //you moved is actually be signficiantly less since irs proportional so we divide
     canvasState.panZoom.GlobalOffsetX += scaledDIFFX / viewportTransform.scale; 
@@ -76,6 +80,10 @@ function updateZooming(event){
     viewportTransform.y = offsetY;
     ctx.lineWidth = canvasState.brush.paintWidth * viewportTransform.scale;
 
+    console.log("viewportTransform.scale: ", viewportTransform.scale);
+    console.log("viewportTransform.x: ", viewportTransform.x);
+    console.log("viewportTransform.y: ", viewportTransform.y);
+
     //console.log("SCALE : ", viewportTransform.scale, " (",viewportTransform.x,viewportTransform.y,")");
   }
 }
@@ -83,7 +91,7 @@ function updateZooming(event){
 canvas.addEventListener("wheel", function(event){
   if(canvasState.tool === Tool.PANZOOM){
     updateZooming(event);
-    canvasState.render();
+    canvasState.render(ctx);
   }
 });
 
@@ -102,7 +110,7 @@ canvas.addEventListener("mousemove", function (event) {
 
   if(canvasState.isPanning()){
     updatePanning(event);
-    canvasState.render();
+    canvasState.render(ctx);
   }
   else if(canvasState.canDraw){
     const viewportTransform = canvasState.viewportTransform;
@@ -117,7 +125,7 @@ canvas.addEventListener("mousemove", function (event) {
       canvasState.drawTo(x2,y2);
       canvasState.x1 = x2;
       canvasState.y1 = y2;
-      canvasState.reloadJustBorder();
+      canvasState.reloadJustBorder(ctx);
 
       //actual x and y may be different due to transformations
       const point = new Point(worldX,worldY);
@@ -160,7 +168,7 @@ window.addEventListener("mouseup", function (event) {
   if(canvasState.canDraw){
     recordStroke();
     if(canvasState.brush.fill){
-      canvasState.render();
+      canvasState.render(ctx);
     }
   }
 });
@@ -181,7 +189,7 @@ function drawDot(event){
     ctx.fillStyle = canvasState.brush.color;//neccessary because fill i used to implement dot
     ctx.fill();
     ctx.fillStyle = canvasState.brush.bucketColor;
-    canvasState.reloadJustBorder();
+    canvasState.reloadJustBorder(ctx);
 
     let record = new Dot({
       color : canvasState.brush.color,
@@ -241,8 +249,8 @@ function recordStroke() {
     if(canvasState.tempStroke.fill){
       ctx.save()
       canvasState.setTransformCanvas()
-      canvasState.tempStroke.draw();
-      canvasState.reloadJustBorder();
+      canvasState.tempStroke.draw(ctx);
+      canvasState.reloadJustBorder(ctx);
       ctx.restore();
       canvasState.paintHistory.push(canvasState.tempStroke);
     }
