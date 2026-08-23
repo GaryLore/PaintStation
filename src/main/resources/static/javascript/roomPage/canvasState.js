@@ -71,6 +71,7 @@ const canvasState = {
   bufferPreviousPoint: undefined,
   
   //handles history
+  snapshotImage: null,
   paintHistory : [],
   tempStroke : null,
 
@@ -122,8 +123,14 @@ const canvasState = {
     else{
       this.setTransformSnapshotCanvas();
     }
+    console.log(this.drawBounds.x);
+    //load snapshot if there is one
+    if(this.snapshotImage) {
+      console.log("Snapshot drawn");
+      context.drawImage(this.snapshotImage, canvasState.drawBounds.x, canvasState.drawBounds.y, canvasState.drawBounds.width, canvasState.drawBounds.height);//change magic numbers
+    }
     canvasState.paintHistory.forEach((paintObject) => paintObject.draw(context));
-    this.drawBorder(context);
+    canvasState.drawBorder(context);
     context.restore();
   },
 
@@ -211,7 +218,9 @@ ctx.fillStyle = canvasState.brush.bucketColor;
 ctx.lineWidth = canvasState.brush.paintWidth;
 //we set linecap and line join both to the same so the redraws with render are the same
 ctx.lineCap = "round"; 
-ctx.lineJoin = "round"; 
+ctx.lineJoin = "round";
+snapshot_ctx.lineCap = "round";
+snapshot_ctx.lineJoin = "round";
 
 canvasState.render(ctx);
 

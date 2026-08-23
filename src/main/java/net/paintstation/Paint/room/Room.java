@@ -3,6 +3,7 @@ package net.paintstation.Paint.room;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.paintstation.Paint.livepaint.Models.PaintObject;
+import net.paintstation.Paint.livepaint.dto.PaintResponse;
 import net.paintstation.Paint.lobby.dto.internal.RoomInfo;
 import net.paintstation.Paint.lobby.enums.AccessRoomStatus;
 import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
@@ -17,8 +18,8 @@ public class Room {
     private int numOfPlayers = 0;
     private boolean snapshotPending = false;
     private final HashMap<String, String> players = new HashMap<>();
-    public ConcurrentLinkedQueue<PaintObject> history = new ConcurrentLinkedQueue<>();
-    public ConcurrentLinkedQueue<PaintObject> previousHistory = new ConcurrentLinkedQueue<>();
+    public ConcurrentLinkedQueue<PaintResponse> history = new ConcurrentLinkedQueue<>();
+    public ConcurrentLinkedQueue<PaintResponse> previousHistory = new ConcurrentLinkedQueue<>();
     private int historyCount = 0;
     private final Object playersLock = new Object();
     private final Object historyLock = new Object();
@@ -42,13 +43,13 @@ public class Room {
         return owner;
     }
 
-    public List<PaintObject> getHistory(){
+    public List<PaintResponse> getHistory(){
         return List.copyOf(history);
     }
 
-    public boolean addPaintObject(PaintObject object){
+    public boolean addPaintObject(PaintResponse response){
         synchronized(historyLock) {
-            history.add(object);
+            history.add(response);
             historyCount++;
 
             if(historyCount >= 50){

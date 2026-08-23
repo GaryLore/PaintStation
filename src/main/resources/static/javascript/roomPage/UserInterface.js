@@ -5,6 +5,7 @@ trashCan.addEventListener("click", function(){
   const debug = false;  
 
   if(!debug){
+    canvasState.snapshotImage = null;
     canvasState.paintHistory = [];
   }
 

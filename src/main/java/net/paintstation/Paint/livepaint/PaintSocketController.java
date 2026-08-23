@@ -61,19 +61,20 @@ public class PaintSocketController {
         Optional<Room> optionalRoom = repository.findRoomByName(user.getRoomName());
         if(optionalRoom.isPresent()){
             Room room = optionalRoom.get();
-            boolean snapshotNeeded = room.addPaintObject(paintObject);
+            PaintResponse response = new PaintResponse(
+                    paintObject.getType(),
+                    user.getName(),
+                    paintObject
+            );
+            boolean snapshotNeeded = room.addPaintObject(response);
             System.out.println("[" + user.getRoomName() + "]Number of Paint Objects Stored :" + room.getHistoryCount() );
             if(snapshotNeeded){
                 requestSnapshot(room);
             }
+            return response;
         }
 
-        PaintResponse response = new PaintResponse(
-                paintObject.getType(),
-                user.getName(),
-                paintObject
-        );
-        return response;
+        return null;
     }
 
     /**
@@ -108,8 +109,7 @@ public class PaintSocketController {
             System.out.println("ROOM NOT FOUND WHEN INITIALIZING");
         }
         PaintSetupRequest request = new PaintSetupRequest(user.getRoomName(), user.getName());
-        PaintSetupResponse response = service.setup(request);
-        return response;
+        return service.setup(request);
     }
 
     /**
@@ -117,14 +117,17 @@ public class PaintSocketController {
      *
      * @param imageBytes Where Png image is stored
      * @param accessor Used to extract session id from this specific web socket connection
-     * @throws IOException
      */
     @MessageMapping("/paint/snapshot")
-    private void processSnapshot(byte[] imageBytes, SimpMessageHeaderAccessor accessor) throws IOException {
+    private void processSnapshot(byte[] imageBytes, SimpMessageHeaderAccessor accessor){
         System.out.println("PROCESSING SNAPSHOT");
         User user = registry.get(accessor.getSessionId());
-        Files.write(Path.of("canvas.png"), imageBytes);
-        System.out.println("File written");
+        try {
+            Files.write(Path.of("canvas.png"), imageBytes);
+            System.out.println("File written");
+        } catch (IOException e) {
+            System.out.println("File was no written ERROR");
+        }
     }
 
 
