@@ -19,4 +19,9 @@ public record Stroke(
     public String getType() {
         return "STROKE";
     }
+
+    public String toDebugString() {
+        return "Stroke[uuid=%s, phase=%s, brushColor=%s, bucketColor=%s, fill=%s]"
+                .formatted(uuid, phase, brushColor, bucketColor, fill);
+    }
 }

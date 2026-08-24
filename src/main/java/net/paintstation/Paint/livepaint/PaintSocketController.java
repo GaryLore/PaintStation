@@ -43,7 +43,6 @@ public class PaintSocketController {
         this.webSocketManager = webSocketManager;
         this.principalRegistry = principalRegistry;
     }
-
     /**
      *
      * @param roomName The name of the room you are entering
@@ -67,13 +66,12 @@ public class PaintSocketController {
                     paintObject
             );
             boolean snapshotNeeded = room.addPaintObject(response);
-            System.out.println("[" + user.getRoomName() + "]Number of Paint Objects Stored :" + room.getHistoryCount() );
+            System.out.println("[" + user.getRoomName() + "]Number Stored :" + room.getHistoryCount() );
             if(snapshotNeeded){
                 requestSnapshot(room);
             }
             return response;
         }
-
         return null;
     }
 
@@ -125,6 +123,8 @@ public class PaintSocketController {
         try {
             Files.write(Path.of("canvas.png"), imageBytes);
             System.out.println("File written");
+            //maybe issue with threads
+            repository.findRoomByName(user.getRoomName()).ifPresent(Room::setSnapshotFinished);
         } catch (IOException e) {
             System.out.println("File was no written ERROR");
         }
