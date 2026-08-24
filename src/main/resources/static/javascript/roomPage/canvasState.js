@@ -123,7 +123,6 @@ const canvasState = {
     else{
       this.setTransformSnapshotCanvas();
     }
-    console.log(this.drawBounds.x);
     //load snapshot if there is one
     if(this.snapshotImage) {
       console.log("Snapshot drawn");

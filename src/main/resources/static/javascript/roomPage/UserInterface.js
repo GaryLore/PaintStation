@@ -65,7 +65,7 @@ brush.addEventListener("click", function(){
 
 const title = document.getElementsByClassName("header__title")[0];
 title.addEventListener("click", function(){
-  //canvasState.render();
+  canvasState.render(ctx);
   canvasState.writeHistory();
 });
 

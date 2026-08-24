@@ -10,6 +10,7 @@ import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Stream;
 
 public class Room {
     private final String name;
@@ -19,7 +20,6 @@ public class Room {
     private boolean snapshotPending = false;
     private final HashMap<String, String> players = new HashMap<>();
     public ConcurrentLinkedQueue<PaintResponse> history = new ConcurrentLinkedQueue<>();
-    public HashMap<UUID, ConcurrentLinkedQueue<PaintResponse>> fillHistory = new HashMap<>();
     public ConcurrentLinkedQueue<PaintResponse> previousHistory = new ConcurrentLinkedQueue<>();
     private int historyCount = 0;
     private final Object playersLock = new Object();
@@ -45,58 +45,41 @@ public class Room {
     }
 
     public List<PaintResponse> getHistory(){
-        if(!snapshotPending){
-            return List.copyOf(history);
+        if(snapshotPending){
+            //used just in case when initializing room and current snapshot is getting processed
+            //so we use old snapshot and previous history and new history, maybe glitch here idk
+            System.out.println("SNAPSHOT IS PENDING when history was returned");
+            return Stream.concat(previousHistory.stream(), history.stream()).toList();
         }
         else{
-            //used just in case when initializing room and current snapshot is getting processed
-            //so we use old snapshot and previous history, maybe glitch here idk
-            return List.copyOf(previousHistory);
+            return List.copyOf(history);
         }
     }
 
+    /**
+     * Adds a PaintResponse to history if its either 50 objects or more, or
+     * the end of a fill stroke we request a snapshot
+     *
+     * @param response Contains paint object that is stored in room history
+     * @return A boolean that indicates whether a snapshot is needed
+     */
     public boolean addPaintObject(PaintResponse response){
         synchronized(historyLock) {
             history.add(response);
             PaintObject object = response.object();
-
-            if(object.getType().equals("STROKE")){
-                Stroke stroke = (Stroke) response.object();
-                System.out.println(stroke.toDebugString());
-
-                UUID id = stroke.uuid();
-                if(stroke.fill()){
-                    if (fillHistory.containsKey(id)){
-                        ConcurrentLinkedQueue<PaintResponse> fillStroke = fillHistory.get(id);
-                        fillStroke.add(response);
-                    }
-                    else if(fillHistory.containsKey(id) && stroke.phase().equals("END")){
-                        fillHistory.remove(id);
-                    }
-                    else{
-                        ConcurrentLinkedQueue<PaintResponse> fillStroke = new ConcurrentLinkedQueue<PaintResponse>();
-                        fillStroke.add(response);
-                        fillHistory.put(id, fillStroke);
-                    }
-                }
-            }
             historyCount++;
 
-            if(historyCount >= 50){
+            boolean historyLimitReached = historyCount >= 50;
+            boolean fillStrokeEnded =
+                    object instanceof Stroke stroke
+                            && stroke.fill()
+                            && "END".equals(stroke.phase());
+
+            if(historyLimitReached || fillStrokeEnded){
                 previousHistory = history;
                 history = new ConcurrentLinkedQueue<>();
-                //sometimes fill strokes are cut off after a snapshot so we need to reinsert them
-                historyCount = 0;
-                for (ConcurrentLinkedQueue<PaintResponse> fillStroke : fillHistory.values()) {
-                    history.addAll(fillStroke);
-                    historyCount += fillStroke.size(); //not efficient because of size O(n) lookup
-                }
-                if(historyCount >= 50){
-                    System.out.println("PAINT FILL STROKE IS TOOO BIGG");
-                    //short term fix but we need some way of limiting how big a fill paint stroke is.
-                    history.clear();
-                }
                 snapshotPending = true;
+                historyCount = 0;
                 return true;
             }
             return false;
