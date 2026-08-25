@@ -43,13 +43,14 @@ public class PaintService {
             List<PaintResponse> paintResponses = accessedRoom.getHistory();
 
             byte[] pngSnapshot = getImage(roomName);
+            /*
             if(pngSnapshot != null) {
                 System.out.println("PNG size: " + pngSnapshot.length + " bytes");
             }
             else{
                 System.out.println("PNG HAS NOT been populated yet so null has been sent as png image");
-            }
-            System.out.println("Snapshot sent");
+            }*/
+            //System.out.println("Snapshot sent");
             return new PaintSetupResponse(username, roomName, players, pngSnapshot, paintResponses);
         }
         System.out.println("ROOM IS NOT PRESENT???");

@@ -21,6 +21,7 @@ public class Room {
     private final HashMap<String, String> players = new HashMap<>();
     public ConcurrentLinkedQueue<PaintResponse> history = new ConcurrentLinkedQueue<>();
     public ConcurrentLinkedQueue<PaintResponse> previousHistory = new ConcurrentLinkedQueue<>();
+    private static final int MAX_HISTORY_COUNT = 100;
     private int historyCount = 0;
     private final Object playersLock = new Object();
     private final Object historyLock = new Object();
@@ -45,14 +46,15 @@ public class Room {
     }
 
     public List<PaintResponse> getHistory(){
-        if(snapshotPending){
-            //used just in case when initializing room and current snapshot is getting processed
-            //so we use old snapshot and previous history and new history, maybe glitch here idk
-            System.out.println("SNAPSHOT IS PENDING when history was returned");
-            return Stream.concat(previousHistory.stream(), history.stream()).toList();
-        }
-        else{
-            return List.copyOf(history);
+        synchronized (historyLock) {
+            if (snapshotPending) {
+                //used just in case when initializing room and current snapshot is getting processed
+                //so we use old snapshot and previous history and new history, maybe glitch here idk
+                //System.out.println("SNAPSHOT IS PENDING when history was returned");
+                return Stream.concat(previousHistory.stream(), history.stream()).toList();
+            } else {
+                return List.copyOf(history);
+            }
         }
     }
 
@@ -69,7 +71,7 @@ public class Room {
             PaintObject object = response.object();
             historyCount++;
 
-            boolean historyLimitReached = historyCount >= 50;
+            boolean historyLimitReached = historyCount >= MAX_HISTORY_COUNT;
             boolean fillStrokeEnded =
                     object instanceof Stroke stroke
                             && stroke.fill()

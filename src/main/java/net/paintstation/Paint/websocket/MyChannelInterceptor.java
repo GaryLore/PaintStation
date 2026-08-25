@@ -56,7 +56,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     }
                     //this is not perfect got to check route
                     if(!service.userExistsInRoom(user.getName(), user.getRoomName())){
-                        System.out.println("user exists in room");
+                        System.out.println("user doesnt exists in room");
                         throw new RuntimeException("ACCESS DENIED");
                     }
                 }
@@ -93,7 +93,6 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     if(result != AddPlayerStatus.SUCCESS){
                         throw new RuntimeException("ACCESS DENIED");
                     }
-                    System.out.println("user added to room");
 
                     //set registry associated with session id
                     User user = new User(username, roomName);
@@ -118,7 +117,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     }
 
                     registry.addChatUser(sessionId);
-                    System.out.println("SUBSCRIPTION TO CHAT: " + destination );
+                    //System.out.println("SUBSCRIPTION TO CHAT: " + destination );
                 }
                 //relies on paint subscription set up finishing first may implement receipts in the future could result in bug
                 else if(destination.startsWith(WebSocketManager.APP_ROOM_PREFIX) && destination.endsWith("init")){
@@ -134,7 +133,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     String tokenRoomName = getRoomFromCookie(token);
                     String username = jwtUtil.extractUsername(token);
 
-                    System.out.println("DOES USER EXIST IN ROOM: " + service.roomExist(roomName));
+                    //System.out.println("DOES USER EXIST IN ROOM: " + service.roomExist(roomName));
                     if(!roomName.equals(tokenRoomName) || !service.userExistsInRoom(username, roomName)){
                         throw new RuntimeException("ACCESS DENIED");
                     }

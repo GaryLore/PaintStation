@@ -119,7 +119,7 @@ public class DashboardService {
      */
     public void expireRoomIfEmpty(Room room) {
         if(room.isEmpty()) {
-            System.out.println("DELETED EMPTY ROOM");
+            //System.out.println("DELETED EMPTY ROOM");
             repository.removeRoom(room.getName());
             repository.removeRoomFromDatabase(room.getName());
             webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, room.getName()));

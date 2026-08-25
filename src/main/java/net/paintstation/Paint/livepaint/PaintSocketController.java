@@ -66,7 +66,7 @@ public class PaintSocketController {
                     paintObject
             );
             boolean snapshotNeeded = room.addPaintObject(response);
-            System.out.println("[" + user.getRoomName() + "]Number Stored :" + room.getHistoryCount() );
+            //System.out.println("[" + user.getRoomName() + "]Number Stored :" + room.getHistoryCount() );
             if(snapshotNeeded){
                 requestSnapshot(room);
             }
@@ -84,7 +84,7 @@ public class PaintSocketController {
     private void requestSnapshot(Room room){
         String[] ids = room.getAllPlayerIds();
         String id = ids[new Random().nextInt(ids.length)];
-        System.out.println("Snapshot Requested from: " + room.idToPlayer(id) );
+        //System.out.println("Snapshot Requested from: " + room.idToPlayer(id) );
         webSocketManager.requestSnapshot(id);
     }
 
@@ -117,11 +117,11 @@ public class PaintSocketController {
      */
     @MessageMapping("/paint/snapshot")
     private void processSnapshot(byte[] imageBytes, SimpMessageHeaderAccessor accessor){
-        System.out.println("PROCESSING SNAPSHOT");
+        //System.out.println("PROCESSING SNAPSHOT");
         User user = registry.get(accessor.getSessionId());
         try {
             Files.write(Path.of("canvas.png"), imageBytes);
-            System.out.println("File written");
+            //System.out.println("File written");
             repository.addSnapshot(user.getRoomName(), imageBytes);
             //maybe issue with threads
             repository.findRoomByName(user.getRoomName()).ifPresent(Room::setSnapshotFinished);
