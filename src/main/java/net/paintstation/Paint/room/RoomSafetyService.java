@@ -1,5 +1,6 @@
 package net.paintstation.Paint.room;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -8,9 +9,11 @@ import java.util.Optional;
 public class RoomSafetyService {
 
     private final RoomRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    RoomSafetyService(RoomRepository repository){
+    RoomSafetyService(RoomRepository repository, PasswordEncoder passwordEncoder){
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public boolean roomExist(String name){
