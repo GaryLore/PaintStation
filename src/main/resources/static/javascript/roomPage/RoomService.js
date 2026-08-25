@@ -1,7 +1,7 @@
 import PaintRequest from "./PaintRequest.js";
 import Stroke from "./Stroke.js";
 import Dot from "./Dot.js";
-import {canvasState, ctx} from "./canvasState.js"
+import {canvas, snapshotCanvas, canvasState, ctx, snapshot_ctx} from "./canvasState.js"
 
 const roomName = sessionStorage.getItem("ROOM_NAME");
 const username = sessionStorage.getItem("USERNAME");
@@ -29,17 +29,21 @@ stompClient.onConnect = (frame) => {
     console.log("PLEASE WORK");
     console.log('Connected: ' + frame);
     stompClient.subscribe(
+        `/topic/room/${roomName}/chat`,
+        chatSocketHandling
+    )
+    stompClient.subscribe(
         `/topic/room/${roomName}/paint`,
         paintSocketHandling
     );
     stompClient.subscribe(
-        `/topic/room/${roomName}/chat`,
-        chatSocketHandling
+        `/app/room/${roomName}/init`,
+        init
     )
-    stompClient.publish({
-        destination: `/app/room/${roomName}/join`,
-        body: JSON.stringify({})
-    });
+    stompClient.subscribe(
+        "/user/queue/paint/snapshot",
+        snapshot
+    )
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -60,7 +64,6 @@ stompClient.onWebSocketClose = (event) => {
 //activates connection
 //player doesnt technically get added till its activated so init doesnt have it in its players array
 stompClient.activate();
-await init();
 
 function chatSocketHandling(responseData){
     const data = JSON.parse(responseData.body)
@@ -129,17 +132,18 @@ function paintSocketHandling(responseData){
         return;
     }
 
-    const data = JSON.parse(responseData.body)
+    const data = JSON.parse(responseData.body);
     const type = data.type;
 
     switch (type) {
         case "PLAYER_UPDATE":
             const action = data.action;
 
-            if(action === "ADD"){
+            if(action === "ADD" && data.user !== username){
+               //prevents you from being added twice, one from init and another from here.
+               addPlayer(data.user);
                PLAYERS.push(data.user);
                console.log(data.user, "Player getting added through paintsocket handling");
-               addPlayer(data.user);
             }
             else if(action === "REMOVE"){
                 const indexToRemove = PLAYERS.indexOf(data.user);
@@ -150,34 +154,39 @@ function paintSocketHandling(responseData){
             break;
         default:
             const USERNAME = data.user;
-            if(username !== USERNAME) {
-                let paintObject;
+            processPaintObject(USERNAME, type, data);
+    }
+}
 
-                if (type === "STROKE") {
-                    paintObject = Stroke.fromJson(data.object);
+function processPaintObject(USERNAME, type, data, draw= true) {
+    if (username !== USERNAME) {
+        let paintObject;
 
-                    if(paintObject.phase === "END" && paintObject.fill){
-                        //console.log("PAINT OBJECT WITH END : ", paintObject);
-                        canvasState.paintHistory.push(paintObject);
-                        paintObject = optimizePaintHistory(paintObject);//could return null
-                    }
-                }
-                else if (type === "DOT") {
-                    paintObject = Dot.fromJson(data.object);
-                }
-                if(paintObject != null) {
-                    canvasState.paintHistory.push(paintObject);
-                    drawObject(paintObject);
-                    canvasState.reloadJustBorder();
-                }
+        if (type === "STROKE") {
+            paintObject = Stroke.fromJson(data.object);
+
+            if (paintObject.phase === "END" && paintObject.fill) {
+                //console.log("PAINT OBJECT WITH END : ", paintObject);
+                canvasState.paintHistory.push(paintObject);
+                paintObject = optimizePaintHistory(paintObject);//could return null
             }
+        } else if (type === "DOT") {
+            paintObject = Dot.fromJson(data.object);
+        }
+        if (paintObject != null) {
+            canvasState.paintHistory.push(paintObject);
+            if(draw) {
+                drawObject(paintObject);
+                canvasState.reloadJustBorder(ctx);
+            }
+        }
     }
 }
 
 function drawObject(object){
     ctx.save()
     canvasState.setTransformCanvas();
-    object.draw();
+    object.draw(ctx);
     ctx.restore()
 }
 
@@ -244,24 +253,13 @@ function sendPaintObjects(paintType, paintObject){
     });
 }
 
-async function init(){
-    const response = await fetch("/api/paint/init", {
-        method : "POST",
-        headers : {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({roomName, username})
-    })
-
-    if(!response.ok){
-        console.error(response);
-        return;
-    }
-
+async function init(responseData){
+    const data = JSON.parse(responseData.body)
     const roomTitle = document.getElementsByClassName("header__title")[0];
     roomTitle.textContent = `🎨 ${roomName}`;
 
-    const {players} = await response.json();
+    const {players, imageSnapshot, paintResponses} = data;//object destructuring
+    canvasState.snapshot = imageSnapshot;
     //looks like if its the first user joining players will be empty because server doesnt add user quick enough before https get request
     //but user is still added on client thought stomp so its fine
     PLAYERS = players;
@@ -270,8 +268,17 @@ async function init(){
         console.log(player, "Player getting added through INIT handling");
         addPlayer(player);
     }
-
     userCountElement.innerText = `${PLAYERS.length} Online`;
+
+    //populate canvas
+    if(imageSnapshot) {
+        canvasState.snapshotImage = await loadImage(imageSnapshot);
+    }
+    for(let i = 0; i < paintResponses.length; i++){
+        const paintResponse = paintResponses[i];
+        processPaintObject(paintResponse.user, paintResponse.type, paintResponse, false);
+    }
+    canvasState.render(ctx);
 
     initialized = true;
     for(const event of pendingEvents){
@@ -279,6 +286,32 @@ async function init(){
         console.log("Pending event processed");
     }
     pendingEvents = null;
+}
+
+function loadImage(imageSnapshot){
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = (err) => reject(err);
+        img.src = `data:image/png;base64,${imageSnapshot}`;
+    });
+}
+
+async function snapshot(responseData) {
+    console.log("REQUEST RECEIVED FOR SNAPSHOT");
+
+    canvasState.render(snapshot_ctx);
+    const blob = await snapshotCanvas.convertToBlob();//by default makes a png
+    console.log("Snapshot size:", blob.size, "bytes");
+    const arrayBuffer = await blob.arrayBuffer();
+
+    stompClient.publish({
+        destination: "/app/paint/snapshot",
+        binaryBody: new Uint8Array(arrayBuffer),
+        headers: {
+            "content-type": "image/png"
+        }
+    });
 }
 
 function addPlayer(player){
@@ -296,4 +329,5 @@ function removePlayer(player){
     const playerDiv = document.querySelector(`div[data-name="${player}"]`);
     playerDiv?.remove();
 }
+
 export {sendPaintObjects}

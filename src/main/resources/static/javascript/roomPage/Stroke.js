@@ -40,31 +40,31 @@ export default class Stroke{
         this.points.push(point);
     }
 
-    draw(){
+    draw(context){
         if(this.points.length === 0){
             return;
         }
 
-        ctx.save();
-        ctx.strokeStyle = this.brushColor;
-        ctx.lineWidth = this.width;
+        context.save();
+        context.strokeStyle = this.brushColor;
+        context.lineWidth = this.width;
 
         const points = this.points;
-        ctx.beginPath();
+        context.beginPath();
 
-        ctx.moveTo(points[0].x, points[0].y);
+        context.moveTo(points[0].x, points[0].y);
         for(let i = 1; i < points.length; i++){
             const point = points[i];
-            ctx.lineTo(point.x, point.y);
+            context.lineTo(point.x, point.y);
         }
 
         if(this.phase === "COMPLETE" && this.fill){
-            ctx.fillStyle = this.bucketColor;
-            ctx.fill();
-            ctx.closePath();
+            context.fillStyle = this.bucketColor;
+            context.fill();
+            context.closePath();
         }
-        ctx.stroke();
-        ctx.restore();
+        context.stroke();
+        context.restore();
     }
 
 }

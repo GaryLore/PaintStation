@@ -64,7 +64,7 @@ public class RoomController {
 
                 yield ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
-            case NAME_TAKEN -> ResponseEntity.status(HttpStatus.CONFLICT).body("Name already taken");
+            case USERNAME_TAKEN -> ResponseEntity.status(HttpStatus.CONFLICT).body("Name already taken");
             case ROOM_FULL -> ResponseEntity.status(HttpStatus.FORBIDDEN).body("Room is full");
             case INCORRECT_PASSWORD -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password");
             case ROOM_NOT_FOUND -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Room not found");

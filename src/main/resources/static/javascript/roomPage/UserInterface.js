@@ -5,10 +5,11 @@ trashCan.addEventListener("click", function(){
   const debug = false;  
 
   if(!debug){
+    canvasState.snapshotImage = null;
     canvasState.paintHistory = [];
   }
 
-  canvasState.render();
+  canvasState.render(ctx);
 });
 
 const save = document.getElementsByClassName("header__icon-btn--save")[0];
@@ -64,7 +65,7 @@ brush.addEventListener("click", function(){
 
 const title = document.getElementsByClassName("header__title")[0];
 title.addEventListener("click", function(){
-  canvasState.render();
+  canvasState.render(ctx);
   canvasState.writeHistory();
 });
 
