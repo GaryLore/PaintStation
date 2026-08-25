@@ -41,20 +41,22 @@ public class PaintService {
             String roomName = request.roomName();
             String[] players = accessedRoom.getAllPlayerNames();
             List<PaintResponse> paintResponses = accessedRoom.getHistory();
-            try {
-                byte[] pngSnapshot = getImage();
+
+            byte[] pngSnapshot = getImage(roomName);
+            if(pngSnapshot != null) {
                 System.out.println("PNG size: " + pngSnapshot.length + " bytes");
-                System.out.println("Snapshot sent");
-                return new PaintSetupResponse(username, roomName, players, pngSnapshot, paintResponses);
-            } catch (IOException e) {
-                System.out.println("SNAPSHOT RETURNED WENT WRONG");
-                return null;
             }
+            else{
+                System.out.println("PNG HAS NOT been populated yet so null has been sent as png image");
+            }
+            System.out.println("Snapshot sent");
+            return new PaintSetupResponse(username, roomName, players, pngSnapshot, paintResponses);
         }
+        System.out.println("ROOM IS NOT PRESENT???");
         return null;
     }
 
-    private byte[] getImage() throws IOException {
-        return Files.readAllBytes(Paths.get("canvas.png"));
+    private byte[] getImage(String roomName) {
+        return repository.getSnapshot(roomName);
     }
 }

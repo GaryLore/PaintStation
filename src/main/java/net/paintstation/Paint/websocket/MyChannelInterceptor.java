@@ -15,8 +15,6 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
 public class MyChannelInterceptor implements ChannelInterceptor {
 

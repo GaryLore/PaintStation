@@ -25,8 +25,8 @@ public class Room {
     private final Object playersLock = new Object();
     private final Object historyLock = new Object();
 
-    @JsonCreator
-    public Room(@JsonProperty("username") String name, @JsonProperty("password") String password, @JsonProperty("owner") String owner) {
+    @JsonCreator//check if this still works
+    public Room(@JsonProperty("name") String name, @JsonProperty("password") String password, @JsonProperty("owner") String owner) {
         this.name = name;
         this.password = password;
         this.owner = owner;

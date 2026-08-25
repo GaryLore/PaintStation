@@ -109,7 +109,6 @@ public class PaintSocketController {
         PaintSetupRequest request = new PaintSetupRequest(user.getRoomName(), user.getName());
         return service.setup(request);
     }
-
     /**
      * Gets the client snapshot in response to requestSnapshot(room);
      *
@@ -123,6 +122,7 @@ public class PaintSocketController {
         try {
             Files.write(Path.of("canvas.png"), imageBytes);
             System.out.println("File written");
+            repository.addSnapshot(user.getRoomName(), imageBytes);
             //maybe issue with threads
             repository.findRoomByName(user.getRoomName()).ifPresent(Room::setSnapshotFinished);
         } catch (IOException e) {

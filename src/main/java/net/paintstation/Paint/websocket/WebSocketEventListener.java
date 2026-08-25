@@ -34,6 +34,7 @@ public class WebSocketEventListener {
     public void handleSubscribe(SessionSubscribeEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         String destination = accessor.getDestination();
+        System.out.println("THIS IS HOW MANY ROOMS EXIST: " + repository.howManyRoomsExist());
 
         if (destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
             String sessionId = accessor.getSessionId();
@@ -68,6 +69,7 @@ public class WebSocketEventListener {
             elRoom.removePlayer(user.getName());
             if(elRoom.isEmpty()){
                 repository.removeRoom(roomName);
+                repository.removeRoomFromDatabase(user.getRoomName());
                 webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, roomName));
             }
         });

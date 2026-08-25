@@ -52,6 +52,7 @@ public class DashboardService {
 
         boolean success = repository.InsertRoom(room);
         if (success) {
+            repository.addRoomToDatabase(room.getName());
             //removes a created room that was never joined
             scheduler.schedule(
                     () -> expireRoomIfEmpty(room),
@@ -120,6 +121,7 @@ public class DashboardService {
         if(room.isEmpty()) {
             System.out.println("DELETED EMPTY ROOM");
             repository.removeRoom(room.getName());
+            repository.removeRoomFromDatabase(room.getName());
             webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, room.getName()));
         }
     }
