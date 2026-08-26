@@ -100,7 +100,8 @@ public class RoomController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        RoomUpdate update = new RoomUpdate(RoomAction.INSERT, request.roomName() );
+        boolean hasPassword = !request.password().isEmpty();
+        RoomUpdate update = new RoomUpdate(RoomAction.INSERT, request.roomName(), hasPassword);
         webSocketManager.broadcastRoomUpdate(update);
         return ResponseEntity.status(HttpStatus.CREATED).body(roomResponse);
     }

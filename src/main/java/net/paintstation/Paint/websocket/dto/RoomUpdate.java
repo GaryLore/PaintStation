@@ -4,6 +4,7 @@ import net.paintstation.Paint.lobby.enums.RoomAction;
 
 public record RoomUpdate(
         RoomAction action,
-        String name
+        String name,
+        Boolean hasPassword
 ) {
 }

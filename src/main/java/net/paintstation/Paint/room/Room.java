@@ -1,7 +1,5 @@
 package net.paintstation.Paint.room;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.livepaint.Models.Stroke;
 import net.paintstation.Paint.livepaint.dto.PaintResponse;
@@ -14,22 +12,21 @@ import java.util.stream.Stream;
 
 public class Room {
     private final String name;
-    private final String password;
+    private final String hashedPassword;
     private final String owner;
     private int numOfPlayers = 0;
     private boolean snapshotPending = false;
     private final HashMap<String, String> players = new HashMap<>();
-    public ConcurrentLinkedQueue<PaintResponse> history = new ConcurrentLinkedQueue<>();
-    public ConcurrentLinkedQueue<PaintResponse> previousHistory = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<PaintResponse> history = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<PaintResponse> previousHistory = new ConcurrentLinkedQueue<>();
     private static final int MAX_HISTORY_COUNT = 100;
     private int historyCount = 0;
     private final Object playersLock = new Object();
     private final Object historyLock = new Object();
 
-    @JsonCreator//check if this still works
-    public Room(@JsonProperty("name") String name, @JsonProperty("password") String password, @JsonProperty("owner") String owner) {
+    public Room(String name, String hashedPassword, String owner) {
         this.name = name;
-        this.password = password;
+        this.hashedPassword = hashedPassword;
         this.owner = owner;
     }
 
@@ -37,8 +34,8 @@ public class Room {
         return name;
     }
 
-    public boolean isPasswordCorrect(String password) {
-        return this.password.equals(password);
+    public String getHashedPassword(){
+        return hashedPassword;
     }
 
     public String getOwner() {
@@ -147,7 +144,7 @@ public class Room {
     }
 
     public RoomInfo getRoomInfo(){
-        return new RoomInfo(this.name, this.numOfPlayers);
+        return new RoomInfo(this.name, this.numOfPlayers, hashedPassword != null);
     }
 
     public boolean isSnapshotPending() {

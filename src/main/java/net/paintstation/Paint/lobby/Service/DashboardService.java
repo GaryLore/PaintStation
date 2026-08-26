@@ -12,6 +12,7 @@ import net.paintstation.Paint.websocket.WebSocketManager;
 import net.paintstation.Paint.websocket.dto.RoomUpdate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -26,11 +27,13 @@ public class DashboardService {
     private final RoomRepository repository;
     private final TaskScheduler scheduler;
     private final WebSocketManager webSocketManager;
+    private final PasswordEncoder passwordEncoder;
 
-    DashboardService(RoomRepository repository, @Qualifier("taskScheduler") TaskScheduler scheduler, WebSocketManager webSocketManager){
+    DashboardService(RoomRepository repository, @Qualifier("taskScheduler") TaskScheduler scheduler, WebSocketManager webSocketManager, PasswordEncoder passwordEncoder){
         this.repository = repository;
         this.scheduler = scheduler;
         this.webSocketManager = webSocketManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -40,9 +43,10 @@ public class DashboardService {
      * @return An optional that is either empty on failure or contains a room on success
      */
     public Optional<Room> createRoom(CreateRoomRequest request) {
+        String hashedPassword = request.password().isEmpty() ? null : passwordEncoder.encode(request.password());
         Room room = new Room(
                 request.roomName(),
-                request.password(),
+                hashedPassword,
                 request.ownerName()
         );
 
@@ -76,7 +80,7 @@ public class DashboardService {
     public AccessRoomResult accessRoom(String roomName, JoinRoomRequest request){
 
         String username = request.username();
-        String password = request.password();
+        String rawPassword = request.password();
 
         Optional<Room> room = repository.findRoomByName(roomName);
 
@@ -85,7 +89,8 @@ public class DashboardService {
         }
 
         Room accessedRoom = room.get();
-        boolean passwordCorrect = accessedRoom.isPasswordCorrect(password.trim());
+        String hashedPassword = accessedRoom.getHashedPassword();
+        boolean passwordCorrect = hashedPassword == null || passwordEncoder.matches(rawPassword, hashedPassword);
 
         if (!passwordCorrect) {
             return AccessRoomResult.failure(AccessRoomStatus.INCORRECT_PASSWORD);
@@ -122,7 +127,7 @@ public class DashboardService {
             //System.out.println("DELETED EMPTY ROOM");
             repository.removeRoom(room.getName());
             repository.removeRoomFromDatabase(room.getName());
-            webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, room.getName()));
+            webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, room.getName(), null));
         }
     }
 }
