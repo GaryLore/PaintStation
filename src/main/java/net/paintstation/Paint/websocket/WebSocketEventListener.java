@@ -70,7 +70,7 @@ public class WebSocketEventListener {
             if(elRoom.isEmpty()){
                 repository.removeRoom(roomName);
                 repository.removeRoomFromDatabase(user.getRoomName());
-                webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, roomName));
+                webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, roomName, null));
             }
         });
     }

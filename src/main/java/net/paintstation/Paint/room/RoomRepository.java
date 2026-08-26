@@ -20,7 +20,7 @@ public class RoomRepository {
         this.jdbcClient = jdbcClient;
     }
 
-    public synchronized boolean InsertRoom(Room room) {
+    public boolean InsertRoom(Room room) {
         Room previousRoom = rooms.putIfAbsent(room.getName(), room);
         return previousRoom == null;
     }

@@ -98,12 +98,18 @@ body {
     border: 2px solid rgba(0, 0, 0, 0.2);
     border-radius: 16px;
     color: black;
-    display: block;
+    display: flex;
     font-size: var(--font-size-m);
     font-weight: 550;
     padding: 24px;
     transition: box-shadow 0.2s, transform 0.2s;
     width: 100%;
+}
+
+.room-list__card[data-has-password="true"]::after {
+    content: "🔒";
+    margin-left: auto;
+    filter: saturate(50%);
 }
 
 .room-list__card:is(:hover, :focus-visible) {
@@ -221,6 +227,11 @@ body {
     box-shadow: var(--hover-shadow);
     cursor: pointer;
     transform: rotate(90deg) scale(1.1);
+}
+
+.form-group__input:disabled{
+    background-color: #eeeeee;
+    cursor: not-allowed;
 }
 
 /* ===== MISC / UTILITY CLASSES ===== */

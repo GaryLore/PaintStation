@@ -17,8 +17,8 @@ public class Room {
     private int numOfPlayers = 0;
     private boolean snapshotPending = false;
     private final HashMap<String, String> players = new HashMap<>();
-    public ConcurrentLinkedQueue<PaintResponse> history = new ConcurrentLinkedQueue<>();
-    public ConcurrentLinkedQueue<PaintResponse> previousHistory = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<PaintResponse> history = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<PaintResponse> previousHistory = new ConcurrentLinkedQueue<>();
     private static final int MAX_HISTORY_COUNT = 100;
     private int historyCount = 0;
     private final Object playersLock = new Object();
@@ -144,7 +144,7 @@ public class Room {
     }
 
     public RoomInfo getRoomInfo(){
-        return new RoomInfo(this.name, this.numOfPlayers);
+        return new RoomInfo(this.name, this.numOfPlayers, hashedPassword != null);
     }
 
     public boolean isSnapshotPending() {

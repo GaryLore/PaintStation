@@ -10,6 +10,8 @@ const roomsListElement = document.querySelector(".room-list");
 document.addEventListener("DOMContentLoaded", loadRooms);
 roomsListElement.addEventListener("click", showEnterForm);
 
+const enterRoomPasswordElement = document.getElementById("roomPassword2");
+
 document.querySelector('.close-btn').addEventListener('click', closeModal);
 function closeModal(){
     modalElement.classList.remove("modal-container--show")
@@ -95,6 +97,8 @@ async function submitCreateForm(event) {
 
 function showEnterForm(event){
     if (event.target.matches('.room-list__card')){
+        enterRoomPasswordElement.disabled = event.target.dataset.hasPassword !== "true";
+        enterRoomPasswordElement.value = "";
         roomSelectedName = event.target.dataset.name;
         modalElement.classList.add("modal-container--show")
     }
@@ -106,7 +110,7 @@ async function submitEnterForm(event) {
 
     const room = roomSelectedName;
     const user = formData.get('username').trim();
-    const password = formData.get('password').trim();
+    const password = formData.get("password")?.trim() ?? "";
 
     resetEnterRoomErrors();
     let clientValidation = enterRoomClientValidation(user, password);
@@ -153,29 +157,31 @@ async function loadRooms(){
     //array of rooms
     const rooms = data.rooms;
     for(let room of rooms){
-        addRoom(room.name)
+        addRoom(room.name, room.hasPassword)
     }
 }
 
 function updateRooms(roomData){
     const action = roomData.action;
     const roomName = roomData.name;
+    const containsPassword = roomData.hasPassword;
 
     if(action === "INSERT"){
-        addRoom(roomName);
+        addRoom(roomName, containsPassword);
     }
     else if(action === "DELETE"){
         deleteRoom(roomName);
     }
 }
 
-function addRoom(roomName){
+function addRoom(roomName, hasPassword){
     const newRoomListItem = document.createElement("li");
     const newRoomBtn = document.createElement("button");
     newRoomBtn.classList.add("room-list__card");
     console.log(roomName);
     newRoomBtn.textContent = roomName;
     newRoomBtn.setAttribute('data-name', roomName);
+    newRoomBtn.dataset.hasPassword = hasPassword ? "true" : "false";
     newRoomListItem.appendChild(newRoomBtn);
     roomsListElement.appendChild(newRoomListItem);
 }

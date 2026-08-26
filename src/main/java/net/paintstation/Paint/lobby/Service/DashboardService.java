@@ -127,7 +127,7 @@ public class DashboardService {
             //System.out.println("DELETED EMPTY ROOM");
             repository.removeRoom(room.getName());
             repository.removeRoomFromDatabase(room.getName());
-            webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, room.getName()));
+            webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, room.getName(), null));
         }
     }
 }
