@@ -117,11 +117,9 @@ public class PaintSocketController {
      */
     @MessageMapping("/paint/snapshot")
     private void processSnapshot(byte[] imageBytes, SimpMessageHeaderAccessor accessor){
-        //System.out.println("PROCESSING SNAPSHOT");
         User user = registry.get(accessor.getSessionId());
         try {
             Files.write(Path.of("canvas.png"), imageBytes);
-            //System.out.println("File written");
             repository.addSnapshot(user.getRoomName(), imageBytes);
             //maybe issue with threads
             repository.findRoomByName(user.getRoomName()).ifPresent(Room::setSnapshotFinished);

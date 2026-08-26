@@ -85,10 +85,6 @@ public class Room {
         }
     }
 
-    public void debugPaintObject(PaintObject object){
-        System.out.println(object.getType());
-    }
-
     public String[] getAllPlayerNames(){
         return players.keySet().toArray(String[]::new);
     }

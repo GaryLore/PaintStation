@@ -187,11 +187,8 @@ function addRoom(roomName, hasPassword){
 }
 
 function deleteRoom(roomName) {
-    console.log("ROOM SHOULD BE DELTED : ", roomName)
     const tempRoom = document.querySelector(`[data-name="${roomName}"]`).parentNode;
-    //tempRoom.remove();
-    //for internet explorer support
-    tempRoom.parentNode.removeChild(tempRoom);
+    tempRoom.remove();
 }
 
 function clearRooms(){

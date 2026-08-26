@@ -1,6 +1,7 @@
 package net.paintstation.Paint.websocket;
 
 import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
+import net.paintstation.Paint.logger.LogManager;
 import net.paintstation.Paint.registry.PlayerRegistry;
 import net.paintstation.Paint.registry.User;
 import net.paintstation.Paint.room.Room;
@@ -23,11 +24,13 @@ public class WebSocketEventListener {
     private final WebSocketManager webSocketManager;
     private final PlayerRegistry registry;
     private final RoomRepository repository;
+    private final LogManager logManager;
 
-    public WebSocketEventListener(WebSocketManager webSocketManager, PlayerRegistry registry, RoomRepository repository) {
+    public WebSocketEventListener(WebSocketManager webSocketManager, PlayerRegistry registry, RoomRepository repository, LogManager logManager) {
         this.webSocketManager = webSocketManager;
         this.registry = registry;
         this.repository = repository;
+        this.logManager = logManager;
     }
 
     @EventListener
@@ -39,7 +42,7 @@ public class WebSocketEventListener {
         if (destination != null && destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
             String sessionId = accessor.getSessionId();
             User user = registry.get(sessionId);
-            System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " SUBSCRIBED TO ROOM: " + "\"" + user.getRoomName() + "\"");
+            logManager.userJoinedRoom(user.getRoomName(), user.getName());
             webSocketManager.broadcastUserUpdate(user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "ADD", user.getName()) );
         }
     }
@@ -51,7 +54,7 @@ public class WebSocketEventListener {
         //paint cleanup
         if(user != null) {//we only register users once they enter a room not if they subscribe to the lobby
             cleanUp(user);
-            System.out.println("[WebSocketEventListener.java] " + "\"" + user.getName() + "\"" + " DISCONNECTED FROM ROOM: " + "\"" + user.getRoomName() + "\"");
+            logManager.userLeftRoom(user.getRoomName(), user.getName());
             webSocketManager.broadcastUserUpdate(user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "REMOVE", user.getName()) );
             registry.remove(sessionId);
         }
