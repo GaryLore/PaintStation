@@ -1,16 +1,14 @@
 package net.paintstation.Paint.livepaint;
 
-import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.livepaint.dto.PaintResponse;
+import net.paintstation.Paint.logger.LogInfoManager;
+import net.paintstation.Paint.logger.LogWarningManager;
 import net.paintstation.Paint.room.Room;
 import net.paintstation.Paint.room.RoomRepository;
 import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
 import net.paintstation.Paint.livepaint.dto.PaintSetupResponse;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +19,11 @@ import java.util.Optional;
 public class PaintService {
 
     private final RoomRepository repository;
+    private final LogWarningManager logWarningManager;
 
-    PaintService(RoomRepository repository){
+    PaintService(RoomRepository repository, LogWarningManager logWarningManager){
         this.repository = repository;
+        this.logWarningManager = logWarningManager;
     }
 
     /**
@@ -40,20 +40,12 @@ public class PaintService {
             String username = request.username();
             String roomName = request.roomName();
             String[] players = accessedRoom.getAllPlayerNames();
+            byte[] pngSnapshot = getImage(roomName);
             List<PaintResponse> paintResponses = accessedRoom.getHistory();
 
-            byte[] pngSnapshot = getImage(roomName);
-            /*
-            if(pngSnapshot != null) {
-                System.out.println("PNG size: " + pngSnapshot.length + " bytes");
-            }
-            else{
-                System.out.println("PNG HAS NOT been populated yet so null has been sent as png image");
-            }*/
-            //System.out.println("Snapshot sent");
             return new PaintSetupResponse(username, roomName, players, pngSnapshot, paintResponses);
         }
-        System.out.println("ROOM IS NOT PRESENT???");
+        logWarningManager.warning("ROOM IS NOT PRESENT IN SETUP METHOD");
         return null;
     }
 

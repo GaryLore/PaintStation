@@ -482,7 +482,7 @@ body {
 
 @media (orientation: landscape) {
     :root {
-        --canvas-width: 60vw;
+        --canvas-width: 55vw;
     }
 
     .header {
@@ -579,11 +579,17 @@ body {
     }
 }
 
-@media (min-width: 1536px) and (orientation: landscape) {
+@media (min-width: 1024px) and (orientation: landscape) {
+    :root {
+        --canvas-width: 60vw;
+    }
+}
+
+@media (min-width: 1400px) and (orientation: landscape) {
 
     :root {
         --header-padding: calc(var(--primary-padding) / 2);
-        --canvas-width: 55vw;
+        --canvas-width: 53vw;
     }
 
     html::before {
@@ -633,5 +639,11 @@ body {
         border-radius: var(--primary-border-radius);
         box-shadow: var(--primary-box-shadow);
         padding: var(--header-padding) var(--primary-padding);
+    }
+}
+
+@media (min-width: 1536px) and (orientation: landscape) {
+    :root {
+        --canvas-width: 55vw;
     }
 }

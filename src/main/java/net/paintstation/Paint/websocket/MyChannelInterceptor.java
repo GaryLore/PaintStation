@@ -1,6 +1,8 @@
 package net.paintstation.Paint.websocket;
 
 import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
+import net.paintstation.Paint.logger.LogInfoManager;
+import net.paintstation.Paint.logger.LogWarningManager;
 import net.paintstation.Paint.registry.PlayerRegistry;
 import net.paintstation.Paint.registry.User;
 import net.paintstation.Paint.room.RoomRepository;
@@ -15,6 +17,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
+
 @Component
 public class MyChannelInterceptor implements ChannelInterceptor {
 
@@ -22,18 +25,19 @@ public class MyChannelInterceptor implements ChannelInterceptor {
     private final PlayerRegistry registry;
     private final RoomRepository repository;
     private final JwtUtil jwtUtil;
+    private final LogWarningManager logWarningManager;
 
-    public MyChannelInterceptor(RoomSafetyService service, PlayerRegistry registry, RoomRepository repository, JwtUtil jwtUtil){
+    public MyChannelInterceptor(RoomSafetyService service, PlayerRegistry registry, RoomRepository repository, JwtUtil jwtUtil, LogWarningManager logWarningManager){
         this.service = service;
         this.registry = registry;
         this.repository = repository;
         this.jwtUtil = jwtUtil;
+        this.logWarningManager = logWarningManager;
     }
 
     @Override
     public Message<?> preSend(@NonNull Message<?> message, @NonNull MessageChannel channel) {
         //StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-
         StompHeaderAccessor accessor =
                 MessageHeaderAccessor.getAccessor(
                         message,
@@ -45,31 +49,31 @@ public class MyChannelInterceptor implements ChannelInterceptor {
             case SEND -> {
                 String destination = accessor.getDestination();
                 if (destination == null) {
-                    System.out.println("desintation is null");
+                    logWarningManager.warning("SEND INTERCEPTION, MESSAGE SENT TO NULL DESTINATION");
                     throw new RuntimeException("ACCESS DENIED");
                 }
                 if (destination.startsWith(WebSocketManager.PUBLISH_ROOM_PREFIX) && (destination.endsWith("/paint") || destination.endsWith("/chat")) ) {
                     User user = registry.get(accessor.getSessionId());
                     if (user == null) {
-                        System.out.println("user null");
+                        logWarningManager.warning("SEND INTERCEPTION, USER IS NULL");
                         throw new RuntimeException("ACCESS DENIED");
                     }
                     //this is not perfect got to check route
                     if(!service.userExistsInRoom(user.getName(), user.getRoomName())){
-                        System.out.println("user doesnt exists in room");
+                        logWarningManager.warning("SEND INTERCEPTION, USER DOES NOT EXIST IN ROOM");
                         throw new RuntimeException("ACCESS DENIED");
                     }
                 }
                 else if(!destination.equals(WebSocketManager.APP_PAINT_SNAPSHOT)) {
                     //client attempting to send anywhere else is denied allows server tho, since this is on inbound channel
-                    System.out.println(destination);
-                    System.out.println("not allowed to send here");
+                    logWarningManager.warning("SEND INTERCEPTION, USER ATTEMPTED TO CONNECT TO DESTINATION THAT DOES NOT EXIST");
                     throw new RuntimeException("ACCESS DENIED");
                 }
             }
             case SUBSCRIBE -> {
                 String destination = accessor.getDestination();
                 if (destination == null) {
+                    logWarningManager.warning("SUBSCRIBE INTERCEPTION, MESSAGE SENT TO NULL DESTINATION");
                     throw new RuntimeException("ACCESS DENIED");
                 }
                 if (destination.startsWith(WebSocketManager.TOPIC_ROOM_PREFIX) && destination.endsWith("paint")) {
@@ -79,11 +83,13 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     //check if room exists
                     String token = (String) accessor.getSessionAttributes().get("jwt");
                     if (token == null) {
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION PAINT, TOKEN IS NULL");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
                     String tokenRoomName = getRoomFromCookie(token);
                     if(!roomName.equals(tokenRoomName)){
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION PAINT, ROOM NAME FROM DESTINATION IS DIFFERENT THAN ROOM NAME FROM JWT");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
@@ -91,6 +97,7 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     AddPlayerStatus result = repository.addPlayer(roomName, username);//this checks if room exists as well in order to add it
 
                     if(result != AddPlayerStatus.SUCCESS){
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION PAINT, FOR SOME REASON PLAYER COULD NOT BE ADDED");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
@@ -104,20 +111,27 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     String token = (String) accessor.getSessionAttributes().get("jwt");
 
                     if (token == null) {
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION CHAT, TOKEN IS NULL");
                         throw new RuntimeException("ACCESS DENIED");
                     }
                     //could throw exception
                     String tokenRoomName = getRoomFromCookie(token);
-                    if(!roomName.equals(tokenRoomName) || !service.roomExist(roomName)){
+                    if(!roomName.equals(tokenRoomName)){
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION CHAT, ROOM NAME FROM DESTINATION IS DIFFERENT THAN ROOM NAME FROM JWT");
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+
+                    if(!service.roomExist(roomName)){
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION CHAT, USER DOES NOT EXIST IN ROOM");
                         throw new RuntimeException("ACCESS DENIED");
                     }
                     //dont want to add user to chat twice
                     if(registry.containsChatUser(sessionId)){
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION CHAT, REGISTRY ALREADY CONTAINS CHAT USER");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
                     registry.addChatUser(sessionId);
-                    //System.out.println("SUBSCRIPTION TO CHAT: " + destination );
                 }
                 //relies on paint subscription set up finishing first may implement receipts in the future could result in bug
                 else if(destination.startsWith(WebSocketManager.APP_ROOM_PREFIX) && destination.endsWith("init")){
@@ -127,20 +141,27 @@ public class MyChannelInterceptor implements ChannelInterceptor {
                     //check if room exists
                     String token = (String) accessor.getSessionAttributes().get("jwt");
                     if (token == null) {
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION INIT, TOKEN IS NULL");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
                     String tokenRoomName = getRoomFromCookie(token);
                     String username = jwtUtil.extractUsername(token);
 
-                    //System.out.println("DOES USER EXIST IN ROOM: " + service.roomExist(roomName));
-                    if(!roomName.equals(tokenRoomName) || !service.userExistsInRoom(username, roomName)){
+                    if(!roomName.equals(tokenRoomName)){
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION INIT, ROOM NAME FROM DESTINATION IS DIFFERENT THAN ROOM NAME FROM JWT");
+                        throw new RuntimeException("ACCESS DENIED");
+                    }
+
+                    if(!service.userExistsInRoom(username, roomName)){
+                        logWarningManager.warning("SUBSCRIBE INTERCEPTION INIT, USER DOES NOT EXIST IN ROOM");
                         throw new RuntimeException("ACCESS DENIED");
                     }
 
                 }
                 //don't want user connecting to stomp routes that dont exist
                 else if(!destination.equals(WebSocketManager.TOPIC_LOBBY) && !destination.equals("/user" + WebSocketManager.QUEUE_PAINT_SNAPSHOT)){
+                    logWarningManager.warning("SUBSCRIBE INTERCEPTION, USER TRIED TO SUBSCRIBE TO DESTINATION THAT DOES NOT EXIST");
                     throw new RuntimeException("ACCESS DENIED");
                 }
 

@@ -38,4 +38,8 @@ public class PlayerRegistry {
         return chatUsers.contains(sessionId);
     }
 
+    public int totalPeopleInRooms(){
+        return players.size();
+    }
+
 }

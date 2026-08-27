@@ -1,5 +1,6 @@
 package net.paintstation.Paint.lobby.Service;
 
+import net.paintstation.Paint.logger.LogInfoManager;
 import net.paintstation.Paint.room.Room;
 import net.paintstation.Paint.room.RoomRepository;
 import net.paintstation.Paint.lobby.dto.internal.AccessRoomResult;
@@ -28,12 +29,14 @@ public class DashboardService {
     private final TaskScheduler scheduler;
     private final WebSocketManager webSocketManager;
     private final PasswordEncoder passwordEncoder;
+    private final LogInfoManager logInfoManager;
 
-    DashboardService(RoomRepository repository, @Qualifier("taskScheduler") TaskScheduler scheduler, WebSocketManager webSocketManager, PasswordEncoder passwordEncoder){
+    DashboardService(RoomRepository repository, @Qualifier("taskScheduler") TaskScheduler scheduler, WebSocketManager webSocketManager, PasswordEncoder passwordEncoder, LogInfoManager logInfoManager){
         this.repository = repository;
         this.scheduler = scheduler;
         this.webSocketManager = webSocketManager;
         this.passwordEncoder = passwordEncoder;
+        this.logInfoManager = logInfoManager;
     }
 
     /**
@@ -49,10 +52,6 @@ public class DashboardService {
                 hashedPassword,
                 request.ownerName()
         );
-
-        System.out.println("[DashboardService.java] Room Name : \"" + request.roomName() + "\"");
-        System.out.println("[DashboardService.java] Password : \"" + request.password() + "\"");
-        System.out.println("[DashboardService.java] Owner Name : \"" + request.ownerName() + "\"");
 
         boolean success = repository.InsertRoom(room);
         if (success) {
@@ -124,10 +123,11 @@ public class DashboardService {
      */
     public void expireRoomIfEmpty(Room room) {
         if(room.isEmpty()) {
-            //System.out.println("DELETED EMPTY ROOM");
-            repository.removeRoom(room.getName());
-            repository.removeRoomFromDatabase(room.getName());
-            webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, room.getName(), null));
+            String roomName = room.getName();
+            repository.removeRoom(roomName);
+            repository.removeRoomFromDatabase(roomName);
+            logInfoManager.deleteRoom(roomName);
+            webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, roomName, null));
         }
     }
 }

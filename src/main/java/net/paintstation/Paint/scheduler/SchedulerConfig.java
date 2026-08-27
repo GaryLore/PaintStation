@@ -1,4 +1,4 @@
-package net.paintstation.Paint.lobby.Service;
+package net.paintstation.Paint.scheduler;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +13,7 @@ public class SchedulerConfig {
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(5);
-        scheduler.setThreadNamePrefix("RoomCleanUp");
+        scheduler.setThreadNamePrefix("PaintScheduler");
         scheduler.initialize();
         return scheduler;
     }

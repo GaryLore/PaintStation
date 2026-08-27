@@ -2,6 +2,7 @@ package net.paintstation.Paint.lobby.Controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import net.paintstation.Paint.logger.LogInfoManager;
 import net.paintstation.Paint.room.Room;
 import net.paintstation.Paint.jwt.JwtUtil;
 import net.paintstation.Paint.lobby.Service.DashboardService;
@@ -28,11 +29,13 @@ public class RoomController {
     private final DashboardService roomService;
     private final WebSocketManager webSocketManager;
     private final JwtUtil jwtUtil;
+    private final LogInfoManager logInfoManager;
 
-    public RoomController(DashboardService roomService, WebSocketManager webSocketManager, JwtUtil jwtUtil){
+    public RoomController(DashboardService roomService, WebSocketManager webSocketManager, JwtUtil jwtUtil, LogInfoManager logInfoManager){
         this.roomService = roomService;
         this.webSocketManager = webSocketManager;
         this.jwtUtil = jwtUtil;
+        this.logInfoManager = logInfoManager;
     }
 
     /**
@@ -46,7 +49,6 @@ public class RoomController {
     @PostMapping("/{roomName}/join")
     ResponseEntity<?> enterRoom(@PathVariable String roomName, @Valid @RequestBody JoinRoomRequest request, HttpServletResponse response){
         AccessRoomResult result = roomService.accessRoom(roomName, request);
-        System.out.println("[RoomController.java] " + "USERNAME: \"" + request.username() + "\"" + " PASSWORD: " + "\"" + request.password() +"\" " + result.status() + " ON ROOM: \"" + roomName + "\"");
         return switch (result.status()) {
             case SUCCESS -> {
                 RoomResponse roomResponse = new RoomResponse(roomName, request.username());
@@ -61,7 +63,7 @@ public class RoomController {
                         .build();
 
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
+                logInfoManager.userGotJwtToJoinRoom(roomName, request.username());
                 yield ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
             case USERNAME_TAKEN -> ResponseEntity.status(HttpStatus.CONFLICT).body("Name already taken");
@@ -103,6 +105,8 @@ public class RoomController {
         boolean hasPassword = !request.password().isEmpty();
         RoomUpdate update = new RoomUpdate(RoomAction.INSERT, request.roomName(), hasPassword);
         webSocketManager.broadcastRoomUpdate(update);
+        logInfoManager.createRoom(request.roomName(), request.ownerName(), !request.password().isEmpty());
+        logInfoManager.userGotJwtToJoinRoom(request.roomName(), request.ownerName());
         return ResponseEntity.status(HttpStatus.CREATED).body(roomResponse);
     }
 

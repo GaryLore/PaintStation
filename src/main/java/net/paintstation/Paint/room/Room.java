@@ -47,7 +47,6 @@ public class Room {
             if (snapshotPending) {
                 //used just in case when initializing room and current snapshot is getting processed
                 //so we use old snapshot and previous history and new history, maybe glitch here idk
-                //System.out.println("SNAPSHOT IS PENDING when history was returned");
                 return Stream.concat(previousHistory.stream(), history.stream()).toList();
             } else {
                 return List.copyOf(history);
@@ -83,10 +82,6 @@ public class Room {
             }
             return false;
         }
-    }
-
-    public void debugPaintObject(PaintObject object){
-        System.out.println(object.getType());
     }
 
     public String[] getAllPlayerNames(){

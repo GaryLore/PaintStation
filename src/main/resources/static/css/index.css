@@ -268,7 +268,7 @@ body {
     }
 }
 
-@media (min-width: 1536px) and (orientation: landscape) {
+@media (min-width: 1400px) and (orientation: landscape) {
     :root {
         --panel-gap: 24px;
         --app-padding: 20px 40px 10px;
