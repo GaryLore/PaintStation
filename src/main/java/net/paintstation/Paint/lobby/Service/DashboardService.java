@@ -1,6 +1,6 @@
 package net.paintstation.Paint.lobby.Service;
 
-import net.paintstation.Paint.logger.LogManager;
+import net.paintstation.Paint.logger.LogInfoManager;
 import net.paintstation.Paint.room.Room;
 import net.paintstation.Paint.room.RoomRepository;
 import net.paintstation.Paint.lobby.dto.internal.AccessRoomResult;
@@ -11,7 +11,6 @@ import net.paintstation.Paint.lobby.enums.AccessRoomStatus;
 import net.paintstation.Paint.lobby.enums.RoomAction;
 import net.paintstation.Paint.websocket.WebSocketManager;
 import net.paintstation.Paint.websocket.dto.RoomUpdate;
-import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,14 +29,14 @@ public class DashboardService {
     private final TaskScheduler scheduler;
     private final WebSocketManager webSocketManager;
     private final PasswordEncoder passwordEncoder;
-    private final LogManager logManager;
+    private final LogInfoManager logInfoManager;
 
-    DashboardService(RoomRepository repository, @Qualifier("taskScheduler") TaskScheduler scheduler, WebSocketManager webSocketManager, PasswordEncoder passwordEncoder, LogManager logManager){
+    DashboardService(RoomRepository repository, @Qualifier("taskScheduler") TaskScheduler scheduler, WebSocketManager webSocketManager, PasswordEncoder passwordEncoder, LogInfoManager logInfoManager){
         this.repository = repository;
         this.scheduler = scheduler;
         this.webSocketManager = webSocketManager;
         this.passwordEncoder = passwordEncoder;
-        this.logManager = logManager;
+        this.logInfoManager = logInfoManager;
     }
 
     /**
@@ -127,7 +126,7 @@ public class DashboardService {
             String roomName = room.getName();
             repository.removeRoom(roomName);
             repository.removeRoomFromDatabase(roomName);
-            logManager.deleteRoom(roomName);
+            logInfoManager.deleteRoom(roomName);
             webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, roomName, null));
         }
     }

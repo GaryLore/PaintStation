@@ -8,15 +8,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LogManager {
+public class LogInfoManager {
 
-    private final Logger logger = LoggerFactory.getLogger(LogManager.class);
+    private final Logger logger = LoggerFactory.getLogger(LogInfoManager.class);
     //all connections
     private final SimpUserRegistry userRegistry;
     //I manage and only connectiosn to people in a room
     private final PlayerRegistry playerRegistry;
 
-    public LogManager(SimpUserRegistry userRegistry, PlayerRegistry playerRegistry) {
+    public LogInfoManager(SimpUserRegistry userRegistry, PlayerRegistry playerRegistry) {
         this.userRegistry = userRegistry;
         this.playerRegistry = playerRegistry;
     }
@@ -82,9 +82,5 @@ public class LogManager {
         int numOfUsersInRooms = playerRegistry.totalPeopleInRooms();
         int numOfUsersInLobby = numOfUsers - numOfUsersInRooms;
         displayStats(numOfUsers, numOfUsersInLobby, numOfUsersInRooms);
-    }
-
-    public void warning(String message){
-        logger.warn(message);
     }
 }

@@ -2,7 +2,7 @@ package net.paintstation.Paint.lobby.Controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import net.paintstation.Paint.logger.LogManager;
+import net.paintstation.Paint.logger.LogInfoManager;
 import net.paintstation.Paint.room.Room;
 import net.paintstation.Paint.jwt.JwtUtil;
 import net.paintstation.Paint.lobby.Service.DashboardService;
@@ -29,13 +29,13 @@ public class RoomController {
     private final DashboardService roomService;
     private final WebSocketManager webSocketManager;
     private final JwtUtil jwtUtil;
-    private final LogManager logManager;
+    private final LogInfoManager logInfoManager;
 
-    public RoomController(DashboardService roomService, WebSocketManager webSocketManager, JwtUtil jwtUtil, LogManager logManager){
+    public RoomController(DashboardService roomService, WebSocketManager webSocketManager, JwtUtil jwtUtil, LogInfoManager logInfoManager){
         this.roomService = roomService;
         this.webSocketManager = webSocketManager;
         this.jwtUtil = jwtUtil;
-        this.logManager = logManager;
+        this.logInfoManager = logInfoManager;
     }
 
     /**
@@ -63,7 +63,7 @@ public class RoomController {
                         .build();
 
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-                logManager.userGotJwtToJoinRoom(roomName, request.username());
+                logInfoManager.userGotJwtToJoinRoom(roomName, request.username());
                 yield ResponseEntity.status(HttpStatus.OK).body(roomResponse);
             }
             case USERNAME_TAKEN -> ResponseEntity.status(HttpStatus.CONFLICT).body("Name already taken");
@@ -105,8 +105,8 @@ public class RoomController {
         boolean hasPassword = !request.password().isEmpty();
         RoomUpdate update = new RoomUpdate(RoomAction.INSERT, request.roomName(), hasPassword);
         webSocketManager.broadcastRoomUpdate(update);
-        logManager.createRoom(request.roomName(), request.ownerName(), !request.password().isEmpty());
-        logManager.userGotJwtToJoinRoom(request.roomName(), request.ownerName());
+        logInfoManager.createRoom(request.roomName(), request.ownerName(), !request.password().isEmpty());
+        logInfoManager.userGotJwtToJoinRoom(request.roomName(), request.ownerName());
         return ResponseEntity.status(HttpStatus.CREATED).body(roomResponse);
     }
 

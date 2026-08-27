@@ -3,6 +3,8 @@ package net.paintstation.Paint.livepaint;
 import jakarta.validation.Valid;
 import net.paintstation.Paint.livepaint.dto.PaintSetupRequest;
 import net.paintstation.Paint.livepaint.dto.PaintSetupResponse;
+import net.paintstation.Paint.logger.LogInfoManager;
+import net.paintstation.Paint.logger.LogWarningManager;
 import net.paintstation.Paint.registry.PlayerRegistry;
 import net.paintstation.Paint.livepaint.Models.PaintObject;
 import net.paintstation.Paint.livepaint.dto.PaintRequest;
@@ -16,7 +18,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
-import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Controller;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,14 +35,14 @@ public class PaintSocketController {
     private final RoomRepository repository;
     private final PaintService service;
     private final WebSocketManager webSocketManager;
-    private final SimpUserRegistry principalRegistry;
+    private final LogWarningManager logWarningManager;
 
-    public PaintSocketController(PlayerRegistry registry, RoomRepository repository, PaintService service, WebSocketManager webSocketManager, SimpUserRegistry principalRegistry) {
+    public PaintSocketController(PlayerRegistry registry, RoomRepository repository, PaintService service, WebSocketManager webSocketManager, LogWarningManager logWarningManager) {
         this.registry = registry;
         this.repository = repository;
         this.service = service;
         this.webSocketManager = webSocketManager;
-        this.principalRegistry = principalRegistry;
+        this.logWarningManager = logWarningManager;
     }
     /**
      *
@@ -66,7 +67,6 @@ public class PaintSocketController {
                     paintObject
             );
             boolean snapshotNeeded = room.addPaintObject(response);
-            //System.out.println("[" + user.getRoomName() + "]Number Stored :" + room.getHistoryCount() );
             if(snapshotNeeded){
                 requestSnapshot(room);
             }
@@ -104,7 +104,7 @@ public class PaintSocketController {
             room.registerPlayer(user.getName(), id);
         }
         else{
-            System.out.println("ROOM NOT FOUND WHEN INITIALIZING");
+            logWarningManager.warning("ROOM NOT FOUND WHEN INIT SUBSCRIBE MAPPING");
         }
         PaintSetupRequest request = new PaintSetupRequest(user.getRoomName(), user.getName());
         return service.setup(request);
@@ -124,28 +124,10 @@ public class PaintSocketController {
             //maybe issue with threads
             repository.findRoomByName(user.getRoomName()).ifPresent(Room::setSnapshotFinished);
         } catch (IOException e) {
+            //WARNING WILL NEED TO REMOVE IN PRODUCTION
             System.out.println("File was no written ERROR");
         }
     }
-
-
-    /*
-    @Scheduled(fixedDelay = 10000)
-    private void IntervalRequestSnapShotDebug(){
-        System.out.println("Request debug entered");
-        for(SimpUser user : principalRegistry.getUsers()) {
-            Principal userPrincipal = user.getPrincipal();
-
-            if(userPrincipal != null ) {
-                User player = registry.get(userPrincipal.getName());
-
-                if(player != null) {
-                    System.out.println("Sent request to: " + player.getName());
-                    webSocketManager.requestSnapshot(userPrincipal.getName());
-                }
-            }
-        }
-    }*/
 
     private static void debugRequest(PaintRequest request) {
         System.out.println("REQUEST");

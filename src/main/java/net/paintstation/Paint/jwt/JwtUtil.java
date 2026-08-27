@@ -51,8 +51,8 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
+    // Retrieves Claims while verifying the signature. Invalid tokens will throw an exception here.
     private Claims extractAllClaims(String token) {
-        // Retrieves Claims while verifying the signature. Invalid tokens will throw an exception here.
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
