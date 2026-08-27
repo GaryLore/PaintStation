@@ -1,5 +1,6 @@
 import {canvasState, Tool, canvas, ctx, slider} from "./canvasState.js"
 
+/* NOT FULL IMPLEMENTED YET FOR SERVER SIDE FUNCTION
 const trashCan = document.getElementsByClassName("header__icon-btn--trash")[0];
 trashCan.addEventListener("click", function(){
   const debug = false;  
@@ -10,7 +11,7 @@ trashCan.addEventListener("click", function(){
   }
 
   canvasState.render(ctx);
-});
+});*/
 
 const save = document.getElementsByClassName("header__icon-btn--save")[0];
 save.addEventListener("click", function(){
