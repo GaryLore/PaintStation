@@ -97,7 +97,6 @@ public class RoomRepository {
 
     @PreDestroy
     public void removeAllRooms(){
-        System.out.println("CLEAN UP");
         jdbcClient.sql("TRUNCATE TABLE Room")
                 .update();
 
