@@ -1,5 +1,6 @@
 package net.paintstation.Paint.room;
 
+import jakarta.annotation.PreDestroy;
 import net.paintstation.Paint.lobby.dto.internal.RoomInfo;
 import net.paintstation.Paint.lobby.enums.AddPlayerStatus;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -92,6 +93,13 @@ public class RoomRepository {
         return jdbcClient.sql("SELECT COUNT(*) FROM Room;")
                 .query(Integer.class)
                 .single();
+    }
+
+    @PreDestroy
+    public void removeAllRooms(){
+        jdbcClient.sql("TRUNCATE TABLE Room")
+                .update();
+
     }
 }
 
