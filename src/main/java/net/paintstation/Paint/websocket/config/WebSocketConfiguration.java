@@ -58,7 +58,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .addInterceptors(handshakeInterceptor);
+                .addInterceptors(handshakeInterceptor)
+                .setAllowedOrigins(
+                        "https://paintstation.io",
+                        "https://www.paintstation.io"
+                );
     }
 
     @Override
