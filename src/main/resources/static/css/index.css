@@ -242,6 +242,17 @@ body {
     font-size: var(--font-size-sm);
 }
 
+.footer{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.footer__link{
+    text-decoration: none;
+    color: #4a90e2;
+    z-index: 2;
+}
+
 .panel--terms-of-service__content{
     line-height: 1;
 }
