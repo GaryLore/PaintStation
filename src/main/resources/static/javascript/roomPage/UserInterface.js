@@ -13,6 +13,16 @@ trashCan.addEventListener("click", function(){
   canvasState.render(ctx);
 });*/
 
+const modalElement =document.getElementById("model_container");
+document.querySelector('.close-btn').addEventListener('click', closeModal);
+function closeModal(){
+  modalElement.classList.remove("modal-container--show")
+}
+const instruction = document.getElementsByClassName("header__icon-btn--instructions")[0];
+instruction.addEventListener("click", function (){
+  modalElement.classList.add("modal-container--show")
+});
+
 const save = document.getElementsByClassName("header__icon-btn--save")[0];
 save.addEventListener("click", function(){
   canvas.toBlob((blob) => {

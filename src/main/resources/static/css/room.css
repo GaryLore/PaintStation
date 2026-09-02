@@ -132,7 +132,7 @@ body {
     border-color: #EF4444;
 }
 
-.header__icon-btn--homepage:is(:hover, :focus-visible) {
+:is(.header__icon-btn--homepage,.header__icon-btn--instructions):is(:hover, :focus-visible) {
     background: #EFF6FF;
     border-color: #3B82F6;
 }
@@ -388,6 +388,9 @@ body {
     pointer-events: none;
     position: absolute;
 }
+
+/* ===== INSTRUCTION MODAL ===== */
+
 
 /* ===== MISC / UTILITY CLASSES ===== */
 .header__title {
