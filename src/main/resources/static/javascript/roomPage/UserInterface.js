@@ -85,9 +85,14 @@ slider.addEventListener("change", function (){
   ctx.lineWidth = canvasState.brush.paintWidth * canvasState.viewportTransform.scale;
 });
 
-function createColor(color){
-  const palette = document.getElementById("all_colors");
-
+function createColor(color, fake = false){
+  let palette;
+  if(fake){
+    palette = document.getElementById("instruction__all_colors");
+  }
+  else{
+    palette = document.getElementById("all_colors");
+  }
   const swatch = document.createElement("button");
   const swatchInner = document.createElement("div");
 
@@ -102,14 +107,21 @@ function createColor(color){
   palette.append(swatch);
 }
 
-function createOptions(index, color){
-  let palette = document.querySelector(".paint__color-choices");
+function createOptions(index, color, fake= false){
+  let palette;
+  if(fake){
+    palette = document.querySelector(".instruction__color-choices");
+  }
+  else {
+    palette = document.querySelector(".paint__color-choices");
+  }
 
   let swatch = document.createElement("button");
   let swatchInner = document.createElement("div");
 
   swatch.classList.add("paint__choice-swatch");
-  swatch.setAttribute("id", index);
+  if(!fake)
+    swatch.setAttribute("id", index);
 
   swatchInner.classList.add("paint__choice-swatch-inner")
   swatchInner.style.backgroundColor = color;
@@ -142,6 +154,27 @@ function populateColors(){
   createColor("paleturquoise");
   createColor("cadetblue");
   createColor("lavender");
+  //modal instruction
+  createColor("black", true);
+  createColor("gray", true);
+  createColor("darkred", true);
+  createColor("red", true);
+  createColor("orange", true);
+  createColor("yellow", true);
+  createColor("green", true);
+  createColor("turquoise", true);
+  createColor("indigo", true);
+  createColor("purple", true);
+  createColor("white", true);
+  createColor("lightgray", true);
+  createColor("brown", true);
+  createColor("pink", true);
+  createColor("gold", true);
+  createColor("lightyellow", true);
+  createColor("lime", true);
+  createColor("paleturquoise", true);
+  createColor("cadetblue", true);
+  createColor("lavender", true);
 }
 
 //populate paintbrush options in html
@@ -156,6 +189,9 @@ let selectedColorTarget = ColorTarget.BRUSH;
 const [brushSquare, innerBrushSquare] = createOptions("1", "black");
 const [bucketSquare, innerBucketSquare] = createOptions("2", "white");
 brushSquare.classList.add("paint__choice-swatch--selected");
+//for instruction modal
+createOptions("1", "black", true);
+createOptions("2", "white", true);
 
 brushSquare.addEventListener("click", function(){
   selectedColorTarget = ColorTarget.BRUSH;;
