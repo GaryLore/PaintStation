@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paint Room</title>
+    <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/room.css">
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script type="module" src="/javascript/roomPage/main.js"></script>
@@ -20,6 +21,9 @@
                 <button class="header__icon-btn header__icon-btn--trash" aria-label="Delete drawing">
                     <img src="/img/trash-2.svg" alt="">
                 </button>-->
+                <button class="header__icon-btn header__icon-btn--instructions" aria-label="Instructions">
+                    <img src="/img/question-mark.svg" alt="">
+                </button>
                 <button class="header__icon-btn header__icon-btn--homepage" aria-label="Go to home page">
                     <img src="/img/house.svg" alt="">
                 </button>
@@ -49,18 +53,18 @@
                     <div class="paint__tools">
                         <button class="paint__tool"
                                 data-tool="pan-zoom"
-                                aria-label="Brush tool">
+                                aria-label="Pan and zoom tool">
                                 <img class="paint__tools-img" src="/img/magnify.png" alt="">
                         </button>
                         <button class="paint__tool paint__tool--selected"
                                 data-tool="brush"
-                                aria-label="Bucket fill tool">
+                                aria-label="Brush tool">
                                 <img class="paint__tools-img" src="/img/paint.png" alt="">
                         </button>
                         <button class="paint__tool"
                                 data-tool="bucket"
-                                aria-label="Pan and zoom tool">
-                                <img class="paint__tools-img" src="/img/bucket.png" alt="Bucket" >
+                                aria-label="Bucket fill tool">
+                                <img class="paint__tools-img" src="/img/bucket.png" alt="" >
                         </button>
                     </div>
 
@@ -86,6 +90,147 @@
                     <button class="chat__send-btn" id="sendMessage">Send</button>
                 </form>
             </div>
+
+        </div>
+    </div>
+
+    <div class="modal-container" id="model_container">
+        <div class="modal modal--big-gap">
+
+            <div class="modal__header modal__header--instruction">
+                <div class="section-header">
+                    <h2>Instructions</h2>
+                    <p class="subtitle">Everything you need to know to get started</p>
+                </div>
+
+                <button class="close-btn" aria-label="Close">
+                    ✕
+                </button>
+            </div>
+
+            <div class="instruction">
+                <div class="instruction__main">
+                    <div class="instruction__col">
+                        <div class="tip">
+                            <div class="tip__icon">
+                                <button class="instruction__paint-tool"
+                                        aria-label="Brush tool">
+                                    <img class="instruction__paint-tool-img" src="/img/paint.png" alt="">
+                                </button>
+                            </div>
+                            <div class="tip__text">
+                                <h4>Paint Brush</h4>
+                                <p class="subtitle subtitle--small">Allows you to draw on the canvas</p>
+                            </div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip__icon">
+                                <button class="instruction__paint-tool"
+                                        aria-label="Bucket fill tool">
+                                    <img class="instruction__paint-tool-img" src="/img/bucket.png" alt="" >
+                                </button>
+                            </div>
+                            <div class="tip__text">
+                                <h4>Bucket</h4>
+                                <p class="subtitle subtitle--small">
+                                    To use the bucket the Paint Brush must be selected.
+                                    This allows you to draw a stroke which auto encloses,
+                                    and once enclosed it will be filled with
+                                    the bucket color that you have selected.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip__icon">
+                                <button class="instruction__paint-tool"
+                                        aria-label="Pan and zoom tool">
+                                    <img class="instruction__paint-tool-img" src="/img/magnify.png" alt="">
+                                </button>
+                            </div>
+                            <div class="tip__text">
+                                <h4>Pan & Zoom</h4>
+                                <p class="subtitle subtitle--small">
+                                    Allows you to pan the canvas and zoom in on the canvas.
+                                    To pan click on the canvas and move your mouse,
+                                    to zoom use your scroll wheel.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="instruction__col">
+                        <div class="tip">
+                            <div class="tip__icon">
+                                <div class="instruction__color-choices">
+                                </div>
+                            </div>
+                            <div class="tip__text">
+                                <h4>Brush & Bucket Color</h4>
+                                <p class="subtitle subtitle--small">
+                                    The first color represents your brush color.
+                                    The second color represents your bucket color.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="tip tip--col">
+                            <div class="tip__text">
+                                <h4>Paint Thickness</h4>
+                                <p class="subtitle subtitle--small">
+                                    Allows you to select the thickness of your paint brush
+                                </p>
+                            </div>
+                            <div class="tip__icon">
+                                <input type="range" class="instruction__thickness-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="instruction__col">
+                        <div class="tip">
+                            <div class="tip__icon">
+                                <button class="instruction__icon-btn" aria-label="Go to home page">
+                                    <img src="/img/house.svg" alt="">
+                                </button>
+                            </div>
+                            <div class="tip__text">
+                                <h4>Homepage</h4>
+                                <p class="subtitle subtitle--small">
+                                    Makes you leave the room and returns you to the homepage
+                                </p>
+                            </div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip__icon">
+                                <button class="instruction__icon-btn" aria-label="Save drawing">
+                                    <img src="/img/save.svg" alt="">
+                                </button>
+                            </div>
+                            <div class="tip__text">
+                                <h4>Save</h4>
+                                <p class="subtitle subtitle--small">
+                                    Downloads the current canvas into a canvas.png image
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="instruction__footer">
+                    <div class="tip tip--special">
+                        <div class="tip__text">
+                            <h4>Color Palette</h4>
+                            <p class="subtitle subtitle--small">
+                                All the colors palettes you can choose from for your Paint Brush color
+                                or your Paint Bucket color.
+                            </p>
+                        </div>
+                        <div class="tip__icon">
+                            <div id="instruction__all_colors" class="instruction__palette">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
     </div>

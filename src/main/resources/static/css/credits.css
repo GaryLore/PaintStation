@@ -24,10 +24,10 @@ body {
     box-shadow: var(--primary-box-shadow);
     color: #444;
     font-size: 18px;
-    height: 100vh;
     line-height: 1.6;
     margin: 0 auto;
     max-width: 900px;
+    min-height: 100vh;
     padding: 0 10px;
 }
 

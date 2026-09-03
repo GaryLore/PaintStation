@@ -113,7 +113,7 @@ body {
     gap: 8px;
 }
 
-.header__icon-btn {
+.header__icon-btn, .instruction__icon-btn {
     align-items: center;
     aspect-ratio: 1;
     background-color: var(--div-background-color);
@@ -132,7 +132,7 @@ body {
     border-color: #EF4444;
 }
 
-.header__icon-btn--homepage:is(:hover, :focus-visible) {
+:is(.header__icon-btn--homepage,.header__icon-btn--instructions):is(:hover, :focus-visible) {
     background: #EFF6FF;
     border-color: #3B82F6;
 }
@@ -295,7 +295,7 @@ body {
     width: 20%;
 }
 
-.paint__palette {
+.paint__palette, .instruction__palette{
     display: grid;
     gap: 4px;
     grid-template-columns: repeat(10, 1fr);
@@ -389,6 +389,85 @@ body {
     position: absolute;
 }
 
+/* ===== INSTRUCTION MODAL ===== */
+.tip {
+    display: flex;
+    gap: 24px;
+}
+
+.tip--special {
+    gap: 24px;
+    flex-direction: column;
+}
+
+.tip--col {
+    gap: 16px;
+    flex-direction: column;
+}
+
+.tip__text{
+    display: flex;
+    flex-direction: column;
+}
+
+
+.instruction__main{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 56px;
+}
+
+.instruction__col, .instruction {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.modal--big-gap {
+    gap: 40px;
+}
+
+.modal__header--instruction{
+    padding-bottom: 24px;
+    border-bottom: 2px solid rgba(15, 23, 42, 0.08);
+}
+
+.instruction__paint-tool-img {
+    width: 65px;
+}
+
+.instruction__paint-tool {
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: none;
+}
+
+.instruction__thickness-input {
+    width: 100%;
+}
+
+.instruction__color-choices {
+    width: 100px;
+    display: flex;
+    gap: 5px;
+}
+
+.instruction__palette {
+    width: 100%;
+}
+
+.instruction__footer{
+    border: 2px solid rgba(15, 23, 42, 0.08);
+    border-radius: var(--primary-border-radius);
+    padding: 24px;
+}
+
+.modal {
+    border-radius: 0;
+}
+
+
 /* ===== MISC / UTILITY CLASSES ===== */
 .header__title {
     text-align: center;
@@ -398,6 +477,10 @@ body {
     color: #6b7280;
     font-size: 14px;
     margin-top: 4px;
+}
+
+.subtitle--small{
+    font-size: 12px;
 }
 
 @media (min-width: 540px) and (orientation: portrait) {
@@ -435,6 +518,14 @@ body {
     .header__icon-btn {
         width: 45px;
     }
+
+    .instruction__main{
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .modal {
+        border-radius: var(--modal-border-radius);
+    }
 }
 
 @media (min-width: 1024px) {
@@ -458,7 +549,7 @@ body {
         height: revert;
     }
 
-    .header__icon-btn {
+    .header__icon-btn, .instruction__icon-btn {
         width: 45px;
     }
 
@@ -477,6 +568,23 @@ body {
 
     .player-card {
         font-size: revert;
+    }
+
+    .instruction__main{
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .tip--special {
+        flex-direction: row;
+        gap: 200px;
+    }
+
+    .instruction__palette {
+        width: 420px;
+    }
+
+    .modal {
+        border-radius: var(--modal-border-radius);
     }
 }
 

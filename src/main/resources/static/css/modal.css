@@ -1,0 +1,72 @@
+/* ===== VARIABLES ===== */
+:root {
+    --modal-background-color: #fafafa;
+    --modal-border-radius: 28px;
+    --hover-shadow: 0 0 10px black;
+}
+
+.modal-container {
+    align-items: safe center;
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    height: 100vh;
+    overflow-y: auto;
+    justify-content: safe center;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    transition: opacity 0.3s ease;
+    width: 100%;
+}
+
+.modal-container--show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal {
+    background-color: var(--modal-background-color);
+    border-radius: var(--modal-border-radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 40px;
+    width: 100%;
+}
+
+.modal__header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.close-btn {
+    align-items: center;
+    aspect-ratio: 1/1;
+    background-color: #733635;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    font-size: 30px;
+    font-weight: 900;
+    height: 50px;
+    justify-content: center;
+    line-height: 50px;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.close-btn:hover {
+    box-shadow: var(--hover-shadow);
+    cursor: pointer;
+    transform: rotate(90deg) scale(1.1);
+}
+
+@media (min-width: 1400px) and (orientation: landscape) {
+    .modal {
+        width: 60vw;
+    }
+}
