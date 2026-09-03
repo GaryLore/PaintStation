@@ -400,8 +400,7 @@ body {
     flex-direction: column;
 }
 
-.tip-col {
-    display: flex;
+.tip--col {
     gap: 16px;
     flex-direction: column;
 }
@@ -418,7 +417,7 @@ body {
     gap: 56px;
 }
 
-.instruction-main__col, .instruction {
+.instruction__col, .instruction {
     display: flex;
     flex-direction: column;
     gap: 40px;
@@ -462,6 +461,10 @@ body {
     border: 2px solid rgba(15, 23, 42, 0.08);
     border-radius: var(--primary-border-radius);
     padding: 24px;
+}
+
+.modal {
+    border-radius: 0;
 }
 
 
@@ -519,6 +522,10 @@ body {
     .instruction__main{
         grid-template-columns: 1fr 1fr 1fr;
     }
+
+    .modal {
+        border-radius: var(--modal-border-radius);
+    }
 }
 
 @media (min-width: 1024px) {
@@ -574,6 +581,10 @@ body {
 
     .instruction__palette {
         width: 420px;
+    }
+
+    .modal {
+        border-radius: var(--modal-border-radius);
     }
 }
 
