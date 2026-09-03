@@ -51,7 +51,6 @@ public class WebSocketEventListener {
         //paint cleanup
         if(user != null) {//we only register users once they enter a room not if they subscribe to the lobby
             cleanUp(user);
-            logInfoManager.userLeftRoom(user.getRoomName(), user.getName());
             webSocketManager.broadcastUserUpdate(user.getRoomName(), new PlayerUpdate("PLAYER_UPDATE", "REMOVE", user.getName()) );
             registry.remove(sessionId);
         }
@@ -67,9 +66,11 @@ public class WebSocketEventListener {
         Optional<Room> room = repository.findRoomByName(roomName);
         room.ifPresent(elRoom -> {
             elRoom.removePlayer(user.getName());
+            logInfoManager.userLeftRoom(user.getRoomName(), user.getName());
             if(elRoom.isEmpty()){
                 repository.removeRoom(roomName);
                 repository.removeRoomFromDatabase(user.getRoomName());
+                logInfoManager.deleteRoom(roomName);
                 webSocketManager.broadcastRoomUpdate(new RoomUpdate(RoomAction.DELETE, roomName, null));
             }
         });
