@@ -118,15 +118,10 @@ public class PaintSocketController {
     @MessageMapping("/paint/snapshot")
     private void processSnapshot(byte[] imageBytes, SimpMessageHeaderAccessor accessor){
         User user = registry.get(accessor.getSessionId());
-        try {
-            Files.write(Path.of("canvas.png"), imageBytes);
-            repository.addSnapshot(user.getRoomName(), imageBytes);
-            //maybe issue with threads
-            repository.findRoomByName(user.getRoomName()).ifPresent(Room::setSnapshotFinished);
-        } catch (IOException e) {
-            //WARNING WILL NEED TO REMOVE IN PRODUCTION
-            System.out.println("File was no written ERROR");
-        }
+        //Files.write(Path.of("canvas.png"), imageBytes);
+        repository.addSnapshot(user.getRoomName(), imageBytes);
+        //maybe issue with threads
+        repository.findRoomByName(user.getRoomName()).ifPresent(Room::setSnapshotFinished);
     }
 
     private static void debugRequest(PaintRequest request) {
